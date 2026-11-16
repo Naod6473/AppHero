@@ -1,0 +1,23 @@
+{
+  "name": "apphero",
+  "private": true,
+  "type": "module",
+  "description": "Apphéro : une petite app par jour pendant 30 jours.",
+  "scripts": {
+    "dev": "vite",
+    "build": "node scripts/build.mjs",
+    "new": "node scripts/new-app.mjs",
+    "check": "node scripts/check.mjs",
+    "preview": "npm run build && wrangler dev",
+    "db:local": "wrangler d1 execute apphero --local --file worker/schema.sql",
+    "db:remote": "wrangler d1 execute apphero --remote --file worker/schema.sql",
+    "deploy": "npm run build && wrangler deploy"
+  },
+  "devDependencies": {
+    "vite": "^8.3.8",
+    "wrangler": "^4.163.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

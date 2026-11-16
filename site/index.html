@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Apphéro · une app par jour pendant 30 jours</title>
+  <meta name="description" content="Une petite app par jour, du lundi au samedi, du 18 novembre au 22 décembre. Légères, gratuites, et le code est à toi.">
+  <meta name="theme-color" content="#FFD83D">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Apphéro · 30 jours, 30 apps">
+  <meta property="og:description" content="Une petite app par jour, à 18 h, l'heure de l'apéro. Vote pour ta préférée.">
+  <meta property="og:url" content="https://apphero.cloud/">
+  <meta name="twitter:card" content="summary">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bagel+Fat+One&family=Rubik:wght@500;700;800&display=swap" rel="stylesheet">
+  <script type="module" src="/src/home.js"></script>
+</head>
+<body>
+  <header class="wrap nav">
+    <a class="logo" href="/">APPHÉRO</a>
+    <nav class="nav-links" aria-label="Navigation principale">
+      <a href="#apps">Les apps</a>
+      <a href="#semaine">La semaine</a>
+      <a href="#classements">Le vote</a>
+      <a href="/roue/">La roue</a>
+      <a class="btn btn-pill btn-cyan js-x" href="https://x.com/" rel="noopener">Suivre sur X</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="wrap hero" id="top">
+      <div class="hero-text">
+        <div class="sticker">30 jours = 30 apps</div>
+        <h1 class="mega">APP<br>HÉRO</h1>
+        <p class="lead">Une petite app par jour, du lundi au samedi, à 18 h pile : l'heure de l'apéro. Légères, gratuites, et le code est à toi.</p>
+        <div class="chip">Du mercredi 18 novembre au mardi 22 décembre</div>
+        <div class="hero-actions">
+          <a class="btn btn-dark btn-lg" href="#apps">Voir les 30 apps</a>
+          <a class="btn btn-lg" href="/roue/">La roue</a>
+        </div>
+      </div>
+
+      <div class="deck-zone">
+        <div class="deck-ring" aria-hidden="true"></div>
+        <div class="deck" id="deck" aria-roledescription="carrousel" aria-label="Les jours de la semaine"></div>
+        <div class="deck-nav">
+          <button class="arrow" id="prev" type="button" aria-label="Jour précédent">
+            <svg aria-hidden="true" width="18" height="18" viewBox="0 0 18 18"><path d="M11 3 L5 9 L11 15" fill="none" stroke="#15112B" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <div class="tabs" id="tabs"></div>
+          <button class="arrow" id="next" type="button" aria-label="Jour suivant">
+            <svg aria-hidden="true" width="18" height="18" viewBox="0 0 18 18"><path d="M7 3 L13 9 L7 15" fill="none" stroke="#15112B" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <div class="marquee" aria-hidden="true">
+      <div class="marquee-track">
+        <span>UNE APP PAR JOUR ◆ 30 JOURS ◆ 18 H, L'HEURE DE L'APÉRO ◆ 1 VOTE PAR JOUR ◆ LA ROUE DÉCIDE ◆ CODE LIBRE ◆</span>
+        <span>UNE APP PAR JOUR ◆ 30 JOURS ◆ 18 H, L'HEURE DE L'APÉRO ◆ 1 VOTE PAR JOUR ◆ LA ROUE DÉCIDE ◆ CODE LIBRE ◆</span>
+      </div>
+    </div>
+
+    <section class="wrap section" id="semaine" style="padding-top: 96px">
+      <h2 class="h2">La semaine</h2>
+      <p class="intro">Six jours par semaine, du lundi au samedi. Chaque jour a son thème. Le jeudi, c'est la roue qui décide, la veille au soir.</p>
+      <div class="week">
+        <div class="pills" id="pills"></div>
+        <div class="votes-col">
+          <div class="display" style="font-size: 34px; line-height: 1">5 semaines, 5 votes, 1 finale</div>
+          <div class="votes-grid" id="weeks"></div>
+          <p style="margin: 0; font-size: 19px; line-height: 1.4">Chaque samedi, le public élit l'app de la semaine. Le mardi 22 décembre, avec la 30e app, la grande gagnante est couronnée. Juste à temps pour Noël.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="wrap section" id="apps">
+      <div class="section-head">
+        <h2 class="h2" style="margin: 0">Les 30 apps</h2>
+        <p class="intro">Une case s'ouvre chaque jour à 18 h. Chaque app a sa page, son style et son code.</p>
+      </div>
+      <div class="tiles" id="tiles"></div>
+    </section>
+
+    <section class="wrap section">
+      <div class="teaser">
+        <div class="mini-wheel wheel-colors" aria-hidden="true"></div>
+        <div style="flex: 1 1 360px; min-width: 0">
+          <h2>La roue du hasard</h2>
+          <p id="teaser-text">Chaque mercredi soir, la roue tire le critère de l'app du jeudi. 60 critères en réserve, 20 sur la roue à chaque tirage, 5 tirages en tout. Tu peux revoir chaque tirage.</p>
+          <a class="btn" href="/roue/">Voir la roue</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="wrap section" id="classements">
+      <h2 class="h2">Les classements</h2>
+      <p class="intro">Un vote par jour, sans compte, pour n'importe quelle app déjà sortie. Deux classements : les apps les plus savourées, et celles qui ont le plus retenu l'attention.</p>
+      <div class="boards">
+        <div class="board" style="background: var(--mint)">
+          <h3>Les plus savourées</h3>
+          <p>Le classement des votes du public.</p>
+          <div class="ranks" id="rank-votes"></div>
+        </div>
+        <div class="board" style="background: var(--cyan)">
+          <h3>Les plus regardées</h3>
+          <p>Les apps qui ont retenu l'attention (visites).</p>
+          <div class="ranks" id="rank-views"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="wrap infos">
+      <div class="info" id="defi" style="background: var(--mint); transform: rotate(-1deg)">
+        <h3>Le défi</h3>
+        <p>Une app simple par jour, de l'idée à la mise en ligne. Un thème par jour, un critère tiré par la roue le jeudi, et on fonce.</p>
+      </div>
+      <div class="info" id="vote" style="background: var(--paper); transform: rotate(1deg)">
+        <h3>Le vote</h3>
+        <p>Un vote par jour, sans compte. Chaque samedi, l'app de la semaine. Le 22 décembre, la grande gagnante.</p>
+      </div>
+      <div class="info" id="code" style="background: var(--pink); transform: rotate(-0.6deg)">
+        <h3>Le code est à toi</h3>
+        <p>Un repo, un dossier par app. Tout prendre, ou juste celle qui te plaît. Chaque app sort aussi sur <a class="js-x" href="https://x.com/" rel="noopener">X</a>. <a href="https://github.com/Naod6473/AppHero" rel="noopener">Voir le code sur GitHub</a>.</p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="display">APPHÉRO</div>
+    <p>Une app par jour, comme une happy hour.</p>
+  </footer>
+</body>
+</html>

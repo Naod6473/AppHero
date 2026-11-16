@@ -1,0 +1,27 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "apphero",
+  "main": "worker/src/index.js",
+  "compatibility_date": "2025-09-01",
+  "assets": {
+    "directory": "./dist",
+    "binding": "ASSETS",
+    "html_handling": "auto-trailing-slash",
+    // Le Worker passe devant pour l'API, les apps (sortie à 18 h) et les liens courts /05.
+    "run_worker_first": ["/api/*", "/apps/*", "/0*", "/1*", "/2*", "/3*"]
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "apphero",
+      "database_id": "8037a815-35f7-472c-8d82-e0af8ca07a8c"
+    }
+  ],
+  "vars": {
+    // Clé publique Turnstile (laisser vide pour désactiver la vérification).
+    "TURNSTILE_SITE_KEY": "",
+    "REPO_URL": "https://github.com/Naod6473/AppHero"
+  },
+  "observability": { "enabled": true }
+  // Secrets (wrangler secret put) : ADMIN_TOKEN, IP_SALT, TURNSTILE_SECRET.
+}
