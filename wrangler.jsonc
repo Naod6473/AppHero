@@ -19,7 +19,7 @@
   ],
   "vars": {
     // Clé publique Turnstile (laisser vide pour désactiver la vérification).
-    "TURNSTILE_SITE_KEY": "",
+    "TURNSTILE_SITE_KEY": "0x4AAAAAAGDo-CG3-tcnXKDz",
     "REPO_URL": "https://github.com/Naod6473/AppHero"
   },
   "observability": { "enabled": true }
