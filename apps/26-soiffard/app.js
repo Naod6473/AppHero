@@ -775,7 +775,7 @@ function renderOverlay() {
   const close = `<button class="close" type="button" data-act="close" aria-label="Fermer">${svg("x")}</button>`;
   if (S.overlay === "onb") {
     ov.innerHTML = `<div class="onb">
-      <img class="logo-big" src="logo.svg" alt="">
+      <div class="onb-brand"><img class="logo-big" src="logo.svg" alt=""><span class="wm" data-wm>Soiffard</span></div>
       <h1 class="h1">Le Strava des soiffards.</h1>
       <p>Le bar le plus proche en un geste. Tes tournées en stats. Et la couronne du <strong>King of the Bar</strong> pour qui reste le plus longtemps au comptoir.</p>
       <div class="field"><label for="onb-pseudo">Ton pseudo</label><input id="onb-pseudo" maxlength="20" value="${esc(L.randomPseudo())}" autocomplete="nickname"></div>
@@ -916,22 +916,24 @@ function wrap(ctx, text, x, y, maxW, lh, maxLines = 4) {
   return y + lh;
 }
 
-function drawLogo(ctx, x, y, bg, fg) {
-  ctx.fillStyle = bg;
-  rr(ctx, x, y, 84, 84, 24);
-  ctx.fill();
-  ctx.save();
-  ctx.translate(x, y);
-  ctx.scale(84 / 36, 84 / 36);
-  ctx.strokeStyle = fg;
-  ctx.lineWidth = 3.2;
-  ctx.lineCap = "round";
-  ctx.stroke(new Path2D("M25 10.5C21 7.5 11 8.5 11.5 14c.5 5 13 3.5 13 9.5 0 5.5-10 6-14 3"));
-  ctx.fillStyle = fg;
-  ctx.beginPath();
-  ctx.arc(10.5, 26.5, 2.6, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.restore();
+// Logo (icône) + titre mousseux en haut des images à partager.
+async function drawBrand(ctx, x, y) {
+  const [icon, word] = await Promise.all([loadImg("icon-192.png"), loadImg("wordmark.svg")]);
+  if (icon) {
+    ctx.save();
+    rr(ctx, x, y, 84, 84, 22);
+    ctx.clip();
+    ctx.drawImage(icon, x, y, 84, 84);
+    ctx.restore();
+  }
+  if (word) {
+    const h = 92;
+    const w = (word.naturalWidth / word.naturalHeight) * h || 360;
+    ctx.drawImage(word, x + 102, y - 6, w, h);
+  } else {
+    ctx.font = "900 60px Archivo, sans-serif";
+    ctx.fillText("Soiffard", x + 108, y + 64);
+  }
 }
 
 async function fonts() {
@@ -1004,10 +1006,8 @@ async function outingCanvas(o, withTiles) {
   const ctx = c.getContext("2d");
   ctx.fillStyle = "#121418";
   ctx.fillRect(0, 0, 1080, 1920);
-  drawLogo(ctx, 72, 78, "#F5B83D", "#1A1206");
   ctx.fillStyle = "#F4F1EA";
-  ctx.font = "900 60px Archivo, sans-serif";
-  ctx.fillText("Soiffard", 180, 142);
+  await drawBrand(ctx, 72, 78);
   ctx.fillStyle = "#9BA1AA";
   ctx.font = "600 38px Inter, sans-serif";
   ctx.textAlign = "right";
@@ -1068,10 +1068,8 @@ async function crownCanvas(barName, top, meName) {
   const ctx = c.getContext("2d");
   ctx.fillStyle = "#F5B83D";
   ctx.fillRect(0, 0, 1080, 1920);
-  drawLogo(ctx, 72, 78, "#1A1206", "#F5B83D");
   ctx.fillStyle = "#1A1206";
-  ctx.font = "900 60px Archivo, sans-serif";
-  ctx.fillText("Soiffard", 180, 142);
+  await drawBrand(ctx, 72, 78);
   ctx.font = "600 38px Inter, sans-serif";
   ctx.textAlign = "right";
   ctx.fillText(`Semaine ${L.weekKey(Date.now()).slice(-2)}`, 1008, 136);
@@ -1417,6 +1415,34 @@ document.addEventListener("change", (e) => {
 });
 
 $("#btn-menu").addEventListener("click", () => ACT.menu());
+
+// Titre mousseux : SVG inline pour animer les bulles ; la mousse gigote au toucher.
+let wmSvg = null;
+let wmSeq = 0;
+function paintWordmarks(root = document) {
+  if (!wmSvg) return;
+  root.querySelectorAll("[data-wm]").forEach((el) => {
+    if (!el.querySelector("svg")) el.innerHTML = wmSvg.replaceAll("wmX-", `wm${++wmSeq}-`);
+  });
+}
+fetch("wordmark.svg")
+  .then((r) => (r.ok ? r.text() : Promise.reject()))
+  .then((t) => {
+    wmSvg = t;
+    paintWordmarks();
+  })
+  .catch(() => {});
+new MutationObserver(() => paintWordmarks($("#overlay"))).observe($("#overlay"), { childList: true });
+document.addEventListener("click", (e) => {
+  const svgEl = e.target.closest?.(".wm")?.querySelector("svg");
+  if (!svgEl) return;
+  svgEl.classList.remove("wobble");
+  void svgEl.getBoundingClientRect();
+  svgEl.classList.add("wobble");
+  try {
+    navigator.vibrate?.(12);
+  } catch {}
+});
 $("#btn-theme").addEventListener("click", () => {
   const next = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
   setTheme(next);

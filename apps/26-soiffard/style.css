@@ -59,6 +59,11 @@ h1, h2, h3 { font-family: Archivo, Inter, sans-serif; margin: 0; }
 .show-fiche .fab-bar { visibility: hidden; }
 
 .top { display: flex; align-items: center; gap: 10px; padding: calc(10px + var(--safe-t)) 16px 8px; }
+.wm { display: inline-flex; align-items: center; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.wm svg { display: block; width: auto; overflow: visible; }
+.brand .wm svg { height: 84px; }
+.brand-sm .wm svg { height: 30px; }
+[data-theme="light"] .app .wm { --wm-ring: transparent; }
 .brand-sm { display: flex; align-items: center; gap: 8px; font-family: Archivo, sans-serif; font-weight: 900; font-size: 22px; letter-spacing: -0.4px; }
 .top-title { margin-left: auto; font-family: Archivo, sans-serif; font-weight: 800; font-size: 15px; color: var(--muted); }
 .icon-btn { width: 44px; height: 44px; border-radius: 12px; border: 0; background: var(--chip); display: grid; place-items: center; flex: none; }
@@ -267,7 +272,9 @@ select.pick { width: 100%; min-height: 48px; border-radius: 14px; border: 1px so
 .install .btn { min-height: 40px; padding: 0 14px; font-size: 13px; }
 
 .onb { position: absolute; inset: 0; background: var(--bg); display: flex; flex-direction: column; justify-content: center; gap: 18px; padding: calc(24px + var(--safe-t)) 24px calc(24px + var(--safe-b)); }
-.onb .logo-big { width: 84px; height: 84px; }
+.onb .logo-big { width: 84px; height: 84px; border-radius: 20px; }
+.onb-brand { display: flex; align-items: center; gap: 14px; }
+.onb-brand .wm svg { height: 64px; }
 .onb h1 { font-size: 40px; letter-spacing: -1px; line-height: 1.02; }
 .onb p { margin: 0; font-size: 16px; line-height: 1.5; color: var(--text2); }
 
