@@ -1,22 +1,19 @@
 # 06 · Ma Collec'
 
-> Les cartes Disney Leclerc de tes enfants : ce qu'ils ont, les doubles à échanger et ce qui manque.
+> Crée ta collection de cartes avec tes propres dessins, puis suis ce que chaque enfant a, les doubles et ce qui manque.
 
 Jour 6/30 du défi [Apphéro](https://apphero.cloud), sortie le lundi 23 novembre à 18 h. Thème du jour : App utile.
 
 ## C'est quoi
 
-Pour les parents qui suivent la collection de cartes Disney Leclerc 2026 (« En route pour l'aventure ! ») de leurs enfants :
+On crée sa propre collection de cartes (ses dessins), puis chaque enfant a son album :
 
-- un album par enfant, avec les 108 cases rangées par film (21 films) ;
-- toucher une case ajoute la carte, « − » en retire une, ×2, ×3 signale les doubles ;
-- « J'ouvre une pochette » : on tape les 4 numéros au pavé, l'app dit « Nouvelle ! » ou « Double » ;
+- « Nouvelle carte » : un numéro, un nom et la photo du dessin (recadrée en 3:4). Appui long sur une carte pour la modifier, la renuméroter ou la supprimer ;
+- toucher une carte l'ajoute à l'album de l'enfant, « − » en retire une, ×2, ×3 signale les doubles. Les cartes manquantes montrent leur dessin en filigrane ;
+- « J'ouvre une pochette » : on tape les numéros reçus au pavé, l'app dit « Nouvelle ! » ou « Double » ;
 - onglets Il manque, Doubles, et Échanger (message à copier pour un autre parent, comparaison entre frères et sœurs) ;
-- cartes spéciales (paillettes, métallisée, phosphorescente, thermoréactive) et photo de sa propre carte, gardée sur le téléphone ;
-- confettis quand un film est complet, compte à rebours jusqu'à la fin de la distribution (13 décembre) ;
-- PWA installable, marche sans réseau. Rien n'est envoyé : état dans `localStorage` (`app06_state`), photos dans IndexedDB. Sauvegarde à télécharger ou à copier.
-
-La liste des noms vient de l'album (relevée sur [ColleX](https://www.collexstash.com/fr/collections/cards/cartes-disney-leclerc-2026)). L'app n'affiche aucune image de carte et n'a aucun lien avec E.Leclerc ni Disney.
+- « Télécharger la collection » : un fichier avec les cartes et leurs images, à envoyer à un autre parent qui l'ouvre dans l'app ; « Télécharger la sauvegarde » ajoute les albums des enfants ;
+- PWA installable, marche sans réseau. Rien n'est envoyé : état dans `localStorage` (`app06_v2`), images dans IndexedDB.
 
 ## Lancer en local
 
@@ -30,4 +27,4 @@ npx degit Naod6473/AppHero/apps/06-ma-collec 06-ma-collec
 
 ## Ce que j'ai appris
 
-Les photos vont dans IndexedDB : `localStorage` est partagé par toutes les apps du site et plafonne à environ 5 Mo.
+Les images vont dans IndexedDB : `localStorage` est partagé par toutes les apps du site et plafonne à environ 5 Mo.

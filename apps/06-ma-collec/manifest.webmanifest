@@ -1,7 +1,7 @@
 {
   "name": "Ma Collec'",
   "short_name": "Ma Collec'",
-  "description": "Les cartes Disney Leclerc de tes enfants : ce qu'ils ont, les doubles à échanger et ce qui manque.",
+  "description": "Crée ta collection de cartes avec tes propres dessins, puis suis ce que chaque enfant a, les doubles et ce qui manque.",
   "lang": "fr",
   "start_url": "./",
   "scope": "./",

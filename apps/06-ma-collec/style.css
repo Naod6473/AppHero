@@ -144,3 +144,20 @@ canvas#fx{position:fixed;inset:0;pointer-events:none;z-index:30;width:100%;heigh
 .panel-in{display:flex;flex-direction:column;gap:8px;margin-top:8px}
 label.btn{display:inline-block;cursor:pointer}
 .apphero-badge{position:fixed;z-index:6;left:max(12px,calc(env(safe-area-inset-left,0px) + 12px));bottom:calc(env(safe-area-inset-bottom,0px) + 22px);font:800 13px/1 var(--body);background:var(--fg);color:var(--gold);text-decoration:none;padding:10px 13px;border-radius:999px;box-shadow:var(--shadow)}
+
+.card.ph .no{color:#fff}
+.edit-grid{display:grid;grid-template-columns:120px 1fr;gap:14px;align-items:start}
+.edit-fields{display:flex;flex-direction:column;gap:6px;min-width:0}
+.edit-fields input{width:100%}
+input[type=number]{border-radius:10px;border:1px solid var(--line);background:var(--slot);padding:8px 10px}
+.pick{display:grid;place-items:center;aspect-ratio:3/4;width:100%;border-radius:12px;border:2px dashed var(--line);background:var(--slot);color:var(--muted);text-align:center;font-weight:700;font-size:.85rem;cursor:pointer;overflow:hidden}
+.pick img{width:100%;height:100%;object-fit:cover}
+#eErr{color:#c0392b;min-height:1em}
+.album-tools{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.album-tools .hint{flex:1;min-width:200px}
+.new-card{border-style:dashed;border-color:var(--accent);color:var(--accent);background:transparent;align-items:center;justify-content:center;text-align:center;font-weight:800;font-size:.85rem}
+.new-card .plus{font-family:var(--display);font-size:2rem;line-height:1}
+@media (max-width:420px){.edit-grid{grid-template-columns:96px 1fr}}
+.card.ph{background-image:var(--img)}
+.card.ph-miss::before{content:"";position:absolute;inset:0;border-radius:8px;background:var(--img) center/cover;opacity:.18;filter:grayscale(1)}
+.card.ph-miss>*{position:relative}

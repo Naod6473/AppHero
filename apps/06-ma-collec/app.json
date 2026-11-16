@@ -1,7 +1,7 @@
 {
   "num": 6,
   "title": "Ma Collec'",
-  "tagline": "Les cartes Disney Leclerc de tes enfants : ce qu'ils ont, les doubles à échanger et ce qui manque.",
+  "tagline": "Crée ta collection de cartes avec tes propres dessins, puis suis ce que chaque enfant a, les doubles et ce qui manque.",
   "publishAt": "2026-11-23T18:00:00+01:00",
   "color": "#FF3D9A",
   "tags": [
@@ -9,16 +9,16 @@
     "hors-ligne",
     "collection",
     "enfants",
-    "mobile"
+    "dessins"
   ],
   "status": "prêt",
   "making": {
-    "buildMinutes": 35,
-    "thinkingMinutes": 25,
-    "tokens": 400000,
-    "prompts": 9,
-    "lines": 434,
+    "buildMinutes": 55,
+    "thinkingMinutes": 30,
+    "tokens": 600000,
+    "prompts": 14,
+    "lines": 697,
     "tool": "Claude Code",
-    "note": "Brainstorm, maquette cliquable, puis la PWA : 108 cases par film, saisie d'une pochette au pavé, doubles et liste d'échange. Tout reste sur le téléphone."
+    "note": "Partie d'un suivi de cartes du commerce, devenue un outil pour créer sa propre collection de cartes dessinées : numéro, nom, photo, puis un album par enfant."
   }
 }

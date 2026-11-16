@@ -1,6 +1,6 @@
 // Service worker de Ma Collec' : l'app s'ouvre même sans réseau (au rayon, dans la cour).
 // Coquille : réseau d'abord, cache en secours. Polices : cache d'abord.
-const VERSION = "macollec-v1";
+const VERSION = "macollec-v2";
 const SHELL = ["./", "index.html", "style.css", "app.js", "logo.svg", "icon-192.png", "manifest.webmanifest"];
 
 self.addEventListener("install", (e) => {

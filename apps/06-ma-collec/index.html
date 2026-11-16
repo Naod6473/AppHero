@@ -4,9 +4,9 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Ma Collec' · Apphéro 06/30</title>
-  <meta name="description" content="Les cartes Disney Leclerc de tes enfants : ce qu'ils ont, les doubles à échanger et ce qui manque.">
+  <meta name="description" content="Crée ta collection de cartes avec tes propres dessins, puis suis ce que chaque enfant a, les doubles et ce qui manque.">
   <meta property="og:title" content="Ma Collec' · Apphéro 06/30">
-  <meta property="og:description" content="Les cartes Disney Leclerc de tes enfants : ce qu'ils ont, les doubles à échanger et ce qui manque.">
+  <meta property="og:description" content="Crée ta collection de cartes avec tes propres dessins, puis suis ce que chaque enfant a, les doubles et ce qui manque.">
   <meta property="og:url" content="https://apphero.cloud/apps/06-ma-collec/">
   <meta name="twitter:card" content="summary">
   <meta name="theme-color" content="#1f4fd8">
@@ -25,13 +25,12 @@
 <header class="top">
   <div class="wrap">
     <div class="brand">
-      <h1><img class="star" src="logo.svg" alt="" width="34" height="34"><span>Ma Collec'<small>Cartes Disney Leclerc 2026 · 108 cartes</small></span></h1>
-      <div class="count-down" id="countdown"></div>
+      <h1><img class="star" src="logo.svg" alt="" width="34" height="34"><span>Ma Collec'<small id="subTitle">Tes cartes, tes dessins, ta collection</small></span></h1>
     </div>
     <div class="kids" id="kids" role="group" aria-label="Enfants"></div>
     <div class="stats">
-      <div class="stat"><div class="num" id="sOwn">0 / 108</div><div class="lab">cartes dans l'album</div><div class="bar"><i id="sBar" style="width:0"></i></div></div>
-      <div class="stat"><div class="num" id="sMiss">108</div><div class="lab">manquantes</div></div>
+      <div class="stat"><div class="num" id="sOwn">0 / 0</div><div class="lab">cartes dans l'album</div><div class="bar"><i id="sBar" style="width:0"></i></div></div>
+      <div class="stat"><div class="num" id="sMiss">0</div><div class="lab">manquantes</div></div>
       <div class="stat dup"><div class="num" id="sDup">0</div><div class="lab">doubles à échanger</div></div>
     </div>
     <nav class="tabs" role="tablist" id="tabs">
@@ -46,27 +45,38 @@
 
 <main><div class="wrap" id="view"></div></main>
 
-<button class="fab" id="fab" aria-label="Ouvrir une pochette"><span aria-hidden="true">✦</span> <span class="l">J'ouvre une pochette</span><span aria-hidden="true" class="s">+4</span></button>
+<button class="fab" id="fab" aria-label="Ouvrir une pochette"><span aria-hidden="true">✦</span> <span class="l">J'ouvre une pochette</span></button>
 
 <dialog id="dPack"><form method="dialog" class="dlg" id="packForm">
   <h2>Nouvelle pochette</h2>
-  <p class="hint">Tape le numéro au dos de chaque carte, puis « OK ». Une pochette contient 4 cartes.</p>
-  <div class="screen"><span class="big" id="padNum">—</span><span class="who" id="padWho">Numéro de 1 à 108</span></div>
+  <p class="hint">Tape le numéro de chaque carte reçue, puis « OK ».</p>
+  <div class="screen"><span class="big" id="padNum">—</span><span class="who" id="padWho">Numéro de la carte</span></div>
   <div class="pad" id="pad"></div>
   <div class="res" id="packRes"></div>
   <div class="row" style="justify-content:flex-end"><button class="btn" value="close">Terminé</button></div>
 </form></dialog>
 
 <dialog id="dCard"><form method="dialog" class="dlg">
-  <h2 id="cTitle"></h2>
-  <p class="hint" id="cFilm"></p>
+  <div class="photo-row"><img id="cImg" alt="" hidden><div style="min-width:0"><h2 id="cTitle"></h2><p class="hint" id="cSub"></p></div></div>
   <div class="stepper"><button type="button" id="cMinus" aria-label="Retirer une">−</button><output id="cCount">0</output><button type="button" id="cPlus" aria-label="Ajouter une">+</button></div>
-  <h3 style="margin:0;font-size:.9rem">Carte spéciale ?</h3>
-  <div class="sp-opts" id="cSp"></div>
-  <h3 style="margin:0;font-size:.9rem">Photo de la carte</h3>
-  <div class="photo-row"><img id="cImg" alt="" hidden><div class="ph-btns"><label class="btn ghost small" for="cFile" id="cFileLab">📷 Prendre en photo</label><input type="file" id="cFile" accept="image/*" capture="environment" hidden><button type="button" class="btn danger small" id="cDelPh" hidden>Retirer la photo</button><span class="hint">La photo reste sur ce téléphone.</span></div></div>
-  <a class="ext" href="https://www.collexstash.com/fr/collections/cards/cartes-disney-leclerc-2026" target="_blank" rel="noopener">Voir les cartes sur ColleX ↗</a>
-  <div class="row" style="justify-content:flex-end"><button class="btn" value="close">Fermer</button></div>
+  <div class="row" style="justify-content:space-between"><button type="button" class="btn ghost" id="cEdit">Modifier la carte</button><button class="btn" value="close">Fermer</button></div>
+</form></dialog>
+
+<dialog id="dEdit"><form method="dialog" class="dlg" id="editForm">
+  <h2 id="eTitle">Nouvelle carte</h2>
+  <div class="edit-grid">
+    <label class="pick" for="eFile"><img id="eImg" alt="" hidden><span id="ePh">📷<br>Photo du dessin</span></label>
+    <input type="file" id="eFile" accept="image/*" hidden>
+    <div class="edit-fields">
+      <label for="eNum"><b>Numéro</b></label>
+      <input type="number" id="eNum" min="1" max="9999" inputmode="numeric" required>
+      <label for="eName"><b>Nom de la carte</b></label>
+      <input type="text" id="eName" maxlength="40" placeholder="Par exemple : Dragon des neiges" autocomplete="off">
+    </div>
+  </div>
+  <p class="hint" id="eErr" role="alert"></p>
+  <div id="eDelZone"></div>
+  <div class="row" style="justify-content:space-between"><button type="button" class="btn danger small" id="eDel" hidden>Supprimer la carte</button><span class="row"><button class="btn ghost" value="close" formnovalidate>Annuler</button><button type="submit" class="btn" id="eSave" value="save">Enregistrer</button></span></div>
 </form></dialog>
 
 <a class="apphero-badge" href="/">Apphéro · 06/30</a>
