@@ -12,6 +12,8 @@
   <meta property="og:url" content="https://apphero.cloud/">
   <meta name="twitter:card" content="summary">
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="apple-touch-icon" href="/icon-192.png">
   <script type="module" src="/src/home.js"></script>
   <script src="/t.js" defer></script>
 </head>
@@ -46,6 +48,7 @@
         </div>
         <div class="progress" id="progress"></div>
         <a class="agenda" href="/apphero.ics" download="apphero.ics" data-agenda>📅 Ajouter les 30 rendez-vous de 18 h à mon agenda</a>
+        <p class="visitors" id="visitors" hidden></p>
         <div class="hero-actions">
           <a class="btn btn-dark btn-lg" href="#apps">Voir les 30 apps</a>
           <a class="btn btn-lg" href="/roue/">La roue</a>
@@ -76,7 +79,7 @@
 
     <section class="wrap section" id="semaine" style="padding-top: 96px">
       <h2 class="h2">La semaine</h2>
-      <p class="intro">Une app du lundi au samedi, chaque jour avec son thème. Le jeudi, c'est la roue qui décide, la veille au soir. Et le dimanche ? Repos… ou pas !</p>
+      <p class="intro">Une app du lundi au samedi, chaque jour avec son thème. Le vendredi, c'est la roue qui décide, la veille au soir. Et le dimanche ? Repos… ou pas !</p>
       <div class="week">
         <div class="pills" id="pills"></div>
         <div class="votes-col">
@@ -91,6 +94,7 @@
       <div class="section-head">
         <h2 class="h2" style="margin: 0">Les 30 apps</h2>
         <p class="intro">Une case s'ouvre chaque jour à 18 h. Chaque app a sa page, son style et son code.</p>
+        <button class="btn btn-yellow" id="random" type="button" disabled>🎲 Une app au hasard</button>
       </div>
       <div class="tiles" id="tiles"></div>
     </section>
@@ -100,7 +104,7 @@
         <div class="mini-wheel wheel-colors" aria-hidden="true"></div>
         <div style="flex: 1 1 360px; min-width: 0">
           <h2>La roue du hasard</h2>
-          <p id="teaser-text">Chaque mercredi soir, la roue tire le critère de l'app du jeudi. 60 critères en réserve, 20 sur la roue à chaque tirage, 5 tirages en tout. Tu peux revoir chaque tirage.</p>
+          <p id="teaser-text">Chaque jeudi soir, la roue tire le critère de l'app du vendredi. 60 critères en réserve, 20 sur la roue à chaque tirage, 5 tirages en tout. Tu peux revoir chaque tirage.</p>
           <a class="btn" href="/roue/">Voir la roue</a>
         </div>
       </div>
@@ -135,7 +139,7 @@
     <section class="wrap infos">
       <div class="info" id="defi" style="background: var(--mint); transform: rotate(-1deg)">
         <h3>Le défi</h3>
-        <p>Une app simple par jour, de l'idée à la mise en ligne. Un thème par jour, un critère tiré par la roue le jeudi, et on fonce.</p>
+        <p>Une app simple par jour, de l'idée à la mise en ligne. Un thème par jour, un critère tiré par la roue le vendredi, et on fonce.</p>
       </div>
       <div class="info" style="background: var(--paper); transform: rotate(1deg)">
         <h3>Le vote</h3>

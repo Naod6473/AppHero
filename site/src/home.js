@@ -1,5 +1,5 @@
 // Accueil : pile de cartes de la semaine, grille des 30 apps, j'aime / bof, votes, classements.
-import { api, esc, toast, confetti, turnstileToken, track, X_URL } from "./common.js";
+import { api, esc, toast, confetti, turnstileToken, track, shareApp, X_URL } from "./common.js";
 import { DAYS, BALLOTS, THEMES, SUNDAY, CHALLENGE_END, WEEKDAYS_SHORT, WHEEL_DAYS, parisDate, fmtShort, fmtDateTime } from "../../shared/calendar.js";
 
 const S = {
@@ -29,6 +29,7 @@ async function load() {
     S.offset = st.now - Date.now();
     S.apps = new Map(st.apps.map((a) => [a.id, a]));
     S.likes = st.likes || {};
+    S.visitors = st.visitors || 0;
     S.rankings = st.rankings;
     S.ballots = st.ballots || [];
     S.me = st.me || { reactions: {}, ballots: {} };
@@ -250,6 +251,7 @@ function renderDeck() {
         actions = `<div class="card-actions">
           <a class="btn" href="/apps/${esc(c.app.slug)}/" data-open="${esc(c.app.id)}">Ouvrir l'app</a>
           ${reactButtons(c.app)}
+          <button class="btn-icon" type="button" data-share="${esc(c.app.id)}" aria-label="Partager ${esc(c.app.title)}" title="Partager">📤</button>
         </div>`;
       } else if (c.cta) {
         actions = `<div class="card-actions"><a class="btn" href="${esc(c.cta.href)}">${esc(c.cta.label)}</a></div>`;
@@ -393,7 +395,7 @@ function resultsHtml(b) {
     .slice(1)
     .map((r, i) => `<div class="rank"><i>${i + 2}</i><span>${esc(candidateLabel(r.app))}</span><small>${r.n} voix</small></div>`)
     .join("");
-  const total = b.total ? `<p>${b.total} voix au total.</p>` : `<p>Personne n'a voté : l'app la plus aimée de la semaine l'emporte.</p>`;
+  const total = b.total ? `<p>${b.total} voix au total.</p>` : `<p>Personne n'a voté : l'app la plus aimée ${b.final ? "parmi les finalistes" : "de la semaine"} l'emporte.</p>`;
   return `<div class="podium">${head}${rest ? `<div class="ranks">${rest}</div>` : ""}</div>${total}`;
 }
 
@@ -456,8 +458,16 @@ function renderProgress() {
   $("progress").setAttribute("aria-label", `${n} apps sorties sur 30`);
 }
 
+function renderVisitors() {
+  const el = $("visitors");
+  el.hidden = !S.visitors;
+  if (S.visitors) el.innerHTML = `👀 <strong>${S.visitors.toLocaleString("fr-FR")}</strong> ${S.visitors > 1 ? "visites" : "visite"} depuis le lancement`;
+  $("random").disabled = ![...S.apps.values()].some((a) => a.num > 1);
+}
+
 function renderAll() {
   renderProgress();
+  renderVisitors();
   renderDeck();
   renderWeeks();
   renderTiles();
@@ -590,6 +600,16 @@ document.addEventListener("click", (e) => {
   const b = e.target.closest("[data-ballot]");
   if (b) return castBallot(b.dataset.ballot, b.dataset.app, b);
   if (e.target.closest("[data-agenda]")) track("agenda");
+  const sh = e.target.closest("[data-share]");
+  if (sh) return S.apps.get(sh.dataset.share) && shareApp(S.apps.get(sh.dataset.share));
+  if (e.target.closest("#random")) {
+    const list = [...S.apps.values()].filter((a) => a.num > 1);
+    const pick = (list.length ? list : [...S.apps.values()])[Math.floor(Math.random() * (list.length || S.apps.size))];
+    if (!pick) return;
+    track("hasard", { app: pick.id });
+    location.href = `/apps/${pick.slug}/`;
+    return;
+  }
   const o = e.target.closest("[data-open]");
   if (o) track("ouvrir_app", { app: o.dataset.open, from: o.closest(".card") ? "carte" : "grille" });
   const t = e.target.closest("[data-go]");

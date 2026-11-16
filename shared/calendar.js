@@ -5,7 +5,8 @@
 // - Départ mercredi 18 novembre 2026, rythme lundi-samedi, 30 apps.
 // - Toutes les sorties à 18 h, heure de Paris (UTC+1 en novembre-décembre).
 // - Vote de la semaine le samedi, finale le mardi 22 décembre (app 30).
-// - La roue tourne la veille au soir de chaque jeudi (5 tirages).
+// - La roue tourne le jeudi soir pour l'app du vendredi (5 tirages). Décidé par Simon le 16/11/2026 :
+//   le site sort le mercredi 18, donc pas de tirage ce soir-là.
 
 export const TZ = "Europe/Paris";
 export const RELEASE_HOUR = 18;
@@ -24,8 +25,8 @@ export const THEMES = {
   1: { name: "App utile", color: "#FF3D9A", blurb: "Une app utile, tirée de mes idées." },
   2: { name: "2 heures chrono", color: "#25D0E8", blurb: "Une app faite en moins de 2 heures." },
   3: { name: "Communauté", color: "#7CF2B0", blurb: "L'idée vient du public." },
-  4: { name: "La roue décide", color: "#FFD83D", blurb: "Le critère sort de la roue la veille au soir." },
-  5: { name: "Surprise du vendredi", color: "#B9A3FF", blurb: "Inutile mais magnifique, ou contrainte folle." },
+  4: { name: "Surprise du jeudi", color: "#B9A3FF", blurb: "Inutile mais magnifique, ou contrainte folle." },
+  5: { name: "La roue décide", color: "#FFD83D", blurb: "Le critère sort de la roue la veille au soir." },
   6: { name: "Jeu + vote", color: "#FF8A3D", blurb: "Une app jeu, et l'app de la semaine." },
 };
 
@@ -70,7 +71,7 @@ function buildDays() {
         theme: theme.name,
         color: theme.color,
         blurb: theme.blurb,
-        wheel: wd === 4,
+        wheel: wd === 5,
       });
     }
     iso = addDays(iso, 1);
@@ -108,7 +109,7 @@ export function fmtDateTime(isoWithTime) {
   return `${fmtShort(iso)} · ${hh} h`;
 }
 
-// Les tirages de la roue : la veille au soir de chaque jeudi.
+// Les tirages de la roue : le jeudi soir, pour l'app du vendredi.
 export const WHEEL_DAYS = DAYS.filter((d) => d.wheel).map((d) => ({ forDay: d.date, drawOn: addDays(d.date, -1), num: d.num }));
 
 // Date du jour à Paris (AAAA-MM-JJ) pour un instant donné.

@@ -4,6 +4,20 @@
   "tagline": "Le site qui lance le défi : les 30 apps, le vote et la roue.",
   "publishAt": "2026-11-18T18:00:00+01:00",
   "color": "#FF3D9A",
-  "tags": ["site", "vite", "cloudflare-workers", "d1"],
-  "status": "prêt"
+  "tags": [
+    "site",
+    "vite",
+    "cloudflare-workers",
+    "d1"
+  ],
+  "status": "prêt",
+  "making": {
+    "buildMinutes": 540,
+    "thinkingMinutes": 90,
+    "tokens": 4000000,
+    "prompts": 45,
+    "lines": 3836,
+    "tool": "Claude Code",
+    "note": "Le site du défi : accueil, votes, roue, stats sans cookie. Fait avant le départ du défi."
+  }
 }

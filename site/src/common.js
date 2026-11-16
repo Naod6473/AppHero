@@ -146,3 +146,75 @@ export function track(name, props) {
     /* jamais bloquant */
   }
 }
+
+// Partager une app : menu de partage du téléphone, sinon copie du lien court.
+export async function shareApp(app) {
+  const url = `${location.origin}/${app.id}`;
+  const data = { title: `${app.title} · Apphéro`, text: `${app.title} : ${app.tagline} (app ${app.num}/30 d'Apphéro, une app par jour à 18 h)`, url };
+  track("partage", { app: app.id });
+  try {
+    if (navigator.share) return await navigator.share(data);
+  } catch (err) {
+    if (err?.name === "AbortError") return;
+  }
+  try {
+    await navigator.clipboard.writeText(url);
+    toast(`Lien copié : ${url}`);
+  } catch {
+    toast(url);
+  }
+}
+
+// Easter egg : le code Konami, ou 5 clics rapides sur le logo, lancent le « mode apéro ».
+function aperoMode() {
+  if (document.querySelector(".apero-rain")) return;
+  track("easter_egg");
+  toast("🥂 Mode apéro activé ! Santé !");
+  if (reducedMotion()) return;
+  const layer = document.createElement("div");
+  layer.className = "apero-rain";
+  layer.setAttribute("aria-hidden", "true");
+  const items = ["🫒", "🫧", "🍋", "🧀", "🥨", "🫒", "🫧", "🍹"];
+  for (let i = 0; i < 46; i++) {
+    const s = document.createElement("span");
+    s.textContent = items[i % items.length];
+    s.style.left = `${Math.random() * 100}%`;
+    s.style.animationDelay = `${Math.random() * 2.2}s`;
+    s.style.animationDuration = `${2.6 + Math.random() * 2}s`;
+    s.style.fontSize = `${22 + Math.random() * 26}px`;
+    layer.append(s);
+  }
+  document.body.append(layer);
+  document.body.classList.add("is-apero");
+  setTimeout(() => {
+    layer.remove();
+    document.body.classList.remove("is-apero");
+  }, 7000);
+}
+const KONAMI = ["ArrowUp", "ArrowUp", "ArrowDown", "ArrowDown", "ArrowLeft", "ArrowRight", "ArrowLeft", "ArrowRight", "b", "a"];
+let konami = 0;
+addEventListener("keydown", (e) => {
+  const k = e.key.length === 1 ? e.key.toLowerCase() : e.key;
+  konami = k === KONAMI[konami] ? konami + 1 : k === KONAMI[0] ? 1 : 0;
+  if (konami === KONAMI.length) {
+    konami = 0;
+    aperoMode();
+  }
+});
+let logoClicks = [];
+document.addEventListener("click", (e) => {
+  if (!e.target.closest(".logo")) return;
+  const t = Date.now();
+  logoClicks = logoClicks.filter((x) => t - x < 2000).concat(t);
+  if (logoClicks.length >= 5) {
+    e.preventDefault();
+    logoClicks = [];
+    aperoMode();
+  } else if (logoClicks.length > 1) e.preventDefault(); // on reste sur la page pendant qu'on clique
+});
+
+// Après le verdict du 23 décembre, le lien vers le bilan apparaît dans le menu.
+if (Date.now() >= Date.parse("2026-12-23T20:00:00+01:00")) {
+  const nav = document.querySelector(".nav-links");
+  if (nav && !nav.querySelector('[href="/bilan/"]')) nav.insertAdjacentHTML("afterbegin", '<a href="/bilan/">Le bilan 🏆</a>');
+}

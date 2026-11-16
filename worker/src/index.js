@@ -2,7 +2,7 @@
 // jusqu'à son publishAt, et gère les j'aime, les votes, les visites et les tirages de la roue.
 import manifest from "../generated/apps.json";
 import CRITERES from "../../shared/criteres.json";
-import { BALLOTS, ballotStatus, WHEEL_DAYS, parisDate, isReleased } from "../../shared/calendar.js";
+import { BALLOTS, ballotStatus, WHEEL_DAYS, CHALLENGE_END, parisDate, isReleased } from "../../shared/calendar.js";
 
 const MAX_PER_IP = 8; // un foyer ou un bureau partage souvent la même IP
 const COOKIE = "ah_id";
@@ -73,6 +73,8 @@ async function api(request, env, ctx, url, now) {
       return react(request, env, now);
     case "POST /api/ballot":
       return castBallot(request, env, now);
+    case "GET /api/bilan":
+      return bilan(env, now);
     case "GET /api/draws":
       return json({ draws: await listDraws(env) }, 200, { "cache-control": "public, max-age=30" });
     case "POST /api/admin/draws":
@@ -104,12 +106,14 @@ async function loadTallies(env) {
   const likes = {};
   const views = {};
   const ballots = {};
+  let visitors = 0;
   for (const r of results) {
     if (r.kind === "like") likes[r.app] = r.n;
     else if (r.kind === "view") views[r.app] = r.n;
     else if (r.kind === "ballot") (ballots[r.bucket] ||= []).push({ app: r.app, n: r.n });
+    else if (r.kind === "visitors") visitors = r.n;
   }
-  return { likes, views, ballots };
+  return { likes, views, ballots, visitors };
 }
 
 // Résultat d'un scrutin, avec départage par les j'aime puis par l'ordre de sortie.
@@ -133,7 +137,8 @@ function ballotsView(t, now) {
     const sorted = ranking(t.ballots[b.id], t.likes);
     const closed = status === "closed";
     // Sans aucune voix, c'est l'app la plus aimée de la semaine qui passe.
-    const fallback = b.final ? null : ranking(b.apps.map((app) => ({ app, n: 0 })), t.likes)[0].app;
+    const pool = b.final ? candidates || [] : b.apps;
+    const fallback = pool.length ? ranking(pool.map((app) => ({ app, n: 0 })), t.likes)[0].app : null;
     const winner = closed ? sorted[0]?.app || fallback : null;
     if (!b.final) winners.push(winner);
     out.push({
@@ -182,6 +187,7 @@ async function state(request, env, now) {
     apps,
     likes: t.likes,
     rankings: { likes: top(t.likes), views: top(t.views) },
+    visitors: t.visitors,
     ballots: ballotsView(t, now),
     me: { reactions: myReactions, ballots: myBallots },
   });
@@ -468,6 +474,16 @@ async function collect(request, env, ctx, now) {
       ),
     );
   }
+  // Compteur public : une personne par jour (même empreinte du jour = même personne).
+  if (events.some((e) => e?.n === "page")) {
+    ctx.waitUntil(
+      (async () => {
+        const r = await env.DB.prepare("INSERT OR IGNORE INTO seen (day, visitor) VALUES (?, ?)").bind(day, visitor).run();
+        if (r.meta?.changes) await bumpTally(env, "visitors", "ALL", "-", 1).run();
+        if (Math.random() < 0.02) await env.DB.prepare("DELETE FROM seen WHERE day < ?").bind(parisDate(now - 2 * 86400000)).run();
+      })().catch((err) => console.error("seen", err)),
+    );
+  }
   if (stmts.length) {
     // De temps en temps, on efface ce qui a plus de 13 mois.
     if (Math.random() < 0.01) stmts.push(env.DB.prepare("DELETE FROM events WHERE ts < ?").bind(now - RETENTION_MS));
@@ -529,4 +545,43 @@ async function stats(env, url, now) {
   out.bounce = out.bounce[0];
   out.wheel = out.wheel[0];
   return json(out);
+}
+
+// ---------------------------------------------------------------- le bilan du 23 décembre
+
+async function bilan(env, now) {
+  if (now < Date.parse(CHALLENGE_END)) return json({ ready: false, at: CHALLENGE_END });
+  const apps = manifest.filter((a) => isReleased(a.publishAt, now));
+  const sum = (k) => apps.reduce((s, a) => s + (Number(a.making?.[k]) || 0), 0);
+  const t = await loadTallies(env);
+  const ballots = ballotsView(t, now);
+  const final = ballots.find((b) => b.final);
+  const rank = (obj) =>
+    Object.entries(obj)
+      .map(([app, n]) => ({ app, n }))
+      .sort((a, b) => b.n - a.n || a.app.localeCompare(b.app));
+  return json(
+    {
+      ready: true,
+      apps: apps.map(publicApp),
+      totals: {
+        apps: apps.length,
+        buildMinutes: sum("buildMinutes"),
+        thinkingMinutes: sum("thinkingMinutes"),
+        tokens: sum("tokens"),
+        prompts: sum("prompts"),
+        lines: sum("lines"),
+        likes: Object.values(t.likes).reduce((s, n) => s + n, 0),
+        votes: Object.values(t.ballots).flat().reduce((s, r) => s + r.n, 0),
+        visitors: t.visitors,
+      },
+      topLikes: rank(t.likes).slice(0, 3),
+      topViews: rank(t.views).slice(0, 3),
+      weekly: ballots.filter((b) => !b.final).map((b) => ({ id: b.id, winner: b.winner })),
+      winner: final?.winner || null,
+      finalResults: final?.results || [],
+    },
+    200,
+    { "cache-control": "public, max-age=300" },
+  );
 }

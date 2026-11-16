@@ -4,12 +4,14 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>La roue · Apphéro</title>
-  <meta name="description" content="La roue du hasard d'Apphéro : chaque mercredi soir, elle tire le critère de l'app du jeudi. Revois chaque tirage.">
+  <meta name="description" content="La roue du hasard d'Apphéro : chaque jeudi soir, elle tire le critère de l'app du vendredi. Revois chaque tirage.">
   <meta name="theme-color" content="#FFD83D">
   <meta property="og:title" content="La roue · Apphéro">
-  <meta property="og:description" content="Chaque mercredi soir, la roue tire le critère de l'app du jeudi.">
+  <meta property="og:description" content="Chaque jeudi soir, la roue tire le critère de l'app du vendredi.">
   <meta property="og:url" content="https://apphero.cloud/roue/">
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="apple-touch-icon" href="/icon-192.png">
   <script type="module" src="/src/roue.js"></script>
   <script src="/t.js" defer></script>
 </head>
@@ -23,7 +25,7 @@
     <div class="roue-head js-ui">
       <div>
         <h1 class="mega roue-title">La roue</h1>
-        <p class="lead" style="margin: 24px 0 0">Chaque mercredi soir, la roue décide de l'app du jeudi : un critère, ou une idée d'app complète imaginée par l'IA. Tu peux revoir chaque tirage ici.</p>
+        <p class="lead" style="margin: 24px 0 0">Chaque jeudi soir, la roue décide de l'app du vendredi : un critère, ou une idée d'app complète imaginée par l'IA. Tu peux revoir chaque tirage ici.</p>
       </div>
       <div class="modes" id="modes" hidden>
         <button class="btn btn-pill" type="button" data-mode="public" aria-pressed="true">Public</button>
@@ -96,15 +98,15 @@
       <aside class="roue-side js-ui">
         <div class="panel" style="background: var(--mint); transform: rotate(-1deg)">
           <h2>Comment ça marche</h2>
-          <p>60 critères en réserve. À chaque tirage, 20 sont mélangés sur la roue : elle n'est jamais la même. 5 tirages, un par semaine, le mercredi soir : pour les jeudis 19 et 26 novembre, 3, 10 et 17 décembre.</p>
-          <p>Si la roue tombe sur « Idée de l'IA », l'app du jeudi est une idée complète imaginée par une IA.</p>
+          <p>60 critères en réserve. À chaque tirage, 20 sont mélangés sur la roue : elle n'est jamais la même. 5 tirages, un par semaine, le jeudi soir : pour les vendredis 20 et 27 novembre, 4, 11 et 18 décembre.</p>
+          <p>Si la roue tombe sur « Idée de l'IA », l'app du vendredi est une idée complète imaginée par une IA.</p>
         </div>
       </aside>
     </div>
 
     <section class="advent js-ui" aria-labelledby="advent-title">
       <h2 class="h2" id="advent-title">Les 5 tirages</h2>
-      <p class="intro">Une case s'ouvre chaque mercredi soir. Clique sur une case ouverte pour revoir le tirage.</p>
+      <p class="intro">Une case s'ouvre chaque jeudi soir. Clique sur une case ouverte pour revoir le tirage.</p>
       <div class="doors" id="history"></div>
     </section>
   </main>

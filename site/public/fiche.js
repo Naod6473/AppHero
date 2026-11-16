@@ -54,7 +54,7 @@
     ".fact strong{font-size:17px}" +
     ".note{font-size:14px;line-height:1.4;margin:0 0 12px}" +
     ".row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}" +
-    "button.r,a.home{min-height:40px;display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border:3px solid #15112B;border-radius:12px;background:#fff;font-weight:800;font-size:14px;color:#15112B;text-decoration:none;cursor:pointer;box-shadow:2px 2px 0 #15112B}" +
+    "button.r,button.sh,a.home{min-height:40px;display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border:3px solid #15112B;border-radius:12px;background:#fff;font-weight:800;font-size:14px;color:#15112B;text-decoration:none;cursor:pointer;box-shadow:2px 2px 0 #15112B}" +
     "button.r[aria-pressed=true].like{background:#FF3D9A}" +
     "button.r[aria-pressed=true].bof{background:#B9A3FF}" +
     "a.home{margin-left:auto;background:#15112B;color:#FFD83D}" +
@@ -73,6 +73,7 @@
     '<div class="row">' +
     '<button class="r like" type="button" data-v="1" aria-pressed="false">👍 <span id="n">J\'aime</span></button>' +
     '<button class="r bof" type="button" data-v="-1" aria-pressed="false">👎 Bof</button>' +
+    '<button class="sh" type="button" id="share" aria-label="Partager">📤</button>' +
     '<a class="home" href="/">Apphéro</a>' +
     "</div></div>" +
     '<button class="pill" id="pill" type="button" aria-expanded="false" aria-controls="panel"><b>' + esc(app.id) + "</b><span>" + (short ? esc(short) : "Apphéro · la fiche") + "</span></button>" +
@@ -91,6 +92,13 @@
   }
   $("pill").addEventListener("click", function () { toggle($("panel").hidden); });
   $("close").addEventListener("click", function () { toggle(false); });
+  $("share").addEventListener("click", function () {
+    var url = location.origin + "/" + app.id;
+    if (window.ahTrack) window.ahTrack("partage", { app: app.id, from: "fiche" });
+    var data = { title: app.title + " · Apphéro", text: app.title + " : " + app.tagline + " (app " + app.num + "/30 d'Apphéro)", url: url };
+    if (navigator.share) return navigator.share(data).catch(function () {});
+    if (navigator.clipboard) navigator.clipboard.writeText(url).then(function () { $("share").textContent = "✓ Copié"; setTimeout(function () { $("share").textContent = "📤"; }, 1800); });
+  });
   root.querySelectorAll("button.r").forEach(function (b) {
     b.addEventListener("click", function () {
       if (busy) return;

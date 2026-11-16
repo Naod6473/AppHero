@@ -550,3 +550,17 @@ body.is-rec #rec-controls { position: fixed; right: 16px; bottom: 16px; z-index:
 }
 body.is-rec #rec-spin { background: var(--yellow); color: var(--ink); box-shadow: 5px 5px 0 var(--pink); }
 @media (max-width: 640px) { .footer .shape { display: none; } }
+
+/* ---------- Mode apéro (easter egg) */
+.apero-rain { position: fixed; inset: 0; z-index: 999; pointer-events: none; overflow: hidden; }
+.apero-rain span { position: absolute; top: -60px; animation: apero-fall linear forwards; }
+@keyframes apero-fall { to { transform: translateY(calc(100vh + 120px)) rotate(540deg); } }
+body.is-apero .logo { animation: wobble 0.5s ease-in-out infinite; }
+@keyframes wobble { 50% { transform: rotate(-6deg) scale(1.08); } }
+
+/* ---------- Partager, hasard, compteur */
+.btn-icon { min-width: 44px; min-height: 44px; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; background: var(--paper); border: 3px solid var(--ink); border-radius: 14px; box-shadow: 3px 3px 0 var(--ink); font-size: 18px; }
+.btn-icon:hover { transform: translateY(-2px) rotate(4deg); }
+.visitors { margin: 12px 0 0; font-weight: 800; font-size: 16px; }
+.visitors strong { font-family: var(--display); font-weight: 400; font-size: 22px; }
+.section-head .btn { align-self: center; }

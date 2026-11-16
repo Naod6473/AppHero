@@ -66,3 +66,11 @@ CREATE TABLE IF NOT EXISTS events (
 );
 CREATE INDEX IF NOT EXISTS events_day ON events (day, name);
 CREATE INDEX IF NOT EXISTS events_ts ON events (ts);
+
+-- Visiteurs déjà comptés aujourd'hui (empreinte du jour), pour le compteur public.
+-- On n'en garde que 2 jours.
+CREATE TABLE IF NOT EXISTS seen (
+  day TEXT NOT NULL,
+  visitor TEXT NOT NULL,
+  PRIMARY KEY (day, visitor)
+);

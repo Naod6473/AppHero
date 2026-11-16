@@ -12,8 +12,8 @@ Site : https://apphero.cloud
 | Lundi | App utile |
 | Mardi | 2 heures chrono |
 | Mercredi | App de la communauté |
-| Jeudi | La roue décide (tirage la veille au soir : un critère, ou une idée d'app complète imaginée par l'IA) |
-| Vendredi | Surprise du vendredi |
+| Jeudi | Surprise du jeudi |
+| Vendredi | La roue décide (tirage le jeudi soir : un critère, ou une idée d'app complète imaginée par l'IA) |
 | Samedi | Jeu + vote de l'app de la semaine |
 
 Un vote par jour, sans compte. App de la semaine les samedis 21 et 28 novembre, 5, 12 et 19 décembre. Finale le mardi 22 décembre avec la 30e app.
