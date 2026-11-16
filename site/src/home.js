@@ -169,10 +169,6 @@ function cardModel(day) {
     title = "L'idée des abonnés";
     body = "Propose l'app du mercredi sur X. L'idée la plus soutenue sera construite.";
     cta = { label: "Proposer une idée", href: X_URL };
-  } else if (day.weekday === 4) {
-    title = "Le défi d'un abonné";
-    body = "Lance un défi à l'app du jeudi sur X : une contrainte, un thème, un truc fou. Le défi le plus soutenu sera relevé.";
-    cta = { label: "Lancer un défi", href: X_URL };
   } else if (day.weekday === 0) {
     title = "L'idée perso";
     cta = { label: "Le vote de la semaine", href: "#vote" };
