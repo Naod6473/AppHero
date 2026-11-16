@@ -1,7 +1,7 @@
 // Service worker de Soiffard : l'app s'ouvre même sans réseau.
 // Coquille (HTML, CSS, JS, icônes) : réseau d'abord, cache en secours.
 // Tuiles de carte et polices : cache d'abord. API : jamais en cache ici (le Worker s'en occupe).
-const VERSION = "soiffard-v1";
+const VERSION = "soiffard-v2";
 const SHELL = ["./", "index.html", "style.css", "app.js", "lib.js", "logo.svg", "icon-192.png", "manifest.webmanifest"];
 
 self.addEventListener("install", (e) => {
