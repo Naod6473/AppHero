@@ -11,7 +11,12 @@
 // déjà à ~100 m ; le serveur ne garde que l'identifiant du bar, la durée et un pseudo.
 // Semaine : du lundi 6 h au lundi 6 h suivant (heure de Paris).
 
-const OVERPASS = ["https://overpass-api.de/api/interpreter", "https://overpass.kumi.systems/api/interpreter"];
+const OVERPASS = [
+  "https://overpass-api.de/api/interpreter",
+  "https://overpass.private.coffee/api/interpreter",
+  "https://maps.mail.ru/osm/tools/overpass/api/interpreter",
+  "https://overpass.kumi.systems/api/interpreter",
+];
 const RADIUS = 2000;
 const CACHE_SECONDS = 900;
 const MAX_VISIT = 4 * 3600; // un passage compte au plus 4 h
@@ -102,11 +107,12 @@ async function bars(request, ctx, url, h) {
   }
   const body = new URLSearchParams({ data: overpassQuery(rlat, rlon) });
   let data = null;
+  const tried = [];
   for (const endpoint of OVERPASS) {
     try {
       const res = await fetch(endpoint, {
         method: "POST",
-        body,
+        body: body.toString(),
         headers: { "content-type": "application/x-www-form-urlencoded", "user-agent": "Soiffard/1.0 (https://apphero.cloud)" },
         signal: AbortSignal.timeout(20000),
       });
@@ -114,11 +120,15 @@ async function bars(request, ctx, url, h) {
         data = await res.json();
         break;
       }
+      tried.push(`${new URL(endpoint).host} ${res.status}`);
     } catch (err) {
-      console.error("overpass", endpoint, err?.message);
+      tried.push(`${new URL(endpoint).host} ${err?.name || "erreur"}`);
     }
   }
-  if (!data) return h.json({ error: "OpenStreetMap ne répond pas. Réessaie dans un instant." }, 502);
+  if (!data) {
+    console.error("overpass", tried.join(", "));
+    return h.json({ error: "OpenStreetMap ne répond pas. Réessaie dans un instant.", tried }, 502);
+  }
   const res = h.json({ bars: parseOverpass(data), at: Date.now() }, 200, { "cache-control": `public, max-age=${CACHE_SECONDS}` });
   if (cache) ctx.waitUntil(cache.put(key, res.clone()));
   return res;
