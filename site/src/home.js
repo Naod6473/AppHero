@@ -240,7 +240,7 @@ function renderDeck() {
             <span class="card-when">${esc(fmtLongUpper(day.date))}</span>
             <span class="card-num">${day.id ? `JOUR ${day.id} / 30` : c.tag}</span>
           </div>
-          <div class="card-title">${esc(c.title)}</div>
+          <div class="card-title">${c.app?.logo ? `<img class="card-logo" src="${esc(c.app.logo)}" alt="" width="64" height="64">` : ""}${esc(c.title)}</div>
           <span class="card-theme">${esc(c.theme)}</span>
           <p class="card-body">${esc(c.body)}</p>
           ${c.making ? `<p class="card-making">${esc(c.making)}</p>` : ""}
@@ -356,7 +356,7 @@ function renderTiles() {
         <span class="sr-only">App ${day.id}, sortie ${esc(meta)}</span></div>`;
     }
     return `<div class="tile is-open" style="--r:${rot};--bg:${esc(app.color)}">
-      <span class="tile-num" aria-hidden="true">${day.id}</span>
+      <span class="tile-top"><span class="tile-num" aria-hidden="true">${day.id}</span>${app.logo ? `<img class="tile-logo" src="${esc(app.logo)}" alt="" loading="lazy" width="56" height="56">` : ""}</span>
       <span><a class="tile-link tile-name" href="/apps/${esc(app.slug)}/" data-open="${esc(app.id)}">${esc(app.title)}</a><br><span class="tile-meta">${esc(meta)}</span></span>
       ${reactButtons(app, true)}
     </div>`;

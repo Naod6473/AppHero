@@ -71,5 +71,7 @@ for (const app of ready) {
     recursive: true,
     filter: (p) => !/(^|\/)(node_modules|\.git|app\.json)(\/|$)/.test(p.slice(src.length)),
   });
+  // Le logo reste à la racine du dossier de l'app, même quand l'app a un build.
+  if (app.logo && app.build) cpSync(join(app.dir, app.logo.split("/").pop()), join(dest, app.logo.split("/").pop()));
 }
 console.log(`Apps copiées : ${ready.map((a) => a.slug).join(", ") || "aucune"}`);

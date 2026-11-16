@@ -202,6 +202,11 @@ button, input, select, textarea { font-family: inherit; color: inherit; }
 .tile.is-soon:hover .tile-num { animation: tile-wiggle 0.4s var(--bounce); }
 @keyframes tile-wiggle { 30% { transform: rotate(-8deg); } 60% { transform: rotate(6deg); } }
 .tile-num { display: inline-block; }
+/* Le logo de l'app, une fois publiée. */
+.tile-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+.tile-logo { flex: none; width: 56px; height: 56px; object-fit: cover; border-radius: 16px; border: 3px solid var(--ink); background: var(--paper); box-shadow: 3px 3px 0 var(--ink); transform: rotate(6deg); transition: transform 0.25s var(--bounce); }
+.tile:hover .tile-logo { transform: rotate(-8deg) scale(1.12); }
+.card-logo { display: block; width: 64px; height: 64px; object-fit: cover; border-radius: 18px; border: 4px solid var(--ink); background: var(--paper); box-shadow: 4px 4px 0 var(--ink); margin-bottom: 10px; transform: rotate(-4deg); }
 .tile-num { font-family: var(--display); font-size: 46px; line-height: 1; }
 .tile-name { font-weight: 800; font-size: 18px; line-height: 1.1; overflow-wrap: anywhere; }
 .tile-meta { font-weight: 700; font-size: 13px; line-height: 1.2; }

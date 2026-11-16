@@ -42,7 +42,8 @@
     "*{box-sizing:border-box;font-family:Rubik,system-ui,-apple-system,'Segoe UI',sans-serif}" +
     ".wrap{position:fixed;left:12px;bottom:12px;z-index:2147483000;max-width:calc(100vw - 24px);color:#15112B}" +
     ".pill{display:flex;align-items:center;gap:8px;min-height:44px;padding:6px 14px 6px 6px;background:#FFD83D;border:3px solid #15112B;border-radius:999px;box-shadow:4px 4px 0 #15112B;font-weight:800;font-size:14px;cursor:pointer;max-width:100%}" +
-    ".pill b{flex:none;display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:50%;background:#15112B;color:#FFD83D;font-size:13px}" +
+    ".pill b{flex:none;display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:50%;background:#15112B;color:#FFD83D;font-size:13px;overflow:hidden}" +
+    ".pill b img{width:100%;height:100%;object-fit:cover}" +
     ".pill span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}" +
     ".panel{position:absolute;left:0;bottom:56px;width:min(340px,calc(100vw - 24px));background:#FFF8E1;border:4px solid #15112B;border-radius:20px;box-shadow:6px 6px 0 #15112B;padding:16px}" +
     ".panel[hidden]{display:none}" +
@@ -76,7 +77,7 @@
     '<button class="sh" type="button" id="share" aria-label="Partager">📤</button>' +
     '<a class="home" href="/">Apphéro</a>' +
     "</div></div>" +
-    '<button class="pill" id="pill" type="button" aria-expanded="false" aria-controls="panel"><b>' + esc(app.id) + "</b><span>" + (short ? esc(short) : "Apphéro · la fiche") + "</span></button>" +
+    '<button class="pill" id="pill" type="button" aria-expanded="false" aria-controls="panel"><b>' + (app.logo ? '<img src="' + esc(app.logo) + '" alt="">' : esc(app.id)) + "</b><span>" + (short ? esc(short) : "Apphéro · la fiche") + "</span></button>" +
     "</div>";
 
   var $ = function (id) { return root.getElementById(id); };

@@ -96,8 +96,8 @@ async function api(request, env, ctx, url, now) {
 }
 
 function publicApp(a) {
-  const { num, id, slug, title, tagline, publishAt, date, theme, color, tags, criterion, making } = a;
-  return { num, id, slug, title, tagline, publishAt, date, theme, color, tags, criterion, making };
+  const { num, id, slug, title, tagline, publishAt, date, theme, color, tags, criterion, making, logo } = a;
+  return { num, id, slug, title, tagline, publishAt, date, theme, color, tags, criterion, making, logo: logo || null };
 }
 
 // Tous les compteurs utiles en une requête (quelques dizaines de lignes au plus).
