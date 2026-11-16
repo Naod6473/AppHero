@@ -1,0 +1,66 @@
+name: Déployer une version de test
+
+# Met en ligne la branche sur un Worker séparé (apphero-test, adresse workers.dev),
+# avec sa propre base D1 (apphero-test). La prod (apphero.cloud) n'est jamais touchée.
+# Les apps modifiées sur la branche y sont visibles tout de suite, sans attendre 18 h.
+
+on:
+  push:
+    branches: ["claude/**"]
+  workflow_dispatch:
+
+concurrency:
+  group: test-deploy
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Rendre visibles les apps de la branche
+        run: |
+          git fetch origin main --depth=50 || true
+          APPS=$(git diff --name-only origin/main...HEAD -- apps/ | cut -d/ -f2 | sort -u | tr '\n' ' ')
+          echo "Apps de la branche : $APPS"
+          for a in $APPS; do
+            f="apps/$a/app.json"
+            [ -f "$f" ] && node -e 'const fs=require("fs");const f=process.argv[1];const j=JSON.parse(fs.readFileSync(f));j.publishAt="2026-01-01T18:00:00+01:00";fs.writeFileSync(f,JSON.stringify(j,null,2))' "$f"
+          done
+      - run: npm run build
+      - name: Déployer sur apphero-test
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          if [ -n "$ACCOUNT_ID" ]; then export CLOUDFLARE_ACCOUNT_ID="$ACCOUNT_ID"; fi
+          ID=$(npx wrangler d1 list --json | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{const l=JSON.parse(s);const d=l.find(x=>x.name==="apphero-test");process.stdout.write(d?d.uuid:"")})')
+          if [ -z "$ID" ]; then
+            npx wrangler d1 create apphero-test
+            ID=$(npx wrangler d1 list --json | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{const l=JSON.parse(s);process.stdout.write(l.find(x=>x.name==="apphero-test").uuid)})')
+          fi
+          cat > wrangler.test.json <<EOF
+          {
+            "name": "apphero-test",
+            "main": "worker/src/index.js",
+            "compatibility_date": "2025-09-01",
+            "assets": { "directory": "./dist", "binding": "ASSETS", "html_handling": "auto-trailing-slash",
+              "run_worker_first": ["/api/*", "/apps/*", "/0*", "/1*", "/2*", "/3*"] },
+            "workers_dev": true,
+            "d1_databases": [{ "binding": "DB", "database_name": "apphero-test", "database_id": "$ID" }],
+            "vars": { "TURNSTILE_SITE_KEY": "", "REPO_URL": "https://github.com/Naod6473/AppHero" }
+          }
+          EOF
+          npx wrangler d1 execute apphero-test --remote --file worker/schema.sql -c wrangler.test.json
+          npx wrangler deploy -c wrangler.test.json | tee deploy.log
+          URL=$(grep -o 'https://[^ ]*workers\.dev' deploy.log | head -1)
+          echo "Adresse de test : $URL"
+          echo "## Version de test en ligne" >> "$GITHUB_STEP_SUMMARY"
+          echo "$URL" >> "$GITHUB_STEP_SUMMARY"
