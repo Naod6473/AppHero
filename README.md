@@ -12,8 +12,8 @@ Site : https://apphero.cloud
 | Lundi | App utile |
 | Mardi | 2 heures chrono |
 | Mercredi | App de la communauté |
-| Jeudi | La roue décide (tirage la veille au soir : un critère, ou une idée d'app complète imaginée par l'IA) |
-| Vendredi | Surprise du vendredi |
+| Jeudi | Surprise du jeudi |
+| Vendredi | La roue décide (tirage le jeudi soir : un critère, ou une idée d'app complète imaginée par l'IA) |
 | Samedi | Jeu + vote de l'app de la semaine |
 
 Un vote par jour, sans compte. App de la semaine les samedis 21 et 28 novembre, 5, 12 et 19 décembre. Finale le mardi 22 décembre avec la 30e app.
@@ -67,6 +67,9 @@ npm run new -- 05 nom-de-l-app "Titre de l'app" "Une phrase qui donne envie"
 Le dossier est créé avec un `app.json` en `"status": "brouillon"` (il n'est pas publié).
 Quand l'app est finie, passe le statut à `"prêt"`.
 
+La fiche de fabrication (`"making"` dans `app.json`) s'affiche sur la carte de l'accueil et dans une pastille en bas de l'app :
+`buildMinutes` (construction), `thinkingMinutes` (réflexion), `tokens`, `prompts` (messages à l'IA), `lines` (lignes de code), `tool`, `note`. Tout est facultatif.
+
 Une app préparée d'avance reste sur sa propre branche et n'est fusionnée sur `main` que le jour de sa sortie.
 Même fusionnée plus tôt dans la journée, elle reste invisible sur le site jusqu'à son `publishAt` (18 h) : c'est le Worker qui décide à chaque visite.
 
@@ -84,9 +87,16 @@ Si une app a besoin d'un build, ajoute dans son `app.json` :
 
 ## Le vote
 
-- Un vote par jour (jour de Paris) et par personne, pour n'importe quelle app sortie.
-- Identifiant anonyme en cookie (déposé seulement au moment du vote) + empreinte d'IP hachée qui change chaque jour (5 votes maximum par réseau et par jour) + Cloudflare Turnstile contre les robots.
-- Deux classements : les plus savourées (votes) et les plus regardées (visites). L'app de la semaine est celle qui a reçu le plus de votes entre deux samedis 18 h.
+- **J'aime / Bof** sur chaque app sortie : une réaction par personne et par app, modifiable. Classement public « Les plus aimées » ; les bof restent privés.
+- **Vote de la semaine** : du samedi 18 h au lundi 18 h, une voix parmi les apps de la semaine (calendrier dans `shared/calendar.js`, `BALLOTS`). Sans voix, l'app la plus aimée de la semaine gagne.
+- **Grande finale** : les 5 gagnantes + les apps 29 et 30, du mardi 22 décembre 18 h au mercredi 23 décembre 20 h.
+- Identifiant anonyme en cookie (déposé seulement au premier avis ou vote) + empreinte d'IP hachée qui change chaque jour (8 avis ou votes maximum par réseau) + Cloudflare Turnstile sur les votes.
+
+## Les statistiques (sans cookie)
+
+- `site/public/t.js` est chargé sur toutes les pages (le Worker l'ajoute aussi dans chaque app). Il envoie des événements à `POST /api/t` : page vue, temps actif, défilement, clics sortants, erreurs, et les événements du site (`ouvrir_app`, `deck`, `jaime`, `bof`, `vote`, `roue_revoir`).
+- Rien n'est stocké dans le navigateur. Le visiteur du jour est une empreinte (sel, jour, IP, navigateur) qui change chaque jour. Les événements sont effacés après 13 mois.
+- Page privée : `/stats/`, avec le code organisateur (`ADMIN_TOKEN`).
 
 ## La roue
 

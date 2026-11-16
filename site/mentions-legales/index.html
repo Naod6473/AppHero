@@ -4,9 +4,11 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Mentions légales et confidentialité · Apphéro</title>
-  <meta name="description" content="Qui édite Apphéro, où il est hébergé, et ce qu'on fait (ou pas) de tes données : pas de pub, pas de pisteur, un seul cookie technique pour le vote.">
+  <meta name="description" content="Qui édite Apphéro, où il est hébergé, et ce qu'on fait (ou pas) de tes données : pas de pub, une mesure d'audience maison sans cookie, un cookie seulement pour le vote.">
   <meta name="theme-color" content="#FFD83D">
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="apple-touch-icon" href="/icon-192.png">
   <script type="module" src="/src/common.js"></script>
   <style>
     .legal { max-width: 860px; margin: 0 auto; padding: 24px 32px 72px; display: flex; flex-direction: column; gap: 28px; }
@@ -18,6 +20,7 @@
     .tldr { background: var(--mint); transform: rotate(-0.6deg); }
     @media (max-width: 640px) { .legal { padding: 16px 16px 56px; } .legal .panel { padding: 20px; } }
   </style>
+  <script src="/t.js" defer></script>
 </head>
 <body>
   <header class="wrap nav">
@@ -31,8 +34,9 @@
     <section class="panel tldr">
       <h2>En bref</h2>
       <ul>
-        <li>Pas de compte, pas de pub, pas de mesure d'audience, pas de pisteur.</li>
-        <li>Un seul cookie, purement technique, déposé uniquement si tu votes, pour éviter les doubles votes.</li>
+        <li>Pas de compte, pas de pub, pas de pisteur publicitaire.</li>
+        <li>Une mesure d'audience maison, anonyme et sans cookie, pour savoir ce qui plaît. Ces statistiques restent chez nous et ne sont jamais vendues.</li>
+        <li>Un cookie, seulement si tu donnes ton avis (j'aime, bof ou vote), pour que ta voix compte une seule fois.</li>
         <li>Le site est hébergé chez Cloudflare. Le nom de domaine est enregistré chez OVH.</li>
         <li>Le code est public sur GitHub.</li>
       </ul>
@@ -56,28 +60,36 @@
     <section class="panel">
       <h2>Ce qu'on ne fait pas</h2>
       <ul>
-        <li>Aucune publicité, aucun outil de mesure d'audience (ni Google Analytics, ni autre).</li>
+        <li>Aucune publicité, aucun outil de mesure d'audience externe (ni Google Analytics, ni autre).</li>
         <li>Aucun bouton de réseau social qui te piste : le lien vers X est un simple lien.</li>
         <li>Aucune police, image ou script chargé depuis Google : les polices sont hébergées avec le site.</li>
-        <li>Aucune revente ni aucun partage de données.</li>
+        <li>Aucune revente ni aucun partage de données, statistiques comprises.</li>
       </ul>
     </section>
 
     <section class="panel">
+      <h2>Les statistiques de visite</h2>
+      <p>Pour savoir quelles apps plaisent et améliorer le site, Apphéro mesure lui-même son audience, sans outil extérieur et <strong>sans cookie</strong> : rien n'est enregistré sur ton appareil.</p>
+      <p>On compte par exemple les pages vues, le temps passé sur une page ou une app, jusqu'où tu fais défiler, les clics sur les boutons du site, le site d'où tu viens, le type d'appareil, le navigateur, la langue, le pays (déduit par l'hébergeur) et la vitesse de chargement. Les erreurs techniques des pages sont aussi relevées pour les corriger.</p>
+      <p>Pour compter les visiteurs d'une journée, on calcule une empreinte à partir d'une clé secrète, de la date, de ton adresse IP et de ton navigateur. L'adresse IP n'est jamais enregistrée, l'empreinte change chaque jour et ne permet pas de te reconnaître d'un jour à l'autre.</p>
+      <p>Ces statistiques servent uniquement à Apphéro (intérêt légitime). Elles ne sont ni vendues, ni partagées, ni croisées avec d'autres données, et elles sont effacées au bout de 13 mois.</p>
+    </section>
+
+    <section class="panel">
       <h2>Le cookie du vote</h2>
-      <p>Quand tu votes, et seulement à ce moment-là, le site dépose un cookie nommé <code>ah_id</code>. Il contient un identifiant tiré au hasard, sans lien avec ton identité. Il sert uniquement à t'empêcher de voter deux fois le même jour. Il expire au bout de 3 mois.</p>
-      <p>Ce cookie est strictement nécessaire au vote que tu demandes : il n'a donc pas besoin de bandeau de consentement. Si tu ne votes pas, aucun cookie n'est déposé par Apphéro.</p>
+      <p>Quand tu donnes ton avis sur une app (j'aime ou bof) ou que tu votes, et seulement à ce moment-là, le site dépose un cookie. Il contient un identifiant tiré au hasard, sans lien avec ton identité, et sert uniquement à ce que chaque personne compte une fois. Il expire au bout de 3 mois.</p>
+      <p>Ce cookie est nécessaire au vote que tu demandes : il n'a donc pas besoin de bandeau de consentement. Si tu ne donnes pas ton avis, Apphéro ne dépose aucun cookie.</p>
     </section>
 
     <section class="panel">
       <h2>Les données du vote</h2>
-      <p>Pour chaque vote, la base enregistre :</p>
+      <p>Pour chaque j'aime, bof ou vote, la base enregistre :</p>
       <ul>
         <li>l'app choisie, la date et l'heure ;</li>
         <li>l'identifiant aléatoire du cookie ;</li>
         <li>une empreinte de ton adresse IP, calculée avec une clé secrète et la date du jour. L'adresse IP elle-même n'est jamais enregistrée, et l'empreinte change chaque jour. Elle sert seulement à limiter les votes en masse depuis un même réseau.</li>
       </ul>
-      <p>Les classements ne gardent que des compteurs par app. Les visites des apps sont comptées sans aucune donnée personnelle.</p>
+      <p>Les classements publics ne montrent que des totaux par app. Le nombre de bof n'est jamais affiché.</p>
       <p>Ces données servent uniquement à faire fonctionner un vote honnête (intérêt légitime). Elles sont supprimées après la fin du défi, au plus tard le 31 janvier 2027.</p>
     </section>
 
@@ -94,7 +106,7 @@
 
     <section class="panel">
       <h2>Tes droits</h2>
-      <p>Tu peux demander l'accès à tes données ou leur effacement en écrivant sur X à <a href="https://x.com/ZeroE24661" rel="noopener">@ZeroE24661</a>. Comme les votes sont rattachés à un identifiant aléatoire, il faudra nous donner la valeur de ton cookie <code>ah_id</code> pour qu'on retrouve ta ligne. Tu peux aussi supprimer ce cookie toi-même depuis ton navigateur.</p>
+      <p>Tu peux demander l'accès à tes données ou leur effacement en écrivant sur X à <a href="https://x.com/ZeroE24661" rel="noopener">@ZeroE24661</a>. Comme les votes sont rattachés à un identifiant aléatoire, il faudra nous donner la valeur du cookie du vote pour qu'on retrouve tes avis. Tu peux aussi supprimer ce cookie toi-même depuis ton navigateur.</p>
       <p>En cas de désaccord, tu peux saisir la <a href="https://www.cnil.fr/fr/plaintes" rel="noopener">CNIL</a>.</p>
     </section>
 

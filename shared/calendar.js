@@ -5,7 +5,8 @@
 // - Départ mercredi 18 novembre 2026, rythme lundi-samedi, 30 apps.
 // - Toutes les sorties à 18 h, heure de Paris (UTC+1 en novembre-décembre).
 // - Vote de la semaine le samedi, finale le mardi 22 décembre (app 30).
-// - La roue tourne la veille au soir de chaque jeudi (5 tirages).
+// - La roue tourne le jeudi soir pour l'app du vendredi (5 tirages). Décidé par Simon le 16/11/2026 :
+//   le site sort le mercredi 18, donc pas de tirage ce soir-là.
 
 export const TZ = "Europe/Paris";
 export const RELEASE_HOUR = 18;
@@ -24,10 +25,16 @@ export const THEMES = {
   1: { name: "App utile", color: "#FF3D9A", blurb: "Une app utile, tirée de mes idées." },
   2: { name: "2 heures chrono", color: "#25D0E8", blurb: "Une app faite en moins de 2 heures." },
   3: { name: "Communauté", color: "#7CF2B0", blurb: "L'idée vient du public." },
-  4: { name: "La roue décide", color: "#FFD83D", blurb: "Le critère sort de la roue la veille au soir." },
-  5: { name: "Surprise du vendredi", color: "#B9A3FF", blurb: "Inutile mais magnifique, ou contrainte folle." },
+  4: { name: "Surprise du jeudi", color: "#B9A3FF", blurb: "Inutile mais magnifique, ou contrainte folle." },
+  5: { name: "La roue décide", color: "#FFD83D", blurb: "Le critère sort de la roue la veille au soir." },
   6: { name: "Jeu + vote", color: "#FF8A3D", blurb: "Une app jeu, et l'app de la semaine." },
 };
+
+// Le dimanche : pas d'app prévue… en principe.
+export const SUNDAY = { name: "Repos… ou pas !", color: "#FFF8E1", blurb: "Pas d'app prévue le dimanche. Mais une surprise n'est jamais exclue." };
+
+// Fin du défi : résultat de la grande finale.
+export const CHALLENGE_END = "2026-12-23T20:00:00+01:00";
 
 function addDays(iso, n) {
   const d = new Date(iso + "T12:00:00Z");
@@ -64,7 +71,7 @@ function buildDays() {
         theme: theme.name,
         color: theme.color,
         blurb: theme.blurb,
-        wheel: wd === 4,
+        wheel: wd === 5,
       });
     }
     iso = addDays(iso, 1);
@@ -74,19 +81,35 @@ function buildDays() {
 
 export const DAYS = buildDays();
 
-// Fenêtres de vote : un vote compte pour la semaine pendant laquelle il est fait.
-// Chaque semaine se clôt le samedi à 18 h (annonce avec l'app jeu du samedi).
-// La finale prend tous les votes du défi, jusqu'au mardi 22 décembre à 23 h 59.
-export const WEEKS = [
-  { id: "S1", label: "Semaine 1", announce: "2026-11-21", from: "2026-11-18T18:00:00+01:00", to: "2026-11-21T18:00:00+01:00" },
-  { id: "S2", label: "Semaine 2", announce: "2026-11-28", from: "2026-11-21T18:00:00+01:00", to: "2026-11-28T18:00:00+01:00" },
-  { id: "S3", label: "Semaine 3", announce: "2026-12-05", from: "2026-11-28T18:00:00+01:00", to: "2026-12-05T18:00:00+01:00" },
-  { id: "S4", label: "Semaine 4", announce: "2026-12-12", from: "2026-12-05T18:00:00+01:00", to: "2026-12-12T18:00:00+01:00" },
-  { id: "S5", label: "Semaine 5", announce: "2026-12-19", from: "2026-12-12T18:00:00+01:00", to: "2026-12-19T18:00:00+01:00" },
-  { id: "F", label: "Finale", announce: "2026-12-22", from: "2026-11-18T18:00:00+01:00", to: "2026-12-22T23:59:59+01:00", final: true },
+// Les votes (décidés par Simon le 16/11/2026) :
+// - Vote de la semaine : s'ouvre le samedi à 18 h (sortie de la dernière app de la semaine),
+//   se ferme le lundi à 18 h. Une voix par personne parmi les apps de la semaine.
+// - Grande finale : les 5 gagnantes de la semaine + les apps 29 et 30.
+//   Du mardi 22 décembre 18 h au mercredi 23 décembre 20 h.
+const nums = (a, b) => Array.from({ length: b - a + 1 }, (_, i) => String(a + i).padStart(2, "0"));
+export const BALLOTS = [
+  { id: "S1", label: "Semaine 1", apps: nums(1, 4), opensAt: "2026-11-21T18:00:00+01:00", closesAt: "2026-11-23T18:00:00+01:00" },
+  { id: "S2", label: "Semaine 2", apps: nums(5, 10), opensAt: "2026-11-28T18:00:00+01:00", closesAt: "2026-11-30T18:00:00+01:00" },
+  { id: "S3", label: "Semaine 3", apps: nums(11, 16), opensAt: "2026-12-05T18:00:00+01:00", closesAt: "2026-12-07T18:00:00+01:00" },
+  { id: "S4", label: "Semaine 4", apps: nums(17, 22), opensAt: "2026-12-12T18:00:00+01:00", closesAt: "2026-12-14T18:00:00+01:00" },
+  { id: "S5", label: "Semaine 5", apps: nums(23, 28), opensAt: "2026-12-19T18:00:00+01:00", closesAt: "2026-12-21T18:00:00+01:00" },
+  // Les candidates de la finale sont calculées : gagnantes de S1 à S5, plus ces apps-là.
+  { id: "F", label: "Grande finale", final: true, extra: nums(29, 30), opensAt: "2026-12-22T18:00:00+01:00", closesAt: "2026-12-23T20:00:00+01:00" },
 ];
 
-// Les tirages de la roue : la veille au soir de chaque jeudi.
+export function ballotStatus(b, now = Date.now()) {
+  if (now < Date.parse(b.opensAt)) return "upcoming";
+  if (now < Date.parse(b.closesAt)) return "open";
+  return "closed";
+}
+
+export function fmtDateTime(isoWithTime) {
+  const iso = isoWithTime.slice(0, 10);
+  const hh = Number(isoWithTime.slice(11, 13));
+  return `${fmtShort(iso)} · ${hh} h`;
+}
+
+// Les tirages de la roue : le jeudi soir, pour l'app du vendredi.
 export const WHEEL_DAYS = DAYS.filter((d) => d.wheel).map((d) => ({ forDay: d.date, drawOn: addDays(d.date, -1), num: d.num }));
 
 // Date du jour à Paris (AAAA-MM-JJ) pour un instant donné.

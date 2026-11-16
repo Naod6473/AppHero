@@ -41,6 +41,8 @@ const app = {
   color: day.color,
   tags: [],
   status: "brouillon",
+  // Fiche de fabrication, affichée sur la carte et dans l'app. Laisse null ce que tu ne sais pas.
+  making: { buildMinutes: null, thinkingMinutes: null, tokens: null, prompts: null, lines: null, tool: "Claude Code", note: null },
 };
 writeFileSync(join(dir, "app.json"), JSON.stringify(app, null, 2) + "\n");
 console.log(`apps/${slug} créé (sortie ${fmtLong(day.date)} à 18 h).`);
