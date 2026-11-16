@@ -14,8 +14,7 @@
     {
       "binding": "DB",
       "database_name": "apphero",
-      // À remplacer par l'identifiant donné par `wrangler d1 create apphero`.
-      "database_id": "00000000-0000-0000-0000-000000000000"
+      "database_id": "8037a815-35f7-472c-8d82-e0af8ca07a8c"
     }
   ],
   "vars": {
