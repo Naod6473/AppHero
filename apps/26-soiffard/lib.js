@@ -362,3 +362,47 @@ export function du(name) {
   if (/^(bar|café|pub|bistrot|bistro|comptoir)\b/i.test(n)) return `du ${n}`;
   return /^[aeiouyéèêh]/i.test(n) ? `d'${n}` : `de ${n}`;
 }
+
+// ---------------------------------------------------------------- bars (OpenStreetMap / Overpass)
+// Partagé avec le Worker (worker/src/soiffard.js) : l'app s'en sert aussi en secours si le serveur n'obtient rien.
+
+export const RADIUS = 2000;
+const KINDS = { bar: "Bar", pub: "Pub", biergarten: "Biergarten", nightclub: "Boîte de nuit" };
+export const OVERPASS = [
+  "https://overpass-api.de/api/interpreter",
+  "https://overpass.private.coffee/api/interpreter",
+  "https://maps.mail.ru/osm/tools/overpass/api/interpreter",
+  "https://overpass.kumi.systems/api/interpreter",
+];
+
+export function overpassQuery(lat, lon, radius = RADIUS) {
+  return `[out:json][timeout:20];nwr["amenity"~"^(bar|pub|biergarten|nightclub)$"](around:${radius},${lat},${lon});out center tags 300;`;
+}
+
+export function parseOverpass(data) {
+  const out = [];
+  const seen = new Set();
+  for (const el of data?.elements || []) {
+    const t = el.tags || {};
+    const lat = el.lat ?? el.center?.lat;
+    const lon = el.lon ?? el.center?.lon;
+    if (typeof lat !== "number" || typeof lon !== "number") continue;
+    const name = (t.name || "").trim();
+    if (!name) continue; // un bar sans nom n'aide personne à le trouver
+    const id = `${el.type[0]}${el.id}`;
+    if (seen.has(id)) continue;
+    seen.add(id);
+    let kind = KINDS[t.amenity] || "Bar";
+    if (t.amenity === "bar" && /brasserie/i.test(`${name} ${t.cuisine || ""}`)) kind = "Brasserie";
+    out.push({
+      id,
+      name: name.slice(0, 80),
+      kind,
+      lat: Math.round(lat * 1e6) / 1e6,
+      lon: Math.round(lon * 1e6) / 1e6,
+      oh: t.opening_hours ? String(t.opening_hours).slice(0, 200) : null,
+      street: t["addr:street"] ? `${t["addr:housenumber"] ? t["addr:housenumber"] + " " : ""}${t["addr:street"]}`.slice(0, 80) : null,
+    });
+  }
+  return out;
+}

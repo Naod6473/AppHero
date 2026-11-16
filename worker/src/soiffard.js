@@ -11,18 +11,13 @@
 // déjà à ~100 m ; le serveur ne garde que l'identifiant du bar, la durée et un pseudo.
 // Semaine : du lundi 6 h au lundi 6 h suivant (heure de Paris).
 
-const OVERPASS = [
-  "https://overpass-api.de/api/interpreter",
-  "https://overpass.private.coffee/api/interpreter",
-  "https://maps.mail.ru/osm/tools/overpass/api/interpreter",
-  "https://overpass.kumi.systems/api/interpreter",
-];
-const RADIUS = 2000;
+import { OVERPASS, overpassQuery, parseOverpass } from "../../apps/26-soiffard/lib.js";
+export { overpassQuery, parseOverpass };
+
 const CACHE_SECONDS = 900;
 const MAX_VISIT = 4 * 3600; // un passage compte au plus 4 h
 const MIN_VISIT = 60;
 const MAX_VISITS_PER_IP_DAY = 40;
-const KINDS = { bar: "Bar", pub: "Pub", biergarten: "Biergarten", nightclub: "Boîte de nuit" };
 
 export async function soiffardApi(request, env, ctx, url, now, h) {
   const route = `${request.method} ${url.pathname.replace(/\/$/, "")}`;
@@ -58,37 +53,6 @@ export function weekKey(ms) {
 
 // ---------------------------------------------------------------- bars (OpenStreetMap)
 
-export function overpassQuery(lat, lon, radius = RADIUS) {
-  return `[out:json][timeout:20];nwr["amenity"~"^(bar|pub|biergarten|nightclub)$"](around:${radius},${lat},${lon});out center tags 300;`;
-}
-
-export function parseOverpass(data) {
-  const out = [];
-  const seen = new Set();
-  for (const el of data?.elements || []) {
-    const t = el.tags || {};
-    const lat = el.lat ?? el.center?.lat;
-    const lon = el.lon ?? el.center?.lon;
-    if (typeof lat !== "number" || typeof lon !== "number") continue;
-    const name = (t.name || "").trim();
-    if (!name) continue; // un bar sans nom n'aide personne à le trouver
-    const id = `${el.type[0]}${el.id}`;
-    if (seen.has(id)) continue;
-    seen.add(id);
-    let kind = KINDS[t.amenity] || "Bar";
-    if (t.amenity === "bar" && /brasserie/i.test(`${name} ${t.cuisine || ""}`)) kind = "Brasserie";
-    out.push({
-      id,
-      name: name.slice(0, 80),
-      kind,
-      lat: Math.round(lat * 1e6) / 1e6,
-      lon: Math.round(lon * 1e6) / 1e6,
-      oh: t.opening_hours ? String(t.opening_hours).slice(0, 200) : null,
-      street: t["addr:street"] ? `${t["addr:housenumber"] ? t["addr:housenumber"] + " " : ""}${t["addr:street"]}`.slice(0, 80) : null,
-    });
-  }
-  return out;
-}
 
 async function bars(request, ctx, url, h) {
   const lat = Number(url.searchParams.get("lat"));

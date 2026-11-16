@@ -225,8 +225,14 @@ async function maybeFetchBars(force = false) {
   const lat = S.pos.lat.toFixed(3);
   const lon = S.pos.lon.toFixed(3);
   try {
-    const data = await api(`/bars?lat=${lat}&lon=${lon}`);
-    S.bars = data.bars || [];
+    let list = null;
+    try {
+      list = (await api(`/bars?lat=${lat}&lon=${lon}`)).bars;
+    } catch (e) {
+      list = await barsFromOverpass(lat, lon);
+      if (!list) throw e;
+    }
+    S.bars = list || [];
     S.barsCenter = { lat: Number(lat), lon: Number(lon) };
     S.barsAt = Date.now();
     store.set("bars", { at: S.barsAt, center: S.barsCenter, list: S.bars });
@@ -236,6 +242,18 @@ async function maybeFetchBars(force = false) {
   }
   S.barsLoading = false;
   render();
+}
+
+// Secours : si le serveur n'obtient rien d'OpenStreetMap, le téléphone demande directement.
+async function barsFromOverpass(lat, lon) {
+  const body = new URLSearchParams({ data: L.overpassQuery(lat, lon) }).toString();
+  for (const url of L.OVERPASS) {
+    try {
+      const res = await fetch(url, { method: "POST", body, headers: { "content-type": "application/x-www-form-urlencoded" }, signal: AbortSignal.timeout(15000) });
+      if (res.ok) return L.parseOverpass(await res.json());
+    } catch {}
+  }
+  return null;
 }
 
 function sortedBars() {
