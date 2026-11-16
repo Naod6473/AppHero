@@ -84,7 +84,7 @@ function publicApp(a) {
 async function state(request, env, now) {
   const apps = manifest.filter((a) => isReleased(a.publishAt, now)).map(publicApp);
   const today = parisDate(now);
-  const { voter, setCookie } = voterId(request);
+  const voter = readVoter(request); // pas de cookie déposé tant que la personne ne vote pas
 
   const startedWeeks = WEEKS.filter((w) => !w.final && Date.parse(w.from) <= now);
   const top = (kind, bucket, limit = 3) =>
@@ -93,7 +93,7 @@ async function state(request, env, now) {
   const queries = [
     top("vote", "ALL", 5),
     top("view", "ALL", 5),
-    env.DB.prepare("SELECT app FROM votes WHERE day = ? AND voter = ?").bind(today, voter),
+    env.DB.prepare("SELECT app FROM votes WHERE day = ? AND voter = ?").bind(today, voter || "-"),
     ...startedWeeks.map((w) => top("vote", w.id, 1)),
   ];
   const results = await env.DB.batch(queries);
@@ -114,7 +114,7 @@ async function state(request, env, now) {
     weeks,
     myVote: mine[0]?.app || null,
   };
-  return json(body, 200, setCookie ? { "set-cookie": setCookie } : {});
+  return json(body);
 }
 
 async function vote(request, env, now) {
@@ -127,10 +127,10 @@ async function vote(request, env, now) {
   const app = releasedApp(String(input.app || ""), now);
   if (!app) return json({ error: "Cette app n'est pas encore sortie." }, 400);
 
-  const { voter, setCookie, fresh } = voterId(request);
-  const headers = setCookie ? { "set-cookie": setCookie } : {};
-  // Un cookie tout neuf ne peut pas voter : ça bloque les scripts qui jettent leurs cookies.
-  if (fresh) return json({ error: "Recharge la page puis vote à nouveau." }, 400, headers);
+  // Le cookie technique n'est déposé qu'au moment du vote, pour empêcher de voter deux fois.
+  const existing = readVoter(request);
+  const voter = existing || crypto.randomUUID();
+  const headers = existing ? {} : { "set-cookie": `${COOKIE}=${voter}; Path=/; Max-Age=7776000; HttpOnly; Secure; SameSite=Lax` };
 
   const ip = request.headers.get("cf-connecting-ip") || "local";
   if (env.TURNSTILE_SECRET) {
@@ -231,16 +231,10 @@ function json(body, status = 200, headers = {}) {
   });
 }
 
-function voterId(request) {
+function readVoter(request) {
   const cookie = request.headers.get("cookie") || "";
   const m = cookie.match(new RegExp(`(?:^|;\\s*)${COOKIE}=([a-f0-9-]{36})`));
-  if (m) return { voter: m[1], setCookie: null, fresh: false };
-  const id = crypto.randomUUID();
-  return {
-    voter: id,
-    fresh: true,
-    setCookie: `${COOKIE}=${id}; Path=/; Max-Age=31536000; HttpOnly; Secure; SameSite=Lax`,
-  };
+  return m ? m[1] : null;
 }
 
 function isAdmin(request, env) {

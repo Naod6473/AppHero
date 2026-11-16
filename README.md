@@ -85,7 +85,7 @@ Si une app a besoin d'un build, ajoute dans son `app.json` :
 ## Le vote
 
 - Un vote par jour (jour de Paris) et par personne, pour n'importe quelle app sortie.
-- Identifiant anonyme en cookie + empreinte d'IP hachée qui change chaque jour (5 votes maximum par réseau et par jour) + Cloudflare Turnstile contre les robots.
+- Identifiant anonyme en cookie (déposé seulement au moment du vote) + empreinte d'IP hachée qui change chaque jour (5 votes maximum par réseau et par jour) + Cloudflare Turnstile contre les robots.
 - Deux classements : les plus savourées (votes) et les plus regardées (visites). L'app de la semaine est celle qui a reçu le plus de votes entre deux samedis 18 h.
 
 ## La roue

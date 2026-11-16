@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mentions légales et confidentialité · Apphéro</title>
+  <meta name="description" content="Qui édite Apphéro, où il est hébergé, et ce qu'on fait (ou pas) de tes données : pas de pub, pas de pisteur, un seul cookie technique pour le vote.">
+  <meta name="theme-color" content="#FFD83D">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <script type="module" src="/src/common.js"></script>
+  <style>
+    .legal { max-width: 860px; margin: 0 auto; padding: 24px 32px 72px; display: flex; flex-direction: column; gap: 28px; }
+    .legal .panel h2 { font-size: 32px; }
+    .legal .panel p, .legal .panel li { font-size: 18px; line-height: 1.5; }
+    .legal .panel ul { margin: 12px 0 0; padding-left: 22px; }
+    .legal .panel li + li { margin-top: 8px; }
+    .legal code { background: #fff; border: 2px solid var(--ink); border-radius: 8px; padding: 1px 6px; font-size: 0.9em; }
+    .tldr { background: var(--mint); transform: rotate(-0.6deg); }
+    @media (max-width: 640px) { .legal { padding: 16px 16px 56px; } .legal .panel { padding: 20px; } }
+  </style>
+</head>
+<body>
+  <header class="wrap nav">
+    <a class="logo" href="/">APPHÉRO</a>
+    <a class="btn btn-pill" href="/">Retour à l'accueil</a>
+  </header>
+
+  <main class="legal">
+    <h1 class="mega" style="font-size: clamp(52px, 9vw, 96px)">Mentions légales</h1>
+
+    <section class="panel tldr">
+      <h2>En bref</h2>
+      <ul>
+        <li>Pas de compte, pas de pub, pas de mesure d'audience, pas de pisteur.</li>
+        <li>Un seul cookie, purement technique, déposé uniquement si tu votes, pour éviter les doubles votes.</li>
+        <li>Le site est hébergé chez Cloudflare. Le nom de domaine est enregistré chez OVH.</li>
+        <li>Le code est public sur GitHub.</li>
+      </ul>
+    </section>
+
+    <section class="panel">
+      <h2>Éditeur</h2>
+      <p>Apphéro est un projet personnel et non commercial, édité par Simon, particulier, qui en est aussi le directeur de la publication.</p>
+      <p>Contact : sur X, <a href="https://x.com/ZeroE24661" rel="noopener">@ZeroE24661</a>.</p>
+    </section>
+
+    <section class="panel">
+      <h2>Hébergement</h2>
+      <p>Le site, l'API du vote et sa base de données (Cloudflare Workers et D1, base située en Europe de l'Ouest) sont hébergés par :<br>
+      <strong>Cloudflare, Inc.</strong>, 101 Townsend Street, San Francisco, CA 94107, États-Unis. <a href="https://www.cloudflare.com" rel="noopener">cloudflare.com</a></p>
+      <p>Le nom de domaine <code>apphero.cloud</code> est enregistré chez :<br>
+      <strong>OVH SAS</strong>, 2 rue Kellermann, 59100 Roubaix, France. <a href="https://www.ovhcloud.com" rel="noopener">ovhcloud.com</a></p>
+      <p>Le code source est publié sur GitHub (GitHub, Inc.) : <a href="https://github.com/Naod6473/AppHero" rel="noopener">github.com/Naod6473/AppHero</a>.</p>
+    </section>
+
+    <section class="panel">
+      <h2>Ce qu'on ne fait pas</h2>
+      <ul>
+        <li>Aucune publicité, aucun outil de mesure d'audience (ni Google Analytics, ni autre).</li>
+        <li>Aucun bouton de réseau social qui te piste : le lien vers X est un simple lien.</li>
+        <li>Aucune police, image ou script chargé depuis Google : les polices sont hébergées avec le site.</li>
+        <li>Aucune revente ni aucun partage de données.</li>
+      </ul>
+    </section>
+
+    <section class="panel">
+      <h2>Le cookie du vote</h2>
+      <p>Quand tu votes, et seulement à ce moment-là, le site dépose un cookie nommé <code>ah_id</code>. Il contient un identifiant tiré au hasard, sans lien avec ton identité. Il sert uniquement à t'empêcher de voter deux fois le même jour. Il expire au bout de 3 mois.</p>
+      <p>Ce cookie est strictement nécessaire au vote que tu demandes : il n'a donc pas besoin de bandeau de consentement. Si tu ne votes pas, aucun cookie n'est déposé par Apphéro.</p>
+    </section>
+
+    <section class="panel">
+      <h2>Les données du vote</h2>
+      <p>Pour chaque vote, la base enregistre :</p>
+      <ul>
+        <li>l'app choisie, la date et l'heure ;</li>
+        <li>l'identifiant aléatoire du cookie ;</li>
+        <li>une empreinte de ton adresse IP, calculée avec une clé secrète et la date du jour. L'adresse IP elle-même n'est jamais enregistrée, et l'empreinte change chaque jour. Elle sert seulement à limiter les votes en masse depuis un même réseau.</li>
+      </ul>
+      <p>Les classements ne gardent que des compteurs par app. Les visites des apps sont comptées sans aucune donnée personnelle.</p>
+      <p>Ces données servent uniquement à faire fonctionner un vote honnête (intérêt légitime). Elles sont supprimées après la fin du défi, au plus tard le 31 janvier 2027.</p>
+    </section>
+
+    <section class="panel">
+      <h2>Anti-robot et hébergeur</h2>
+      <p>Au moment du vote, <strong>Cloudflare Turnstile</strong> vérifie que tu n'es pas un robot, en analysant des signaux techniques de ton navigateur, sans publicité ni suivi. <a href="https://www.cloudflare.com/turnstile-privacy-policy/" rel="noopener">Confidentialité de Turnstile</a>.</p>
+      <p>Comme tout hébergeur, Cloudflare traite ton adresse IP pour acheminer les pages et protéger le site contre les attaques. Cloudflare est une société américaine qui adhère au cadre de protection des données UE-États-Unis (Data Privacy Framework). <a href="https://www.cloudflare.com/privacypolicy/" rel="noopener">Politique de confidentialité de Cloudflare</a>.</p>
+    </section>
+
+    <section class="panel">
+      <h2>Les apps</h2>
+      <p>Certaines apps gardent des réglages ou des scores dans ton navigateur (stockage local). Ces données restent sur ton appareil et ne nous sont jamais envoyées. Si une app a besoin d'autre chose (caméra, micro, position), elle te le demandera et l'expliquera sur sa page.</p>
+    </section>
+
+    <section class="panel">
+      <h2>Tes droits</h2>
+      <p>Tu peux demander l'accès à tes données ou leur effacement en écrivant sur X à <a href="https://x.com/ZeroE24661" rel="noopener">@ZeroE24661</a>. Comme les votes sont rattachés à un identifiant aléatoire, il faudra nous donner la valeur de ton cookie <code>ah_id</code> pour qu'on retrouve ta ligne. Tu peux aussi supprimer ce cookie toi-même depuis ton navigateur.</p>
+      <p>En cas de désaccord, tu peux saisir la <a href="https://www.cnil.fr/fr/plaintes" rel="noopener">CNIL</a>.</p>
+    </section>
+
+    <section class="panel">
+      <h2>Propriété</h2>
+      <p>Le code des apps est libre : tu peux le prendre, le modifier et le partager. Les noms et marques cités (Cloudflare, OVH, GitHub, X) appartiennent à leurs propriétaires.</p>
+      <p style="font-size: 15px">Dernière mise à jour : 16 novembre 2026.</p>
+    </section>
+  </main>
+
+  <footer class="footer" data-footer></footer>
+</body>
+</html>
