@@ -1,7 +1,7 @@
 # Apphéro
 
-**Une petite app par jour pendant 30 jours**, du lundi au samedi, à 18 h pile (l'heure de l'apéro).
-Du mercredi 18 novembre au mardi 22 décembre 2026. Légères, gratuites, et le code est à toi.
+**Une petite app par jour pendant 30 jours**, tous les jours, à 18 h pile (l'heure de l'apéro).
+Du mercredi 18 novembre au jeudi 17 décembre 2026. Légères, gratuites, et le code est à toi.
 
 Site : https://apphero.cloud
 
@@ -14,9 +14,10 @@ Site : https://apphero.cloud
 | Mercredi | App de la communauté |
 | Jeudi | Surprise du jeudi |
 | Vendredi | La roue décide (tirage le jeudi soir : un critère, ou une idée d'app complète imaginée par l'IA) |
-| Samedi | Jeu + vote de l'app de la semaine |
+| Samedi | Jeu du samedi |
+| Dimanche | Idées perso (et ouverture du vote de la semaine) |
 
-Un vote par jour, sans compte. App de la semaine les samedis 21 et 28 novembre, 5, 12 et 19 décembre. Finale le mardi 22 décembre avec la 30e app.
+J'aime / Bof sur chaque app, sans compte. Vote de la semaine du dimanche 18 h au mardi 18 h (22, 29 novembre, 6 et 13 décembre). Finale le jeudi 17 décembre avec la 30e app, résultat le vendredi 18 à 20 h.
 
 ## Les apps
 
@@ -88,8 +89,8 @@ Si une app a besoin d'un build, ajoute dans son `app.json` :
 ## Le vote
 
 - **J'aime / Bof** sur chaque app sortie : une réaction par personne et par app, modifiable. Classement public « Les plus aimées » ; les bof restent privés.
-- **Vote de la semaine** : du samedi 18 h au lundi 18 h, une voix parmi les apps de la semaine (calendrier dans `shared/calendar.js`, `BALLOTS`). Sans voix, l'app la plus aimée de la semaine gagne.
-- **Grande finale** : les 5 gagnantes + les apps 29 et 30, du mardi 22 décembre 18 h au mercredi 23 décembre 20 h.
+- **Vote de la semaine** : du dimanche 18 h au mardi 18 h, une voix parmi les apps de la semaine (calendrier dans `shared/calendar.js`, `BALLOTS`). Sans voix, l'app la plus aimée de la semaine gagne.
+- **Grande finale** : les 4 gagnantes + les apps 27 à 30, du jeudi 17 décembre 18 h au vendredi 18 décembre 20 h.
 - Identifiant anonyme en cookie (déposé seulement au premier avis ou vote) + empreinte d'IP hachée qui change chaque jour (8 avis ou votes maximum par réseau) + Cloudflare Turnstile sur les votes.
 
 ## Les statistiques (sans cookie)
