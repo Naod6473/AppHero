@@ -1,0 +1,9 @@
+{
+  "num": 1,
+  "title": "Apphéro",
+  "tagline": "Le site qui lance le défi : les 30 apps, le vote et la roue.",
+  "publishAt": "2026-11-18T18:00:00+01:00",
+  "color": "#FF3D9A",
+  "tags": ["site", "vite", "cloudflare-workers", "d1"],
+  "status": "prêt"
+}

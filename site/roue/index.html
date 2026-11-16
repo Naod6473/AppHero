@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>La roue · Apphéro</title>
+  <meta name="description" content="La roue du hasard d'Apphéro : chaque mercredi soir, elle tire le critère de l'app du jeudi. Revois chaque tirage.">
+  <meta name="theme-color" content="#FFD83D">
+  <meta property="og:title" content="La roue · Apphéro">
+  <meta property="og:description" content="Chaque mercredi soir, la roue tire le critère de l'app du jeudi.">
+  <meta property="og:url" content="https://apphero.cloud/roue/">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bagel+Fat+One&family=Rubik:wght@500;700;800&display=swap" rel="stylesheet">
+  <script type="module" src="/src/roue.js"></script>
+</head>
+<body>
+  <header class="wrap nav js-ui">
+    <a class="logo" href="/">APPHÉRO</a>
+    <a class="btn btn-pill" href="/">Retour à l'accueil</a>
+  </header>
+
+  <main class="wrap" style="padding-bottom: 96px">
+    <div class="roue-head js-ui">
+      <div>
+        <h1 class="mega roue-title">La roue</h1>
+        <p class="lead" style="margin: 24px 0 0">Chaque mercredi soir, la roue décide de l'app du jeudi : un critère, ou une idée d'app complète imaginée par l'IA. Tu peux revoir chaque tirage ici.</p>
+      </div>
+      <div class="modes" id="modes" hidden>
+        <button class="btn btn-pill" type="button" data-mode="public" aria-pressed="true">Public</button>
+        <button class="btn btn-pill" type="button" data-mode="studio" aria-pressed="false">Studio (privé)</button>
+      </div>
+    </div>
+
+    <div class="roue-main">
+      <div class="roue-stage">
+        <div class="rec-title" id="rec-title" hidden><span class="rec-dot pulse" aria-hidden="true"></span><span id="rec-label">APPHÉRO</span></div>
+
+        <div class="wheel" aria-hidden="true">
+          <div class="wheel-pointer"></div>
+          <div class="wheel-rot" id="wheel-rot">
+            <div class="wheel-face wheel-colors" id="wheel-face"></div>
+          </div>
+          <div class="wheel-hub">18h</div>
+        </div>
+
+        <div class="result" aria-live="polite">
+          <small id="result-sub">CHARGEMENT…</small>
+          <strong id="result-title">…</strong>
+          <p id="result-idea" hidden></p>
+        </div>
+
+        <!-- Public -->
+        <div class="controls" id="public-controls" style="flex-direction: column">
+          <button class="btn btn-dark btn-lg" id="replay" type="button" disabled>Revoir le dernier tirage</button>
+          <span style="font-weight: 600; font-size: 16px; text-align: center; max-width: 420px">Seul l'organisateur lance les tirages. Toi, tu peux les revoir.</span>
+        </div>
+
+        <!-- Studio (privé) -->
+        <div class="studio" id="studio" hidden>
+          <label class="field">Tirage pour
+            <select id="slot"></select>
+          </label>
+          <div class="controls">
+            <button class="btn btn-dark btn-lg" id="spin" type="button">Tourner</button>
+            <button class="btn" id="shuffle" type="button">Mélanger la roue</button>
+            <button class="btn btn-mint" id="sound" type="button" aria-pressed="true">Son : oui</button>
+            <button class="btn btn-pink" id="rec" type="button">Mode enregistrement</button>
+          </div>
+          <div id="publish-box" hidden>
+            <label class="field" id="idea-field" hidden>L'idée d'app générée par l'IA
+              <textarea id="idea" placeholder="Colle ici l'idée : nom, ce que fait l'app, en quelques lignes."></textarea>
+            </label>
+            <label class="field" style="margin-top: 12px">Code organisateur
+              <input id="token" type="password" autocomplete="current-password" placeholder="ADMIN_TOKEN">
+            </label>
+            <div class="controls" style="margin-top: 14px">
+              <button class="btn btn-yellow btn-lg" id="publish" type="button">Publier ce tirage</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Enregistrement -->
+        <div class="controls" id="rec-controls" hidden>
+          <button class="btn btn-dark btn-lg" id="rec-spin" type="button">Tourner</button>
+          <button class="btn" id="rec-quit" type="button">Quitter</button>
+        </div>
+      </div>
+
+      <aside class="roue-side js-ui">
+        <div class="panel">
+          <h2>Les tirages</h2>
+          <p id="no-history">Aucun tirage pour l'instant. Le premier a lieu le mercredi 18 novembre au soir, pour l'app du jeudi 19.</p>
+          <div class="history" id="history"></div>
+        </div>
+        <div class="panel" style="background: var(--mint); transform: rotate(-1deg)">
+          <h2>Comment ça marche</h2>
+          <p>60 critères en réserve. À chaque tirage, 20 sont mélangés sur la roue : elle n'est jamais la même. 5 tirages, un par semaine, le mercredi soir : pour les jeudis 19 et 26 novembre, 3, 10 et 17 décembre.</p>
+          <p>Si la roue tombe sur « Idée de l'IA », l'app du jeudi est une idée complète imaginée par une IA.</p>
+        </div>
+        <div class="panel" style="background: var(--orange); transform: rotate(1deg)">
+          <h2>Mode enregistrement</h2>
+          <p>Fond propre, roue seule, tour de 3,6 secondes avec les tics sonores. Prévu : export en vidéo carrée pour X.</p>
+        </div>
+      </aside>
+    </div>
+  </main>
+</body>
+</html>
