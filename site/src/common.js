@@ -1,4 +1,9 @@
 // Outils partagés par l'accueil et la roue.
+// Polices hébergées avec le site : aucune requête vers Google Fonts.
+import "@fontsource/bagel-fat-one/400.css";
+import "@fontsource/rubik/500.css";
+import "@fontsource/rubik/700.css";
+import "@fontsource/rubik/800.css";
 import "./styles.css";
 
 // Le compte X du défi.
@@ -99,3 +104,36 @@ export function confetti(container) {
   container.append(layer);
   setTimeout(() => layer.remove(), 1400);
 }
+
+// Footer commun à toutes les pages : <footer class="footer" data-footer></footer>
+function renderFooter() {
+  const el = document.querySelector("[data-footer]");
+  if (!el) return;
+  const colors = ["var(--yellow)", "var(--pink)", "var(--cyan)", "var(--mint)", "var(--lilac)", "var(--orange)", "var(--yellow)"];
+  const logo = [..."APPHÉRO"].map((ch, i) => `<span style="--i:${i};--c:${colors[i]}">${ch}</span>`).join("");
+  const band = "18 H PILE ◆ L'API HOUR ◆ UNE APP PAR JOUR ◆ SERVIE FRAÎCHE ◆ CODE LIBRE ◆ ";
+  el.innerHTML = `
+    <div class="footer-band" aria-hidden="true"><div class="marquee-track"><span>${band.repeat(2)}</span><span>${band.repeat(2)}</span></div></div>
+    <span class="shape circle" style="left:2%;bottom:14%" aria-hidden="true"></span>
+    <span class="shape tri" style="right:3%;bottom:10%;animation-delay:-2s" aria-hidden="true"></span>
+    <span class="shape square" style="left:52%;top:26%;animation-delay:-4s" aria-hidden="true"></span>
+    <span class="shape zig" style="left:40%;bottom:16%;animation-delay:-1s" aria-hidden="true"></span>
+    <div class="footer-inner">
+      <div class="footer-main">
+        <p class="footer-logo" aria-label="Apphéro">${logo}</p>
+        <p class="footer-pun">Une app par jour, servie à 18 h. Ici, la happy hour s'appelle <b>l'API hour</b>.</p>
+      </div>
+      <div class="footer-side">
+        <div class="footer-clock" aria-hidden="true">18h<small>TCHIN !</small></div>
+        <nav class="footer-links" aria-label="Liens du pied de page">
+          <a href="/#apps">Les apps</a>
+          <a href="/roue/">La roue</a>
+          <a href="${X_URL}" rel="noopener">Suivre sur X</a>
+          <a href="https://github.com/Naod6473/AppHero" rel="noopener">Le code</a>
+          <a href="/mentions-legales/">Mentions légales</a>
+        </nav>
+      </div>
+    </div>
+    <p class="footer-small">Pas de pub, pas de pisteur, pas de compte. Juste des apps. · <a href="/mentions-legales/">Mentions légales et confidentialité</a></p>`;
+}
+renderFooter();

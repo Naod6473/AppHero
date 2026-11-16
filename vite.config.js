@@ -14,6 +14,7 @@ export default defineConfig({
         main: resolve(import.meta.dirname, "site/index.html"),
         roue: resolve(import.meta.dirname, "site/roue/index.html"),
         notfound: resolve(import.meta.dirname, "site/404.html"),
+        legal: resolve(import.meta.dirname, "site/mentions-legales/index.html"),
       },
     },
   },

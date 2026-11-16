@@ -162,8 +162,8 @@ function renderDeck() {
       } else if (c.cta) {
         actions = `<div class="card-actions"><a class="btn" href="${esc(c.cta.href)}">${esc(c.cta.label)}</a></div>`;
       }
-      return `<article class="card ${active ? "is-active" : ""}" style="transform:${tf};z-index:${z};opacity:${ar > 3 ? 0 : 1};pointer-events:${active ? "auto" : "none"}"
-          aria-hidden="${active ? "false" : "true"}" ${active ? "" : "inert"} aria-label="${esc(`Jour ${day.id}`)}">
+      return `<article class="card ${active ? "is-active" : "is-side"}" data-card="${i}" data-tf="${tf}" style="transform:${tf};z-index:${z};opacity:${ar > 3 ? 0 : 1};pointer-events:${ar > 3 ? "none" : "auto"}"
+          aria-hidden="${active ? "false" : "true"}" aria-label="${esc(`Jour ${day.id}`)}">
         <div class="card-inner" style="background:${esc(c.bg)}">
           <div class="card-top">
             <span class="card-when">${esc(fmtLongUpper(day.date))}</span>
@@ -185,6 +185,8 @@ function renderDeck() {
         <b>${WEEKDAYS_SHORT[day.weekday].toUpperCase()}</b><span>${new Date(day.date + "T12:00:00Z").getUTCDate()}</span></button>`,
     )
     .join("");
+  // Les cartes de côté se cliquent en entier : leurs liens et boutons sortent du parcours clavier.
+  deck.querySelectorAll(".card.is-side a, .card.is-side button").forEach((el) => (el.tabIndex = -1));
   $("prev").disabled = A === 0;
   $("next").disabled = A === S.week.length - 1;
 }
@@ -306,7 +308,59 @@ async function vote(appId, button) {
 
 // ------------------------------------------------------------ démarrage
 
+// Glisser la carte du dessus à gauche ou à droite (souris ou doigt).
+const drag = { id: null, x0: 0, y0: 0, dx: 0, moved: false, card: null };
+$("deck").addEventListener("pointerdown", (e) => {
+  const card = e.target.closest(".card.is-active");
+  if (!card || (e.pointerType === "mouse" && e.button !== 0)) return;
+  Object.assign(drag, { id: e.pointerId, x0: e.clientX, y0: e.clientY, dx: 0, moved: false, card });
+});
+$("deck").addEventListener("pointermove", (e) => {
+  if (drag.id !== e.pointerId) return;
+  const dx = e.clientX - drag.x0;
+  const dy = e.clientY - drag.y0;
+  if (!drag.moved) {
+    if (Math.abs(dx) < 8) return;
+    if (Math.abs(dy) > Math.abs(dx)) return (drag.id = null); // geste vertical : on laisse défiler la page
+    drag.moved = true;
+    drag.card.classList.add("is-dragging");
+    drag.card.setPointerCapture(e.pointerId);
+  }
+  // Résistance aux extrémités de la semaine.
+  const atEdge = (dx > 0 && S.active === 0) || (dx < 0 && S.active === S.week.length - 1);
+  drag.dx = atEdge ? dx * 0.3 : dx;
+  drag.card.style.transform = `${drag.card.dataset.tf} translateX(${drag.dx}px) rotate(${drag.dx / 18}deg)`;
+});
+function endDrag(e) {
+  if (drag.id !== e.pointerId) return;
+  drag.id = null;
+  if (!drag.moved) return;
+  drag.card.classList.remove("is-dragging");
+  S.suppressClick = true;
+  setTimeout(() => (S.suppressClick = false), 0);
+  if (Math.abs(drag.dx) > 70) go(S.active + (drag.dx < 0 ? 1 : -1));
+  else drag.card.style.transform = drag.card.dataset.tf;
+}
+$("deck").addEventListener("pointerup", endDrag);
+$("deck").addEventListener("pointercancel", endDrag);
+$("deck").addEventListener("dragstart", (e) => e.preventDefault());
+document.addEventListener(
+  "click",
+  (e) => {
+    if (S.suppressClick) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+  },
+  true,
+);
+
 document.addEventListener("click", (e) => {
+  const side = e.target.closest(".card.is-side");
+  if (side) {
+    e.preventDefault();
+    return go(Number(side.dataset.card));
+  }
   const v = e.target.closest("[data-vote]");
   if (v) return vote(v.dataset.vote, v);
   const t = e.target.closest("[data-go]");
