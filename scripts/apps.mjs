@@ -17,6 +17,13 @@ export const MAKING = {
   note: "string", // une phrase sur la fabrication
 };
 
+// Le logo de l'app : logo.svg, logo.png, logo.webp ou logo.jpg à la racine de son dossier.
+export const LOGO_FILES = ["logo.svg", "logo.png", "logo.webp", "logo.jpg"];
+function logoOf(dir, folder) {
+  const file = LOGO_FILES.find((f) => existsSync(join(dir, f)));
+  return file ? `/apps/${folder}/${file}` : null;
+}
+
 export function readApps() {
   const errors = [];
   const apps = [];
@@ -78,6 +85,7 @@ export function readApps() {
       status: app.status || "prêt",
       criterion: app.criterion || null,
       making: Object.keys(making).length ? making : null,
+      logo: logoOf(dir, folder),
       build: app.build || null,
       dir,
     });

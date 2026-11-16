@@ -71,6 +71,9 @@ Quand l'app est finie, passe le statut à `"prêt"`.
 La fiche de fabrication (`"making"` dans `app.json`) s'affiche sur la carte de l'accueil et dans une pastille en bas de l'app :
 `buildMinutes` (construction), `thinkingMinutes` (réflexion), `tokens`, `prompts` (messages à l'IA), `lines` (lignes de code), `tool`, `note`. Tout est facultatif.
 
+Le logo de l'app : un fichier `logo.svg` (ou `logo.png`, `logo.webp`, `logo.jpg`, carré) à la racine de son dossier.
+Il s'affiche sur sa case de l'accueil, sur sa carte et dans la pastille, seulement une fois l'app publiée.
+
 Une app préparée d'avance reste sur sa propre branche et n'est fusionnée sur `main` que le jour de sa sortie.
 Même fusionnée plus tôt dans la journée, elle reste invisible sur le site jusqu'à son `publishAt` (18 h) : c'est le Worker qui décide à chaque visite.
 
