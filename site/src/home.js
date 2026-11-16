@@ -166,7 +166,7 @@ function cardModel(day) {
     if (draw) theme = `Critère : ${draw.label}`;
     cta = { label: "Voir la roue", href: "/roue/" };
   } else if (day.weekday === 3) {
-    title = "L'idée du public";
+    title = "L'idée des abonnés";
     body = "Propose l'app du mercredi sur X. L'idée la plus soutenue sera construite.";
     cta = { label: "Proposer une idée", href: X_URL };
   } else if (day.weekday === 0) {
