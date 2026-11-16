@@ -12,7 +12,7 @@ Site : https://apphero.cloud
 | Lundi | App utile |
 | Mardi | 2 heures chrono |
 | Mercredi | Idée des abonnés (proposée sur X) |
-| Jeudi | Surprise du jeudi |
+| Jeudi | Défi d'un abonné (lancé sur X) |
 | Vendredi | La roue décide (tirage le jeudi soir : un critère, ou une idée d'app complète imaginée par l'IA) |
 | Samedi | Jeu du samedi |
 | Dimanche | Idées perso (et ouverture du vote de la semaine) |

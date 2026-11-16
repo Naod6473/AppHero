@@ -26,7 +26,7 @@ export const THEMES = {
   1: { name: "App utile", color: "#FF3D9A", blurb: "Une app utile, tirée de mes idées." },
   2: { name: "2 heures chrono", color: "#25D0E8", blurb: "Une app faite en moins de 2 heures." },
   3: { name: "Idée des abonnés", color: "#7CF2B0", blurb: "L'idée vient des abonnés, proposée sur X." },
-  4: { name: "Surprise du jeudi", color: "#B9A3FF", blurb: "Inutile mais magnifique, ou contrainte folle." },
+  4: { name: "Défi d'un abonné", color: "#B9A3FF", blurb: "Un abonné lance un défi sur X, l'app le relève." },
   5: { name: "La roue décide", color: "#FFD83D", blurb: "Le critère sort de la roue la veille au soir." },
   6: { name: "Jeu du samedi", color: "#FF8A3D", blurb: "Une app jeu, pour le week-end." },
   0: { name: "Idées perso", color: "#FFF8E1", blurb: "Une idée à moi. Et le vote de la semaine s'ouvre." },
