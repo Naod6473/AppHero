@@ -74,3 +74,25 @@ CREATE TABLE IF NOT EXISTS seen (
   visitor TEXT NOT NULL,
   PRIMARY KEY (day, visitor)
 );
+
+-- Soiffard (app « bar le plus proche » + King of the Bar). Aucune position n'est stockée :
+-- seulement un pseudo, l'identifiant OpenStreetMap du bar et le temps passé au comptoir.
+CREATE TABLE IF NOT EXISTS soiffard_players (
+  id TEXT PRIMARY KEY,       -- identifiant aléatoire gardé dans le téléphone
+  pseudo TEXT NOT NULL,
+  created_at INTEGER NOT NULL,
+  updated_at INTEGER NOT NULL
+);
+CREATE TABLE IF NOT EXISTS soiffard_visits (
+  id INTEGER PRIMARY KEY,
+  player TEXT NOT NULL,
+  bar TEXT NOT NULL,         -- n123 / w456 / r789 (OpenStreetMap)
+  bar_name TEXT NOT NULL,
+  seconds INTEGER NOT NULL,  -- temps crédité, 4 h maximum par passage
+  week TEXT NOT NULL,        -- 2026-W47 (du lundi 6 h au lundi 6 h)
+  ip_hash TEXT NOT NULL,
+  created_at INTEGER NOT NULL
+);
+CREATE INDEX IF NOT EXISTS soiffard_visits_bar ON soiffard_visits (week, bar);
+CREATE INDEX IF NOT EXISTS soiffard_visits_player ON soiffard_visits (player, created_at);
+CREATE INDEX IF NOT EXISTS soiffard_visits_ip ON soiffard_visits (ip_hash, created_at);
