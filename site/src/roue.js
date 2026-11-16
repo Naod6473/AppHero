@@ -1,5 +1,5 @@
 // Page de la roue : public (revoir les tirages), studio privé (tourner, publier), enregistrement.
-import { api, esc, toast, reducedMotion } from "./common.js";
+import { api, esc, toast, reducedMotion, track, confetti } from "./common.js";
 import CRITERES from "../../shared/criteres.json";
 import { WHEEL_DAYS, fmtShort } from "../../shared/calendar.js";
 
@@ -35,12 +35,56 @@ function sample() {
 
 const slotLabel = (forDay) => fmtShort(forDay);
 
+// Un emoji par critère, pour lire la roue d'un coup d'œil.
+const EMOJI = {
+  "App utile": "🧰", "2 heures chrono": "⏱️", "Idée de l'IA": "🤖", "Inutile & beau": "🦄", "Un seul fichier": "📄", "Sans clavier": "🚫", "Zéro dépendance": "🪶",
+  "Pour un pote": "🤝", "Avec du son": "🔊", "À deux joueurs": "🎮", "Hors ligne": "📴", "Avec une carte": "🗺️", "Selon l'heure": "🕰️", "Éphémère 24 h": "⏳",
+  "Noir et blanc": "🖤", "Sans texte": "🙊", "Qui parle": "🗣️", "API publique": "🔌", "Mono-couleur": "🎨", "Remix": "🔁", "Un seul bouton": "🔘", "Sans serveur": "☁️",
+  "100 lignes max": "💯", "Pour les chats": "🐱", "Contre la montre": "🏁", "En pixel art": "👾", "Avec un timer": "⏲️", "Qui se partage": "📤", "Sans souris": "🐭",
+  "Pour mamie": "👵", "Qui compte": "🔢", "Qui dessine": "✏️", "Au hasard": "🎲", "Météo du jour": "🌦️", "Avec la caméra": "📷", "Avec le micro": "🎤", "Qui secoue": "📳",
+  "Sur mobile only": "📱", "Qui note": "📝", "Qui traduit": "🌍", "Qui chronomètre": "⏱", "Qui se souvient": "🧠", "Qui blague": "😂", "Une seule page": "📃",
+  "Que des formes": "🔺", "Que du texte": "🔤", "Qui recommande": "👍", "En 3 couleurs": "🚦", "Qui s'installe": "📲", "Qui explose": "💥", "Pour le bureau": "💼",
+  "Pour le week-end": "🏖️", "Pour les devs": "👩‍💻", "Pour les enfants": "🧸", "Qui rime": "🎵", "Qui trie": "🗂️", "Qui classe": "🏆", "Qui devine": "🔮", "Qui calcule": "🧮",
+  "Qui conseille": "💡",
+};
+const emojiOf = (label) => EMOJI[label] || "✨";
+
 // ------------------------------------------------------------ dessin
 
 function drawFace() {
   $("wheel-face").innerHTML = S.slices
-    .map((label, i) => `<div class="wheel-label" style="transform:rotate(${i * STEP + STEP / 2}deg)"><span>${esc(label)}</span></div>`)
+    .map((label, i) => `<div class="wheel-label" style="transform:rotate(${i * STEP + STEP / 2}deg)"><span>${esc(label)} <i>${emojiOf(label)}</i></span></div>`)
     .join("");
+}
+
+// Les ampoules autour de la roue, façon plateau télé.
+function drawLights() {
+  const n = 28;
+  $("wheel-lights").innerHTML = Array.from({ length: n }, (_, i) => {
+    const a = (i / n) * Math.PI * 2;
+    return `<i style="left:${50 + 52.5 * Math.sin(a)}%;top:${50 - 52.5 * Math.cos(a)}%"></i>`;
+  }).join("");
+}
+
+// La grande carte qui se retourne quand la roue s'arrête.
+let revealTimer;
+function reveal(d) {
+  const isIdea = d.label === AI_IDEA;
+  $("reveal-card").innerHTML = `<small>${isIdea ? "IDÉE D'APP" : "CRITÈRE"} · ${esc(slotLabel(d.forDay).toUpperCase())}</small>
+    <span class="reveal-emo" aria-hidden="true">${emojiOf(d.label)}</span>
+    <strong>${esc(d.label)}</strong>`;
+  const box = $("reveal");
+  box.hidden = false;
+  box.classList.remove("is-in");
+  void box.offsetWidth;
+  box.classList.add("is-in");
+  confetti($("wheel"));
+  clearTimeout(revealTimer);
+  revealTimer = setTimeout(hideReveal, S.rec ? 6000 : 4500);
+}
+function hideReveal() {
+  clearTimeout(revealTimer);
+  $("reveal").hidden = true;
 }
 function setAngle(a) {
   S.angle = a;
@@ -121,11 +165,14 @@ function runSpin(k) {
     const start = S.angle;
     const end = Math.ceil(start / 360) * 360 + 360 * 4 + (360 - (k * STEP + STEP / 2));
     S.spinning = true;
+    hideReveal();
+    $("wheel").classList.add("is-spinning");
     syncButtons();
     showResult("LA ROUE TOURNE…", "…");
     if (reducedMotion()) {
       setAngle(end);
       S.spinning = false;
+      $("wheel").classList.remove("is-spinning");
       ding();
       syncButtons();
       return resolve();
@@ -138,13 +185,20 @@ function runSpin(k) {
       const ang = start + (end - start) * e;
       const idx = Math.floor(((360 - (ang % 360)) % 360) / STEP);
       if (idx !== last) {
-        if (last !== -1) tick();
+        if (last !== -1) {
+          tick();
+          const ptr = $("wheel-pointer");
+          ptr.classList.remove("flick");
+          void ptr.getBoundingClientRect();
+          ptr.classList.add("flick");
+        }
         last = idx;
       }
       setAngle(ang);
       if (p < 1) requestAnimationFrame(step);
       else {
         S.spinning = false;
+        $("wheel").classList.remove("is-spinning");
         ding();
         syncButtons();
         resolve();
@@ -155,12 +209,14 @@ function runSpin(k) {
 }
 
 async function replay(d) {
+  if (!studioAllowed) track("roue_revoir", { day: d?.forDay || "" });
   if (S.spinning) return;
   S.current = d;
   S.slices = d.slices.slice();
   drawFace();
   await runSpin(d.k);
   showResult(...resultFor(d));
+  reveal(d);
 }
 
 async function studioSpin() {
@@ -170,6 +226,7 @@ async function studioSpin() {
   await runSpin(k);
   S.pending = { forDay, slices: S.slices.slice(), k, label: S.slices[k], idea: null };
   showResult(...resultFor(S.pending));
+  reveal(S.pending);
   $("publish-box").hidden = false;
   $("idea-field").hidden = S.pending.label !== AI_IDEA;
   $("rec-label").textContent = `APPHÉRO · tirage pour le ${slotLabel(forDay)}`;
@@ -203,8 +260,9 @@ async function publish() {
 
 function syncButtons() {
   for (const id of ["spin", "shuffle", "rec-spin", "publish"]) $(id).disabled = S.spinning;
-  $("replay").disabled = S.spinning || !S.draws.length;
-  document.querySelectorAll(".history button").forEach((b) => (b.disabled = S.spinning));
+  $("replay").disabled = S.spinning;
+  $("replay").hidden = !S.draws.length;
+  document.querySelectorAll(".door[data-replay]").forEach((b) => (b.disabled = S.spinning));
 }
 
 function setMode(mode) {
@@ -235,14 +293,21 @@ function setRec(on) {
   setMode(S.mode);
 }
 
+// Le calendrier des 5 tirages : une porte par mercredi soir, ouverte une fois le tirage publié.
 function renderHistory() {
-  $("no-history").hidden = S.draws.length > 0;
-  $("history").innerHTML = S.draws
-    .map(
-      (d, i) => `<button type="button" data-replay="${i}" aria-label="Revoir le tirage du ${esc(slotLabel(d.forDay))}">
-        <em>${esc(slotLabel(d.forDay))}</em><b>${esc(d.label)}</b></button>`,
-    )
-    .join("");
+  const byDay = new Map(S.draws.map((d, i) => [d.forDay, i]));
+  $("history").innerHTML = WHEEL_DAYS.map((w, n) => {
+    const i = byDay.get(w.forDay);
+    const d = i == null ? null : S.draws[i];
+    const head = `<span class="door-num">${n + 1}</span><span class="door-date">${esc(slotLabel(w.drawOn))} soir</span>`;
+    if (!d) return `<div class="door is-closed">${head}<span class="door-lock" aria-hidden="true">🔒</span><span class="door-for">App du ${esc(slotLabel(w.forDay).toLowerCase())}</span></div>`;
+    return `<button class="door is-open" type="button" data-replay="${i}" aria-label="Revoir le tirage du ${esc(slotLabel(w.forDay))} : ${esc(d.label)}">
+      ${head}<span class="door-emo" aria-hidden="true">${emojiOf(d.label)}</span><b>${esc(d.label)}</b><span class="door-for">↻ Revoir</span></button>`;
+  }).join("");
+  const first = WHEEL_DAYS[0];
+  $("replay-help").textContent = S.draws.length
+    ? "Seul l'organisateur lance les tirages. Toi, tu peux les revoir."
+    : `Premier tirage le ${slotLabel(first.drawOn).toLowerCase()} au soir, pour l'app du ${slotLabel(first.forDay).toLowerCase()}.`;
   syncButtons();
 }
 
@@ -266,6 +331,7 @@ async function loadDraws() {
 }
 
 $("replay").addEventListener("click", () => S.draws[0] && replay(S.draws[0]));
+$("reveal").addEventListener("click", hideReveal);
 $("history").addEventListener("click", (e) => {
   const b = e.target.closest("[data-replay]");
   if (b) replay(S.draws[Number(b.dataset.replay)]);
@@ -296,6 +362,7 @@ document.querySelectorAll("[data-mode]").forEach((b) => b.addEventListener("clic
 
 // ------------------------------------------------------------ démarrage
 
+drawLights();
 drawFace();
 await loadDraws();
 fillSlots();

@@ -134,6 +134,15 @@ function renderFooter() {
         </nav>
       </div>
     </div>
-    <p class="footer-small">Pas de pub, pas de pisteur, pas de compte. Juste des apps. · <a href="/mentions-legales/">Mentions légales et confidentialité</a></p>`;
+    <p class="footer-small">Pas de pub, pas de compte, des stats maison sans cookie. Juste des apps. · <a href="/mentions-legales/">Mentions légales et confidentialité</a></p>`;
 }
 renderFooter();
+
+// Mesure d'audience maison, sans cookie (voir /t.js). Ne fait rien si le script n'est pas chargé.
+export function track(name, props) {
+  try {
+    window.ahTrack?.(name, props);
+  } catch {
+    /* jamais bloquant */
+  }
+}

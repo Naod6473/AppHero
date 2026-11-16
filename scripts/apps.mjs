@@ -6,6 +6,16 @@ import { DAYS } from "../shared/calendar.js";
 export const ROOT = new URL("..", import.meta.url).pathname;
 export const APPS_DIR = join(ROOT, "apps");
 const STATUSES = ["brouillon", "prêt"];
+// La fiche de fabrication affichée avec chaque app (tout est facultatif).
+export const MAKING = {
+  buildMinutes: "number", // temps de construction, en minutes
+  thinkingMinutes: "number", // temps de réflexion (idée, maquette), en minutes
+  tokens: "number", // tokens utilisés par l'IA
+  prompts: "number", // nombre de messages envoyés à l'IA
+  lines: "number", // lignes de code
+  tool: "string", // l'outil, par exemple "Claude Code"
+  note: "string", // une phrase sur la fabrication
+};
 
 export function readApps() {
   const errors = [];
@@ -42,6 +52,17 @@ export function readApps() {
     if (!app.publishAt || Number.isNaN(Date.parse(app.publishAt))) err(`"publishAt" manquant ou invalide`);
     if (app.color && !/^#[0-9a-fA-F]{6}$/.test(app.color)) err(`"color" doit être au format #RRGGBB`);
     if (app.status && !STATUSES.includes(app.status)) err(`"status" doit être ${STATUSES.join(" ou ")}`);
+    const making = {};
+    if (app.making != null) {
+      if (typeof app.making !== "object") err(`"making" doit être un objet`);
+      else
+        for (const [k, kind] of Object.entries(MAKING)) {
+          const v = app.making[k];
+          if (v == null || v === "") continue;
+          if (typeof v !== kind) err(`"making.${k}" doit être ${kind === "number" ? "un nombre" : "un texte"}`);
+          else making[k] = v;
+        }
+    }
     if (!existsSync(join(dir, app.build?.output || "", "index.html")) && !app.build) err(`index.html manquant`);
     apps.push({
       num,
@@ -56,6 +77,7 @@ export function readApps() {
       tags: Array.isArray(app.tags) ? app.tags : [],
       status: app.status || "prêt",
       criterion: app.criterion || null,
+      making: Object.keys(making).length ? making : null,
       build: app.build || null,
       dir,
     });

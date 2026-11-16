@@ -1,14 +1,15 @@
-// Accueil : pile de cartes de la semaine, grille des 30 apps, vote, classements.
-import { api, esc, toast, confetti, turnstileToken, X_URL } from "./common.js";
-import { DAYS, WEEKS, THEMES, WEEKDAYS_SHORT, WHEEL_DAYS, parisDate, fmtShort } from "../../shared/calendar.js";
+// Accueil : pile de cartes de la semaine, grille des 30 apps, j'aime / bof, votes, classements.
+import { api, esc, toast, confetti, turnstileToken, track, X_URL } from "./common.js";
+import { DAYS, BALLOTS, THEMES, SUNDAY, CHALLENGE_END, WEEKDAYS_SHORT, WHEEL_DAYS, parisDate, fmtShort, fmtDateTime } from "../../shared/calendar.js";
 
 const S = {
   offset: 0, // écart entre l'horloge du serveur et celle du navigateur
   apps: new Map(), // id -> app sortie
-  rankings: { votes: [], views: [] },
-  weeks: {},
+  likes: {}, // id -> nombre de j'aime
+  rankings: { likes: [], views: [] },
+  ballots: [], // scrutins vus par le serveur (statut, candidates, gagnante)
+  me: { reactions: {}, ballots: {} },
   draws: new Map(), // forDay -> tirage
-  myVote: null,
   siteKey: "",
   active: 0,
   week: [],
@@ -27,9 +28,10 @@ async function load() {
     const st = await api("/api/state");
     S.offset = st.now - Date.now();
     S.apps = new Map(st.apps.map((a) => [a.id, a]));
+    S.likes = st.likes || {};
     S.rankings = st.rankings;
-    S.weeks = st.weeks;
-    S.myVote = st.myVote;
+    S.ballots = st.ballots || [];
+    S.me = st.me || { reactions: {}, ballots: {} };
     S.siteKey = st.turnstileSiteKey;
   } catch (err) {
     console.warn("API indisponible, affichage du calendrier seul.", err);
@@ -44,21 +46,29 @@ async function load() {
 
 // ------------------------------------------------------------ la semaine en cours
 
+const isoAdd = (iso, n) => {
+  const d = new Date(iso + "T12:00:00Z");
+  d.setUTCDate(d.getUTCDate() + n);
+  return d.toISOString().slice(0, 10);
+};
+const LAST_WEEK_MONDAY = "2026-12-21";
+
+// Les 7 jours de la semaine en cours, du lundi au dimanche.
+// Les jours sans app (dimanche, avant le départ, après la finale) ont une carte à eux.
 function currentWeek() {
-  const t = now();
-  const today = parisDate(t);
-  if (today < DAYS[0].date) return DAYS.filter((d) => d.date < "2026-11-23");
-  const d = new Date(today + "T12:00:00Z");
-  const wd = d.getUTCDay();
-  // Le dimanche, on montre déjà la semaine suivante.
-  const monday = new Date(d);
-  monday.setUTCDate(d.getUTCDate() + (wd === 0 ? 1 : 1 - wd));
-  const mon = monday.toISOString().slice(0, 10);
-  const sat = new Date(monday);
-  sat.setUTCDate(monday.getUTCDate() + 5);
-  const satIso = sat.toISOString().slice(0, 10);
-  const days = DAYS.filter((x) => x.date >= mon && x.date <= satIso);
-  return days.length ? days : DAYS.filter((x) => x.date >= "2026-12-21");
+  const today = parisDate(now());
+  const wd = new Date(today + "T12:00:00Z").getUTCDay();
+  let mon = isoAdd(today, wd === 0 ? -6 : 1 - wd);
+  if (mon > LAST_WEEK_MONDAY) mon = LAST_WEEK_MONDAY;
+  return Array.from({ length: 7 }, (_, i) => {
+    const date = isoAdd(mon, i);
+    const day = DAYS.find((d) => d.date === date);
+    if (day) return day;
+    const weekday = (i + 1) % 7;
+    const kind = weekday === 0 ? "sunday" : date < DAYS[0].date ? "before" : date === "2026-12-23" ? "verdict" : "after";
+    const color = { sunday: SUNDAY.color, before: "#B9A3FF", verdict: "#FFD83D", after: "#7CF2B0" }[kind];
+    return { filler: kind, date, weekday, color, id: null };
+  });
 }
 
 function countdown(target) {
@@ -72,7 +82,67 @@ function countdown(target) {
   return `${m} min ${String(s).padStart(2, "0")} s`;
 }
 
+function fillerModel(day) {
+  const openBallot = S.ballots.find((b) => b.status === "open");
+  if (day.filler === "sunday") {
+    const next = DAYS.find((d) => d.date > day.date);
+    return {
+      bg: day.color,
+      tag: "REPOS",
+      title: "Repos… ou pas !",
+      theme: "Dimanche",
+      body:
+        day.date > DAYS[DAYS.length - 1].date
+          ? "Le défi est fini. Repos bien mérité, et joyeuses fêtes !"
+          : `${SUNDAY.blurb}${openBallot && !openBallot.final ? " Et le vote de la semaine est ouvert jusqu'à lundi 18 h." : ""}`,
+      footLabel: next ? "PROCHAINE APP" : "C'EST FINI",
+      footValue: next ? `${fmtShort(next.date)} · 18 h` : "Merci !",
+      cta: openBallot ? { label: "Voter pour l'app de la semaine", href: "#vote" } : { label: "Revoir les apps", href: "#apps" },
+    };
+  }
+  if (day.filler === "before") {
+    return {
+      bg: day.color,
+      tag: "ÉCHAUFFEMENT",
+      title: "Échauffement",
+      theme: "Avant le départ",
+      body:
+        now() < Date.parse(DAYS[0].publishAt)
+          ? "Le défi démarre mercredi 18 novembre à 18 h. D'ici là, sors les verres et suis le compte X."
+          : "Avant le départ, on rangeait les verres. Le défi a démarré mercredi 18 novembre à 18 h.",
+      footLabel: now() < Date.parse(DAYS[0].publishAt) ? "DÉPART DANS" : "C'EST PARTI",
+      footValue: now() < Date.parse(DAYS[0].publishAt) ? countdown(DAYS[0].publishAt) : "Depuis mer 18 nov.",
+      countdownFor: now() < Date.parse(DAYS[0].publishAt) ? DAYS[0].publishAt : null,
+      cta: { label: "Suivre sur X", href: X_URL },
+    };
+  }
+  if (day.filler === "verdict") {
+    return {
+      bg: day.color,
+      tag: "VERDICT",
+      title: "Le verdict",
+      theme: "Résultat de la grande finale",
+      body: "La grande gagnante des 30 apps est annoncée ce soir à 20 h.",
+      footLabel: "RÉSULTAT",
+      footValue: now() < Date.parse(CHALLENGE_END) ? countdown(CHALLENGE_END) : "Annoncé !",
+      countdownFor: now() < Date.parse(CHALLENGE_END) ? CHALLENGE_END : null,
+      cta: { label: "Voir la finale", href: "#vote" },
+    };
+  }
+  return {
+    bg: day.color,
+    tag: "BONUS",
+    title: "Joyeux Noël !",
+    theme: "Après le défi",
+    body: "Les 30 apps restent en ligne et le code est à toi. Merci d'avoir joué !",
+    footLabel: "LE CODE",
+    footValue: "Sur GitHub",
+    cta: { label: "Revoir les 30 apps", href: "#apps" },
+  };
+}
+
 function cardModel(day) {
+  if (day.filler) return fillerModel(day);
   const app = S.apps.get(day.id);
   const nextDay = DAYS.find((d) => !released(d) && Date.parse(d.publishAt) > now());
   const isNext = nextDay && nextDay.id === day.id;
@@ -87,6 +157,7 @@ function cardModel(day) {
       body: app.tagline,
       footLabel: "SORTIE LE",
       footValue: when,
+      making: makingLine(app.making),
       app,
     };
   }
@@ -99,7 +170,7 @@ function cardModel(day) {
     body = "Le site qui lance le défi : les 30 apps, le vote et la roue.";
   } else if (day.num === DAYS.length) {
     title = "La finale";
-    cta = { label: "Voir les classements", href: "#classements" };
+    cta = { label: "Voir les classements", href: "#vote" };
   } else if (day.wheel) {
     const w = WHEEL_DAYS.find((x) => x.forDay === day.date);
     body = draw
@@ -115,7 +186,7 @@ function cardModel(day) {
     cta = { label: "Proposer une idée", href: X_URL };
   } else if (day.weekday === 6) {
     title = "Le jeu du samedi";
-    cta = { label: "Comment ça marche", href: "#classements" };
+    cta = { label: "Comment ça marche", href: "#vote" };
   }
   if (Date.parse(day.publishAt) <= now()) {
     // L'heure est passée mais l'app n'est pas encore en ligne.
@@ -133,10 +204,28 @@ function cardModel(day) {
   };
 }
 
-function voteLabel(appId) {
-  if (S.myVote === appId) return "Voté ! Reviens demain";
-  if (S.myVote) return "Déjà voté aujourd'hui";
-  return "Voter pour celle-ci";
+// La fiche de fabrication en une ligne : ⏱ 1 h 40 · 💭 25 min · 🔤 182 k tokens
+const dur = (min) => (min < 60 ? `${min} min` : `${Math.floor(min / 60)} h${min % 60 ? ` ${String(Math.round(min % 60)).padStart(2, "0")}` : ""}`);
+const big = (n) => (n >= 1e6 ? `${(n / 1e6).toFixed(1).replace(".", ",")} M` : n >= 1e3 ? `${Math.round(n / 1e3)} k` : String(n));
+function makingLine(m) {
+  if (!m) return "";
+  return [
+    m.buildMinutes != null && `⏱ ${dur(m.buildMinutes)}`,
+    m.thinkingMinutes != null && `💭 ${dur(m.thinkingMinutes)}`,
+    m.tokens != null && `🔤 ≈ ${big(m.tokens)} tokens`,
+  ]
+    .filter(Boolean)
+    .join(" · ");
+}
+
+// Boutons j'aime / bof. Le nombre de bof reste privé.
+function reactButtons(app, small = false) {
+  const mine = S.me.reactions[app.id] || 0;
+  const n = S.likes[app.id] || 0;
+  return `<div class="react" role="group" aria-label="Ton avis sur ${esc(app.title)}">
+    <button class="like" type="button" data-react="1" data-app="${esc(app.id)}" aria-pressed="${mine === 1}" aria-label="J'aime ${esc(app.title)}, ${n} j'aime"><span class="emo" aria-hidden="true">👍</span>${small ? n : `J'aime · ${n}`}</button>
+    <button class="bof" type="button" data-react="-1" data-app="${esc(app.id)}" aria-pressed="${mine === -1}" aria-label="Bof pour ${esc(app.title)}"><span class="emo" aria-hidden="true">👎</span>${small ? "" : "Bof"}</button>
+  </div>`;
 }
 
 function renderDeck() {
@@ -145,7 +234,11 @@ function renderDeck() {
   deck.innerHTML = S.week
     .map((day, i) => {
       const c = cardModel(day);
-      const r = i - A;
+      // La pile tourne en boucle : il y a toujours une carte à gauche et à droite.
+      const n = S.week.length;
+      let r = i - A;
+      if (r > n / 2) r -= n;
+      if (r < -n / 2) r += n;
       const ar = Math.abs(r);
       const active = r === 0;
       const tf = active
@@ -154,24 +247,24 @@ function renderDeck() {
       const z = 30 - ar * 3 + (r < 0 ? 1 : 0);
       let actions = "";
       if (c.app) {
-        const voted = !!S.myVote;
         actions = `<div class="card-actions">
-          <a class="btn" href="/apps/${esc(c.app.slug)}/">Ouvrir l'app</a>
-          <button class="btn btn-yellow ${voted ? "" : "pulse"}" type="button" data-vote="${esc(c.app.id)}" ${voted ? "disabled" : ""}>${esc(voteLabel(c.app.id))}</button>
+          <a class="btn" href="/apps/${esc(c.app.slug)}/" data-open="${esc(c.app.id)}">Ouvrir l'app</a>
+          ${reactButtons(c.app)}
         </div>`;
       } else if (c.cta) {
         actions = `<div class="card-actions"><a class="btn" href="${esc(c.cta.href)}">${esc(c.cta.label)}</a></div>`;
       }
       return `<article class="card ${active ? "is-active" : "is-side"}" data-card="${i}" data-tf="${tf}" style="transform:${tf};z-index:${z};opacity:${ar > 3 ? 0 : 1};pointer-events:${ar > 3 ? "none" : "auto"}"
-          aria-hidden="${active ? "false" : "true"}" aria-label="${esc(`Jour ${day.id}`)}">
+          aria-hidden="${active ? "false" : "true"}" aria-label="${esc(day.id ? `Jour ${day.id}` : fmtLongUpper(day.date))}">
         <div class="card-inner" style="background:${esc(c.bg)}">
           <div class="card-top">
             <span class="card-when">${esc(fmtLongUpper(day.date))}</span>
-            <span class="card-num">JOUR ${day.id} / 30</span>
+            <span class="card-num">${day.id ? `JOUR ${day.id} / 30` : c.tag}</span>
           </div>
           <div class="card-title">${esc(c.title)}</div>
           <span class="card-theme">${esc(c.theme)}</span>
           <p class="card-body">${esc(c.body)}</p>
+          ${c.making ? `<p class="card-making">${esc(c.making)}</p>` : ""}
           <div class="card-foot"><small>${c.footLabel}</small><strong ${c.countdownFor ? `data-countdown="${c.countdownFor}"` : ""}>${esc(c.footValue)}</strong></div>
           ${actions}
         </div>
@@ -182,13 +275,11 @@ function renderDeck() {
   $("tabs").innerHTML = S.week
     .map(
       (day, i) => `<button class="tab" type="button" data-go="${i}" aria-pressed="${i === A}" aria-label="${esc(fmtLongUpper(day.date))}" style="background:${day.color}">
-        <b>${WEEKDAYS_SHORT[day.weekday].toUpperCase()}</b><span>${new Date(day.date + "T12:00:00Z").getUTCDate()}</span></button>`,
+        <b><span class="d-long">${WEEKDAYS_SHORT[day.weekday].toUpperCase()}</span><span class="d-short" aria-hidden="true">${WEEKDAYS_SHORT[day.weekday][0]}</span></b><span>${new Date(day.date + "T12:00:00Z").getUTCDate()}</span></button>`,
     )
     .join("");
   // Les cartes de côté se cliquent en entier : leurs liens et boutons sortent du parcours clavier.
   deck.querySelectorAll(".card.is-side a, .card.is-side button").forEach((el) => (el.tabIndex = -1));
-  $("prev").disabled = A === 0;
-  $("next").disabled = A === S.week.length - 1;
 }
 
 function fmtLongUpper(iso) {
@@ -199,38 +290,37 @@ function fmtLongUpper(iso) {
 }
 
 function go(i) {
-  S.active = Math.max(0, Math.min(S.week.length - 1, i));
+  const n = S.week.length;
+  S.active = ((i % n) + n) % n;
   renderDeck();
 }
 
 // ------------------------------------------------------------ sections
 
 function renderPills() {
-  const rot = [-1.6, 1.2, -1.0, 1.4, -1.2, 1.0];
-  $("pills").innerHTML = [1, 2, 3, 4, 5, 6]
-    .map(
-      (wd, i) =>
-        `<div class="pill" style="background:${THEMES[wd].color};transform:rotate(${rot[i]}deg)"><b>${WEEKDAYS_SHORT[wd].toUpperCase()}</b><span>${esc(THEMES[wd].name)}</span></div>`,
-    )
+  const rot = [-1.6, 1.2, -1.0, 1.4, -1.2, 1.0, -1.4];
+  $("pills").innerHTML = [1, 2, 3, 4, 5, 6, 0]
+    .map((wd, i) => {
+      const th = wd === 0 ? SUNDAY : THEMES[wd];
+      return `<div class="pill ${wd === 0 ? "is-rest" : ""}" style="background:${th.color};transform:rotate(${rot[i]}deg)"><b>${WEEKDAYS_SHORT[wd].toUpperCase()}</b><span>${esc(th.name)}</span></div>`;
+    })
     .join("");
 }
 
-function appTitle(id) {
-  return S.apps.get(id)?.title || `App ${id}`;
+function ballotLine(b) {
+  if (b.status === "closed" && b.winner) return `Gagnante : ${appTitle(b.winner)}`;
+  if (b.status === "open") return "Vote ouvert !";
+  return b.final ? "Finale + gagnante" : "App de la semaine";
 }
 
 function renderWeeks() {
-  $("weeks").innerHTML = WEEKS.map((w) => {
-    let line = w.final ? "Finale + gagnante" : "App de la semaine";
-    if (w.final) {
-      const lead = S.rankings.votes[0];
-      if (lead) line = `${now() >= Date.parse(w.to) ? "Gagnante" : "En tête"} : ${appTitle(lead.app)}`;
-    } else {
-      const info = S.weeks[w.id];
-      if (info?.leader) line = `${info.closed ? "Gagnante" : "En tête"} : ${appTitle(info.leader.app)}`;
-    }
-    return `<div class="vote-week ${w.final ? "is-final" : ""}"><b>${w.final ? "F" : w.id}</b><span class="d">${esc(fmtShort(w.announce).toLowerCase())}</span><span class="w">${esc(line)}</span></div>`;
-  }).join("");
+  const list = S.ballots.length ? S.ballots : BALLOTS.map((b) => ({ ...b, status: "upcoming" }));
+  $("weeks").innerHTML = list
+    .map(
+      (b) =>
+        `<div class="vote-week ${b.final ? "is-final" : ""}"><b>${b.final ? "F" : b.id}</b><span class="d">${esc(fmtShort(b.closesAt.slice(0, 10)).toLowerCase())}</span><span class="w">${esc(ballotLine(b))}</span></div>`,
+    )
+    .join("");
 }
 
 function renderTiles() {
@@ -243,62 +333,195 @@ function renderTiles() {
         <span><span class="tile-name">Bientôt</span><br><span class="tile-meta">${esc(meta)}</span></span>
         <span class="sr-only">App ${day.id}, sortie ${esc(meta)}</span></div>`;
     }
-    const vote = S.myVote
-      ? S.myVote === app.id
-        ? `<span class="tile-vote" aria-label="Ton vote du jour">♥ Ton vote</span>`
-        : ""
-      : `<button class="tile-vote" type="button" data-vote="${esc(app.id)}" aria-label="Voter pour ${esc(app.title)}">♥ Voter</button>`;
     return `<div class="tile is-open" style="--r:${rot};--bg:${esc(app.color)}">
       <span class="tile-num" aria-hidden="true">${day.id}</span>
-      <span><a class="tile-link tile-name" href="/apps/${esc(app.slug)}/">${esc(app.title)}</a><br><span class="tile-meta">${esc(meta)}</span></span>
-      ${vote}
+      <span><a class="tile-link tile-name" href="/apps/${esc(app.slug)}/" data-open="${esc(app.id)}">${esc(app.title)}</a><br><span class="tile-meta">${esc(meta)}</span></span>
+      ${reactButtons(app, true)}
     </div>`;
   }).join("");
 }
 
 function renderRanks() {
-  const list = (rows, unit, empty) => {
-    const items = [0, 1, 2].map((i) => {
-      const r = rows[i];
-      if (!r) return `<div class="rank is-empty"><i>${i + 1}</i><span>${empty}</span></div>`;
-      const app = S.apps.get(r.app);
-      const label = `${r.n} ${unit}${r.n > 1 ? "s" : ""}`;
-      return app
-        ? `<a class="rank" href="/apps/${esc(app.slug)}/"><i>${i + 1}</i><span>${esc(app.title)}</span><small>${label}</small></a>`
-        : `<div class="rank"><i>${i + 1}</i><span>App ${esc(r.app)}</span><small>${label}</small></div>`;
-    });
-    return items.join("");
-  };
-  $("rank-votes").innerHTML = list(S.rankings.votes, "vote", "Pas encore de vote");
+  const list = (rows, unit, empty) =>
+    [0, 1, 2]
+      .map((i) => {
+        const r = rows[i];
+        if (!r) return `<div class="rank is-empty"><i>${i + 1}</i><span>${empty}</span></div>`;
+        const app = S.apps.get(r.app);
+        const label = `${r.n} ${unit}${r.n > 1 && unit !== "j'aime" ? "s" : ""}`;
+        return app
+          ? `<a class="rank" href="/apps/${esc(app.slug)}/" data-open="${esc(app.id)}"><i>${i + 1}</i><span>${esc(app.title)}</span><small>${label}</small></a>`
+          : `<div class="rank"><i>${i + 1}</i><span>App ${esc(r.app)}</span><small>${label}</small></div>`;
+      })
+      .join("");
+  $("rank-likes").innerHTML = list(S.rankings.likes, "j'aime", "Pas encore de j'aime");
   $("rank-views").innerHTML = list(S.rankings.views, "visite", "Pas encore de visite");
 }
 
+// ------------------------------------------------------------ les votes (semaine + finale)
+
+// Le vote de la semaine à mettre en avant : celui qui est ouvert, sinon le prochain, sinon le dernier.
+function featuredWeekly() {
+  const weekly = S.ballots.filter((b) => !b.final);
+  return weekly.find((b) => b.status === "open") || weekly.find((b) => b.status === "upcoming") || weekly[weekly.length - 1];
+}
+
+function candidateLabel(id) {
+  const app = S.apps.get(id);
+  return app ? app.title : `App ${Number(id)}`;
+}
+
+function choicesHtml(b) {
+  const mine = S.me.ballots[b.id];
+  const open = b.status === "open";
+  return `<div class="choices">${b.candidates
+    .map((id) => {
+      const app = S.apps.get(id);
+      const can = open && !mine && app;
+      return `<button class="choice ${mine === id ? "is-mine" : ""}" type="button" style="--bg:${esc(app?.color || "var(--paper)")}"
+        ${can ? `data-ballot="${esc(b.id)}" data-app="${esc(id)}"` : "disabled"}
+        aria-label="${esc(open && !mine ? `Voter pour ${candidateLabel(id)}` : candidateLabel(id))}"><i>${Number(id)}</i><span>${esc(candidateLabel(id))}</span></button>`;
+    })
+    .join("")}</div>`;
+}
+
+function resultsHtml(b) {
+  if (!b.winner) return "";
+  const app = S.apps.get(b.winner);
+  const head = `<a class="winner" ${app ? `href="/apps/${esc(app.slug)}/" data-open="${esc(app.id)}"` : ""}><span class="crown" aria-hidden="true">👑</span><span><small>${b.final ? "La grande gagnante" : "L'app de la semaine"}</small><br><strong>${esc(candidateLabel(b.winner))}</strong></span></a>`;
+  const rest = (b.results || [])
+    .slice(1)
+    .map((r, i) => `<div class="rank"><i>${i + 2}</i><span>${esc(candidateLabel(r.app))}</span><small>${r.n} voix</small></div>`)
+    .join("");
+  const total = b.total ? `<p>${b.total} voix au total.</p>` : `<p>Personne n'a voté : l'app la plus aimée de la semaine l'emporte.</p>`;
+  return `<div class="podium">${head}${rest ? `<div class="ranks">${rest}</div>` : ""}</div>${total}`;
+}
+
+function ballotHtml(b) {
+  const opens = fmtDateTime(b.opensAt);
+  const closes = fmtDateTime(b.closesAt);
+  let when;
+  let text;
+  let body = "";
+  if (b.status === "upcoming") {
+    when = `Ouvre ${opens.toLowerCase()}`;
+    text = b.final
+      ? "Les 5 apps de la semaine et les apps 29 et 30 s'affrontent. Une seule voix, résultat le lendemain à 20 h."
+      : `Les apps ${Number(b.candidates[0])} à ${Number(b.candidates[b.candidates.length - 1])} en lice. Une seule voix, résultat le lundi à 18 h.`;
+    if (b.candidates) body = choicesHtml(b);
+    else {
+      const known = S.ballots.filter((x) => !x.final && x.winner).map((x) => x.winner);
+      body = `<div class="choices">${[...known, ...Array(5 - known.length).fill(null), "29", "30"]
+        .map((id, i) => `<button class="choice" type="button" disabled><i>${id ? Number(id) : "?"}</i><span>${id ? esc(candidateLabel(id)) : `Gagnante S${i + 1}`}</span></button>`)
+        .join("")}</div>`;
+    }
+  } else if (b.status === "open") {
+    const mine = S.me.ballots[b.id];
+    when = `Ferme ${closes.toLowerCase()}`;
+    text = mine ? `Merci ! Tu as voté pour ${candidateLabel(mine)}. Résultat ${closes.toLowerCase()}.` : "Une seule voix, sans compte. Choisis ton app :";
+    body = choicesHtml(b);
+  } else {
+    when = `Fermé ${closes.toLowerCase()}`;
+    text = "";
+    body = resultsHtml(b);
+  }
+  return `<div class="ballot ${b.final ? "is-final" : ""}">
+    <h3>${b.final ? "La grande finale" : `Le vote de la ${esc(b.label.toLowerCase())}`}</h3>
+    <span class="ballot-when">${esc(when)}</span>
+    ${text ? `<p>${esc(text)}</p>` : ""}
+    ${body}
+    ${b.final ? "" : `<div class="mini-timeline" aria-label="Les 5 votes de la semaine">${S.ballots
+      .filter((x) => !x.final)
+      .map((x) => `<span class="${x.status === "open" ? "is-open" : x.status === "closed" ? "is-closed" : ""}" title="${esc(x.label)}">${esc(x.id)}${x.status === "closed" ? " ✓" : ""}</span>`)
+      .join("")}</div>`}
+  </div>`;
+}
+
+function renderBallots() {
+  const el = $("ballots");
+  if (!S.ballots.length) {
+    el.innerHTML = `<div class="ballot"><h3>Le vote de la semaine</h3><p>Le premier vote ouvre le samedi 21 novembre à 18 h.</p></div>`;
+    return;
+  }
+  el.innerHTML = ballotHtml(featuredWeekly()) + ballotHtml(S.ballots.find((b) => b.final));
+}
+
+// La barre des 30 apps : une case par app, colorée quand elle est sortie.
+function renderProgress() {
+  const n = S.apps.size;
+  $("progress").innerHTML = `<div class="progress-cells" aria-hidden="true">${DAYS.map((d) => {
+    const app = S.apps.get(d.id);
+    return `<i style="${app ? `background:${esc(app.color || d.color)}` : ""}" class="${app ? "on" : ""}"></i>`;
+  }).join("")}</div><span><strong>${n}</strong> / 30 apps sorties</span>`;
+  $("progress").setAttribute("aria-label", `${n} apps sorties sur 30`);
+}
+
 function renderAll() {
+  renderProgress();
   renderDeck();
   renderWeeks();
   renderTiles();
   renderRanks();
+  renderBallots();
 }
 
-// ------------------------------------------------------------ vote
+function appTitle(id) {
+  return S.apps.get(id)?.title || `App ${Number(id)}`;
+}
 
-async function vote(appId, button) {
-  if (S.voting || S.myVote) return;
+function recomputeLikesRanking() {
+  S.rankings.likes = Object.entries(S.likes)
+    .filter(([, n]) => n > 0)
+    .map(([app, n]) => ({ app, n }))
+    .sort((a, b) => b.n - a.n || a.app.localeCompare(b.app))
+    .slice(0, 5);
+}
+
+// ------------------------------------------------------------ j'aime / bof
+
+const busy = new Set();
+async function react(appId, value, button) {
+  if (busy.has(appId)) return;
+  busy.add(appId);
+  const before = S.me.reactions[appId] || 0;
+  const next = before === value ? 0 : value; // recliquer annule
+  const likesBefore = S.likes[appId] || 0;
+  S.likes[appId] = likesBefore + (next === 1) - (before === 1);
+  S.me.reactions[appId] = next;
+  recomputeLikesRanking();
+  renderAll();
+  const again = document.querySelector(`[data-react="${value}"][data-app="${appId}"]`);
+  if (again && next !== 0) again.classList.add("pop");
+  try {
+    await api("/api/react", { method: "POST", body: JSON.stringify({ app: appId, value: next }) });
+    track(next === 1 ? "jaime" : next === -1 ? "bof" : "avis_retire", { app: appId });
+  } catch (err) {
+    S.likes[appId] = likesBefore;
+    S.me.reactions[appId] = before;
+    recomputeLikesRanking();
+    renderAll();
+    toast(err.message);
+  } finally {
+    busy.delete(appId);
+  }
+}
+
+// ------------------------------------------------------------ vote d'un tour (semaine ou finale)
+
+async function castBallot(ballotId, appId, button) {
+  if (S.voting || S.me.ballots[ballotId]) return;
   S.voting = true;
-  if (button) button.disabled = true;
+  document.querySelectorAll("[data-ballot]").forEach((b) => (b.disabled = true));
   try {
     const token = await turnstileToken(S.siteKey);
-    const res = await api("/api/vote", { method: "POST", body: JSON.stringify({ app: appId, token }) });
-    S.myVote = res.myVote;
-    const appRank = S.rankings.votes.find((r) => r.app === appId);
-    if (appRank) appRank.n += 1;
-    else S.rankings.votes.push({ app: appId, n: 1 });
-    S.rankings.votes.sort((a, b) => b.n - a.n);
+    await api("/api/ballot", { method: "POST", body: JSON.stringify({ ballot: ballotId, app: appId, token }) });
+    S.me.ballots[ballotId] = appId;
+    track("vote", { ballot: ballotId, app: appId });
     renderAll();
-    confetti($("deck"));
-    toast(`Merci ! Ton vote pour ${appTitle(appId)} est compté. Reviens demain.`);
+    confetti(button?.isConnected ? button : $("ballots"));
+    toast(`Merci ! Ta voix pour ${appTitle(appId)} est comptée.`);
   } catch (err) {
-    if (err.data?.myVote) S.myVote = err.data.myVote;
+    if (err.data?.mine) S.me.ballots[ballotId] = err.data.mine;
     toast(err.message);
     renderAll();
   } finally {
@@ -326,9 +549,7 @@ $("deck").addEventListener("pointermove", (e) => {
     drag.card.classList.add("is-dragging");
     drag.card.setPointerCapture(e.pointerId);
   }
-  // Résistance aux extrémités de la semaine.
-  const atEdge = (dx > 0 && S.active === 0) || (dx < 0 && S.active === S.week.length - 1);
-  drag.dx = atEdge ? dx * 0.3 : dx;
+  drag.dx = dx;
   drag.card.style.transform = `${drag.card.dataset.tf} translateX(${drag.dx}px) rotate(${drag.dx / 18}deg)`;
 });
 function endDrag(e) {
@@ -336,9 +557,12 @@ function endDrag(e) {
   drag.id = null;
   if (!drag.moved) return;
   drag.card.classList.remove("is-dragging");
-  S.suppressClick = true;
-  setTimeout(() => (S.suppressClick = false), 0);
-  if (Math.abs(drag.dx) > 70) go(S.active + (drag.dx < 0 ? 1 : -1));
+  // Le clic qui suit un glissé ne doit rien ouvrir (ni lien, ni carte de côté).
+  S.suppressClickUntil = performance.now() + 350;
+  if (Math.abs(drag.dx) > 70) {
+    go(S.active + (drag.dx < 0 ? 1 : -1));
+    track("deck", { how: "swipe" });
+  }
   else drag.card.style.transform = drag.card.dataset.tf;
 }
 $("deck").addEventListener("pointerup", endDrag);
@@ -347,7 +571,7 @@ $("deck").addEventListener("dragstart", (e) => e.preventDefault());
 document.addEventListener(
   "click",
   (e) => {
-    if (S.suppressClick) {
+    if (performance.now() < (S.suppressClickUntil || 0)) {
       e.preventDefault();
       e.stopPropagation();
     }
@@ -361,28 +585,77 @@ document.addEventListener("click", (e) => {
     e.preventDefault();
     return go(Number(side.dataset.card));
   }
-  const v = e.target.closest("[data-vote]");
-  if (v) return vote(v.dataset.vote, v);
+  const r = e.target.closest("[data-react]");
+  if (r) return react(r.dataset.app, Number(r.dataset.react), r);
+  const b = e.target.closest("[data-ballot]");
+  if (b) return castBallot(b.dataset.ballot, b.dataset.app, b);
+  if (e.target.closest("[data-agenda]")) track("agenda");
+  const o = e.target.closest("[data-open]");
+  if (o) track("ouvrir_app", { app: o.dataset.open, from: o.closest(".card") ? "carte" : "grille" });
   const t = e.target.closest("[data-go]");
   if (t) go(Number(t.dataset.go));
 });
-$("prev").addEventListener("click", () => go(S.active - 1));
-$("next").addEventListener("click", () => go(S.active + 1));
+$("prev").addEventListener("click", () => (go(S.active - 1), track("deck", { how: "fleche" })));
+$("next").addEventListener("click", () => (go(S.active + 1), track("deck", { how: "fleche" })));
 $("deck").addEventListener("keydown", (e) => {
   if (e.key === "ArrowLeft") go(S.active - 1);
   if (e.key === "ArrowRight") go(S.active + 1);
 });
 
+// La carte du jour (même avant 18 h : elle affiche le compte à rebours).
 function pickActive() {
+  const today = parisDate(now());
+  const idx = S.week.findIndex((d) => d.date === today);
+  S.active = idx >= 0 ? idx : 0;
+}
+
+// ------------------------------------------------------------ les deux comptes à rebours du haut
+
+function clock(target) {
+  const diff = Math.max(0, Date.parse(target) - now());
+  const d = Math.floor(diff / 86400000);
+  const hms = [3600000, 60000, 1000].map((u, i) => String(Math.floor((diff % [86400000, 3600000, 60000][i]) / u)).padStart(2, "0")).join(":");
+  return d > 0 ? `${d} j ${hms}` : hms;
+}
+
+// « Tchin ! » : si la page est ouverte quand 18 h sonne.
+let watching = null; // la prochaine app attendue
+function tchin(day) {
+  track("tchin", { app: day.id });
+  const el = document.createElement("div");
+  el.className = "tchin";
+  el.setAttribute("role", "status");
+  el.innerHTML = `<div class="tchin-box"><span class="tchin-glasses" aria-hidden="true">🥂</span><strong>TCHIN !</strong><small>18 h pile : l'app n° ${day.num} est servie</small></div>`;
+  document.body.append(el);
+  confetti(el.querySelector(".tchin-box"));
+  setTimeout(() => confetti($("deck")), 2600);
+  setTimeout(() => el.classList.add("is-out"), 2400);
+  setTimeout(() => el.remove(), 3000);
+}
+
+function renderTimers() {
   const t = now();
-  let idx = 0;
-  S.week.forEach((d, i) => {
-    if (Date.parse(d.publishAt) <= t) idx = i;
-  });
-  S.active = idx;
+  const today = parisDate(t);
+  const next = DAYS.find((d) => Date.parse(d.publishAt) > t);
+  if (watching && watching !== next && Date.parse(watching.publishAt) <= t && t - Date.parse(watching.publishAt) < 60000) tchin(watching);
+  watching = next || null;
+  const dayBox = $("t-day-box");
+  if (next) {
+    dayBox.hidden = false;
+    $("t-day-label").textContent =
+      next.num === 1 ? "Départ du défi dans" : next.date === today ? `L'app du jour (n° ${next.num}) sort dans` : `Prochaine app, ${fmtShort(next.date).toLowerCase()}, dans`;
+    $("t-day").textContent = clock(next.publishAt);
+  } else if (t < Date.parse(CHALLENGE_END)) {
+    $("t-day-label").textContent = "Verdict de la finale dans";
+    $("t-day").textContent = clock(CHALLENGE_END);
+  } else dayBox.hidden = true;
+  const ended = t >= Date.parse(CHALLENGE_END);
+  $("t-end-label").textContent = ended ? "Le défi est terminé" : "Fin du défi dans";
+  $("t-end").textContent = ended ? "Merci !" : clock(CHALLENGE_END);
 }
 
 renderPills();
+renderTimers();
 S.week = currentWeek();
 pickActive();
 renderAll();
@@ -390,10 +663,12 @@ await load();
 S.week = currentWeek();
 pickActive();
 renderAll();
+renderTimers();
 
 // Compte à rebours, et rechargement quand une app sort.
 const reloaded = new Set();
 setInterval(async () => {
+  renderTimers();
   let due = null;
   document.querySelectorAll("[data-countdown]").forEach((el) => {
     el.textContent = countdown(el.dataset.countdown);
@@ -403,8 +678,11 @@ setInterval(async () => {
     reloaded.add(due);
     await new Promise((r) => setTimeout(r, 2000));
     await load();
-    S.week = currentWeek();
-    pickActive();
+    // On garde la carte que la personne regarde, sauf si la semaine a changé.
+    const week = currentWeek();
+    const changed = week[0].date !== S.week[0].date;
+    S.week = week;
+    if (changed) pickActive();
     renderAll();
   }
 }, 1000);

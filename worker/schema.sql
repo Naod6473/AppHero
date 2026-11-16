@@ -1,22 +1,30 @@
 -- Base D1 d'Apphéro. Rejouable sans risque (IF NOT EXISTS).
 
--- Un vote par personne et par jour (jour de Paris).
--- voter = identifiant anonyme du cookie ; ip_hash = empreinte de l'IP salée, qui change chaque jour.
-CREATE TABLE IF NOT EXISTS votes (
-  id INTEGER PRIMARY KEY,
+-- J'aime / Bof : une réaction par personne et par app, modifiable.
+-- voter = identifiant aléatoire du cookie ; ip_hash = empreinte salée de l'IP, qui change chaque jour.
+CREATE TABLE IF NOT EXISTS reactions (
   app TEXT NOT NULL,
-  day TEXT NOT NULL,
   voter TEXT NOT NULL,
+  value INTEGER NOT NULL, -- 1 = j'aime, -1 = bof
+  ip_hash TEXT NOT NULL,
+  updated_at INTEGER NOT NULL,
+  PRIMARY KEY (app, voter)
+);
+CREATE INDEX IF NOT EXISTS reactions_ip ON reactions (ip_hash, updated_at);
+
+-- Votes de la semaine et de la finale : une voix par personne et par scrutin.
+CREATE TABLE IF NOT EXISTS ballot_votes (
+  ballot TEXT NOT NULL,
+  voter TEXT NOT NULL,
+  app TEXT NOT NULL,
   ip_hash TEXT NOT NULL,
   created_at INTEGER NOT NULL,
-  UNIQUE (day, voter)
+  PRIMARY KEY (ballot, voter)
 );
-CREATE INDEX IF NOT EXISTS votes_app ON votes (app);
-CREATE INDEX IF NOT EXISTS votes_created ON votes (created_at);
-CREATE INDEX IF NOT EXISTS votes_day_ip ON votes (day, ip_hash);
+CREATE INDEX IF NOT EXISTS ballot_votes_ip ON ballot_votes (ballot, ip_hash);
 
 -- Compteurs agrégés, pour que les classements ne relisent jamais toute la table des votes.
--- kind = 'vote' ou 'view' ; bucket = 'ALL' (tout le défi) ou l'identifiant de semaine (S1 à S5).
+-- kind = 'like', 'bof', 'view' (bucket 'ALL') ou 'ballot' (bucket = S1 à S5, F).
 CREATE TABLE IF NOT EXISTS tallies (
   kind TEXT NOT NULL,
   bucket TEXT NOT NULL,
@@ -36,3 +44,25 @@ CREATE TABLE IF NOT EXISTS draws (
   idea TEXT,
   created_at INTEGER NOT NULL
 );
+
+-- Mesure d'audience maison, sans cookie. Une ligne par événement.
+-- visitor = empreinte de (sel secret, jour, IP, navigateur) : elle change chaque jour,
+-- on ne peut ni remonter à l'IP ni suivre quelqu'un d'un jour à l'autre.
+CREATE TABLE IF NOT EXISTS events (
+  ts INTEGER NOT NULL,
+  day TEXT NOT NULL,
+  hour INTEGER NOT NULL,
+  visitor TEXT NOT NULL,
+  name TEXT NOT NULL,
+  path TEXT NOT NULL,
+  app TEXT,
+  props TEXT,
+  country TEXT,
+  device TEXT,
+  browser TEXT,
+  os TEXT,
+  lang TEXT,
+  ref TEXT
+);
+CREATE INDEX IF NOT EXISTS events_day ON events (day, name);
+CREATE INDEX IF NOT EXISTS events_ts ON events (ts);

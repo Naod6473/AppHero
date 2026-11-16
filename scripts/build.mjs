@@ -10,6 +10,37 @@ import { join } from "node:path";
 import { execSync } from "node:child_process";
 import { build } from "vite";
 import { readApps, ROOT } from "./apps.mjs";
+import { DAYS, CHALLENGE_END } from "../shared/calendar.js";
+
+// Les 30 rendez-vous de 18 h, plus le verdict, à ajouter à son agenda.
+function calendarIcs() {
+  const utc = (iso) => new Date(iso).toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
+  const esc = (s) => s.replace(/[\\;,]/g, (c) => "\\" + c);
+  const stamp = utc("2026-11-16T12:00:00Z");
+  const ev = (uid, start, minutes, title, desc, url) => [
+    "BEGIN:VEVENT",
+    `UID:${uid}@apphero.cloud`,
+    `DTSTAMP:${stamp}`,
+    `DTSTART:${utc(start)}`,
+    `DTEND:${utc(new Date(Date.parse(start) + minutes * 60000).toISOString())}`,
+    `SUMMARY:${esc(title)}`,
+    `DESCRIPTION:${esc(desc)}`,
+    `URL:${url}`,
+    "BEGIN:VALARM",
+    "ACTION:DISPLAY",
+    `DESCRIPTION:${esc(title)}`,
+    "TRIGGER:-PT5M",
+    "END:VALARM",
+    "END:VEVENT",
+  ];
+  const lines = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//Apphero//Defi 30 apps//FR", "CALSCALE:GREGORIAN", "METHOD:PUBLISH", "X-WR-CALNAME:Apphéro · 18 h"];
+  for (const d of DAYS) {
+    lines.push(...ev(`app-${d.id}`, d.publishAt, 30, `🥂 Apphéro : app ${d.num}/30 (${d.theme})`, `La nouvelle app sort à 18 h pile : https://apphero.cloud/${d.id}`, `https://apphero.cloud/${d.id}`));
+  }
+  lines.push(...ev("verdict", CHALLENGE_END, 30, "🏆 Apphéro : le verdict de la grande finale", "La grande gagnante des 30 apps : https://apphero.cloud/#vote", "https://apphero.cloud/#vote"));
+  lines.push("END:VCALENDAR");
+  return lines.join("\r\n") + "\r\n";
+}
 
 const { apps, errors } = readApps();
 if (errors.length) {
@@ -24,7 +55,8 @@ writeFileSync(join(ROOT, "worker/generated/apps.json"), JSON.stringify(manifest,
 console.log(`Manifeste : ${manifest.length} app(s)`);
 
 await build({ configFile: join(ROOT, "vite.config.js"), logLevel: "warn" });
-console.log("Site construit dans dist/");
+writeFileSync(join(ROOT, "dist/apphero.ics"), calendarIcs());
+console.log("Site construit dans dist/ (avec l'agenda apphero.ics)");
 
 for (const app of ready) {
   let src = app.dir;
