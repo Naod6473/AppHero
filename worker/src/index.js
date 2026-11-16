@@ -14,6 +14,11 @@ export default {
     const now = currentTime(env);
     const path = url.pathname;
 
+    if (url.hostname === "www.apphero.cloud") {
+      url.hostname = "apphero.cloud";
+      return Response.redirect(url.toString(), 301);
+    }
+
     try {
       if (path.startsWith("/api/")) return await api(request, env, ctx, url, now);
 

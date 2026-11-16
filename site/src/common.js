@@ -1,8 +1,8 @@
 // Outils partagés par l'accueil et la roue.
 import "./styles.css";
 
-// À remplacer par le vrai compte X du défi.
-export const X_URL = "https://x.com/";
+// Le compte X du défi.
+export const X_URL = "https://x.com/ZeroE24661";
 
 export const esc = (s) =>
   String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
