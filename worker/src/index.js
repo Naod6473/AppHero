@@ -3,6 +3,7 @@
 import manifest from "../generated/apps.json";
 import CRITERES from "../../shared/criteres.json";
 import { BALLOTS, ballotStatus, WHEEL_DAYS, CHALLENGE_END, parisDate, isReleased } from "../../shared/calendar.js";
+import { soiffardApi } from "./soiffard.js";
 
 const MAX_PER_IP = 8; // un foyer ou un bureau partage souvent la même IP
 const COOKIE = "ah_id";
@@ -65,6 +66,8 @@ export default {
 // ---------------------------------------------------------------- API
 
 async function api(request, env, ctx, url, now) {
+  // Les API propres à une app (Soiffard : bars autour, couronnes, classements).
+  if (url.pathname.startsWith("/api/soiffard/")) return soiffardApi(request, env, ctx, url, now, { json, readJson, ipHashFor });
   const route = `${request.method} ${url.pathname.replace(/\/$/, "")}`;
   switch (route) {
     case "GET /api/state":
