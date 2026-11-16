@@ -252,8 +252,8 @@ button, input, select, textarea { font-family: inherit; color: inherit; }
 .info p { font-size: 19px; line-height: 1.4; margin: 14px 0 0; }
 
 /* ---------- Footer */
-.footer { position: relative; background: var(--ink); color: var(--paper); overflow: hidden; margin-top: 40px; }
-.footer-band { background: var(--cyan); color: var(--ink); border-block: 5px solid var(--ink); transform: rotate(1.4deg); margin: -12px -20px 0; position: relative; z-index: 1; }
+.footer { position: relative; background: var(--ink); color: var(--paper); margin-top: 72px; }
+.footer-band { background: var(--cyan); color: var(--ink); border-block: 5px solid var(--ink); transform: rotate(1.8deg); margin: -34px -20px 0; position: relative; z-index: 2; box-shadow: 0 6px 0 var(--ink); }
 .footer-band .marquee-track { animation-direction: reverse; animation-duration: 18s; font-size: 30px; padding: 10px 0 6px; }
 .footer-inner { position: relative; z-index: 1; max-width: 1200px; margin: 0 auto; padding: 64px 32px 40px; display: flex; flex-wrap: wrap; gap: 40px; align-items: center; justify-content: space-between; }
 .footer-logo { font-family: var(--display); font-size: clamp(56px, 11vw, 120px); line-height: 0.9; letter-spacing: -1px; margin: 0; }
