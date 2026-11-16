@@ -775,7 +775,7 @@ function renderOverlay() {
   const close = `<button class="close" type="button" data-act="close" aria-label="Fermer">${svg("x")}</button>`;
   if (S.overlay === "onb") {
     ov.innerHTML = `<div class="onb">
-      <div class="onb-brand"><img class="logo-big" src="logo.svg" alt=""><span class="wm" data-wm>Soiffard</span></div>
+      <div class="onb-brand">${LOGO_HTML.replace('class="lg"', 'class="lg lg-big"')}<span class="wm" data-wm>Soiffard</span></div>
       <h1 class="h1">Le Strava des soiffards.</h1>
       <p>Le bar le plus proche en un geste. Tes tournées en stats. Et la couronne du <strong>King of the Bar</strong> pour qui reste le plus longtemps au comptoir.</p>
       <div class="field"><label for="onb-pseudo">Ton pseudo</label><input id="onb-pseudo" maxlength="20" value="${esc(L.randomPseudo())}" autocomplete="nickname"></div>
@@ -1416,6 +1416,9 @@ document.addEventListener("change", (e) => {
 
 $("#btn-menu").addEventListener("click", () => ACT.menu());
 
+// Logo animé : verre + mousse + couronne en calques, bulles qui remontent.
+const LOGO_HTML = `<span class="lg" aria-hidden="true"><img class="lg-base" src="lg-base.png" alt=""><svg class="lg-bubs" viewBox="0 0 1024 1024"><g><circle cx="444" cy="860" r="10" style="animation-duration:3.1s;animation-delay:-0.5s"/><circle cx="398" cy="860" r="12" style="animation-duration:4.1s;animation-delay:-3.2s"/><circle cx="587" cy="860" r="11" style="animation-duration:3.4s;animation-delay:-0.9s"/><circle cx="427" cy="860" r="10" style="animation-duration:2.8s;animation-delay:-2.6s"/><circle cx="604" cy="860" r="15" style="animation-duration:3.8s;animation-delay:-0.7s"/><circle cx="464" cy="860" r="14" style="animation-duration:3.7s;animation-delay:-3.2s"/><circle cx="618" cy="860" r="10" style="animation-duration:3.5s;animation-delay:-2.3s"/><circle cx="517" cy="860" r="10" style="animation-duration:3.3s;animation-delay:-0.3s"/><circle cx="632" cy="860" r="16" style="animation-duration:3.4s;animation-delay:-1.0s"/><circle cx="625" cy="860" r="14" style="animation-duration:4.0s;animation-delay:-3.4s"/><circle cx="517" cy="860" r="12" style="animation-duration:3.5s;animation-delay:-1.5s"/></g></svg><img class="lg-crown" src="lg-crown.png" alt=""><img class="lg-foam" src="lg-foam.png" alt=""></span>`;
+
 // Titre mousseux : SVG inline pour animer les bulles ; la mousse gigote au toucher.
 let wmSvg = null;
 let wmSeq = 0;
@@ -1434,11 +1437,12 @@ fetch("wordmark.svg")
   .catch(() => {});
 new MutationObserver(() => paintWordmarks($("#overlay"))).observe($("#overlay"), { childList: true });
 document.addEventListener("click", (e) => {
-  const svgEl = e.target.closest?.(".wm")?.querySelector("svg");
-  if (!svgEl) return;
-  svgEl.classList.remove("wobble");
-  void svgEl.getBoundingClientRect();
-  svgEl.classList.add("wobble");
+  const box = e.target.closest?.(".brand, .brand-sm, .onb-brand");
+  if (!box) return;
+  const parts = box.querySelectorAll(".wm svg, .lg");
+  parts.forEach((el) => el.classList.remove("wobble"));
+  void box.getBoundingClientRect();
+  parts.forEach((el) => el.classList.add("wobble"));
   try {
     navigator.vibrate?.(12);
   } catch {}
