@@ -547,7 +547,7 @@ async function stats(env, url, now) {
   return json(out);
 }
 
-// ---------------------------------------------------------------- le bilan du 23 décembre
+// ---------------------------------------------------------------- le bilan de fin de défi
 
 async function bilan(env, now) {
   if (now < Date.parse(CHALLENGE_END)) return json({ ready: false, at: CHALLENGE_END });

@@ -1,6 +1,6 @@
 // Accueil : pile de cartes de la semaine, grille des 30 apps, j'aime / bof, votes, classements.
 import { api, esc, toast, confetti, turnstileToken, track, shareApp, X_URL } from "./common.js";
-import { DAYS, BALLOTS, THEMES, SUNDAY, CHALLENGE_END, WEEKDAYS_SHORT, WHEEL_DAYS, parisDate, fmtShort, fmtDateTime } from "../../shared/calendar.js";
+import { DAYS, BALLOTS, THEMES, CHALLENGE_END, WEEKDAYS_SHORT, WHEEL_DAYS, parisDate, fmtShort, fmtDateTime } from "../../shared/calendar.js";
 
 const S = {
   offset: 0, // écart entre l'horloge du serveur et celle du navigateur
@@ -52,7 +52,7 @@ const isoAdd = (iso, n) => {
   d.setUTCDate(d.getUTCDate() + n);
   return d.toISOString().slice(0, 10);
 };
-const LAST_WEEK_MONDAY = "2026-12-21";
+const LAST_WEEK_MONDAY = "2026-12-14";
 
 // Les 7 jours de la semaine en cours, du lundi au dimanche.
 // Les jours sans app (dimanche, avant le départ, après la finale) ont une carte à eux.
@@ -66,8 +66,8 @@ function currentWeek() {
     const day = DAYS.find((d) => d.date === date);
     if (day) return day;
     const weekday = (i + 1) % 7;
-    const kind = weekday === 0 ? "sunday" : date < DAYS[0].date ? "before" : date === "2026-12-23" ? "verdict" : "after";
-    const color = { sunday: SUNDAY.color, before: "#B9A3FF", verdict: "#FFD83D", after: "#7CF2B0" }[kind];
+    const kind = date < DAYS[0].date ? "before" : date === CHALLENGE_END.slice(0, 10) ? "verdict" : "after";
+    const color = { before: "#B9A3FF", verdict: "#FFD83D", after: "#7CF2B0" }[kind];
     return { filler: kind, date, weekday, color, id: null };
   });
 }
@@ -85,22 +85,6 @@ function countdown(target) {
 
 function fillerModel(day) {
   const openBallot = S.ballots.find((b) => b.status === "open");
-  if (day.filler === "sunday") {
-    const next = DAYS.find((d) => d.date > day.date);
-    return {
-      bg: day.color,
-      tag: "REPOS",
-      title: "Repos… ou pas !",
-      theme: "Dimanche",
-      body:
-        day.date > DAYS[DAYS.length - 1].date
-          ? "Le défi est fini. Repos bien mérité, et joyeuses fêtes !"
-          : `${SUNDAY.blurb}${openBallot && !openBallot.final ? " Et le vote de la semaine est ouvert jusqu'à lundi 18 h." : ""}`,
-      footLabel: next ? "PROCHAINE APP" : "C'EST FINI",
-      footValue: next ? `${fmtShort(next.date)} · 18 h` : "Merci !",
-      cta: openBallot ? { label: "Voter pour l'app de la semaine", href: "#vote" } : { label: "Revoir les apps", href: "#apps" },
-    };
-  }
   if (day.filler === "before") {
     return {
       bg: day.color,
@@ -133,7 +117,7 @@ function fillerModel(day) {
   return {
     bg: day.color,
     tag: "BONUS",
-    title: "Joyeux Noël !",
+    title: "Joyeuses fêtes !",
     theme: "Après le défi",
     body: "Les 30 apps restent en ligne et le code est à toi. Merci d'avoir joué !",
     footLabel: "LE CODE",
@@ -185,6 +169,9 @@ function cardModel(day) {
     title = "L'idée du public";
     body = "Propose l'app du mercredi sur X. L'idée la plus soutenue sera construite.";
     cta = { label: "Proposer une idée", href: X_URL };
+  } else if (day.weekday === 0) {
+    title = "L'idée perso";
+    cta = { label: "Le vote de la semaine", href: "#vote" };
   } else if (day.weekday === 6) {
     title = "Le jeu du samedi";
     cta = { label: "Comment ça marche", href: "#vote" };
@@ -235,17 +222,7 @@ function renderDeck() {
   deck.innerHTML = S.week
     .map((day, i) => {
       const c = cardModel(day);
-      // La pile tourne en boucle : il y a toujours une carte à gauche et à droite.
-      const n = S.week.length;
-      let r = i - A;
-      if (r > n / 2) r -= n;
-      if (r < -n / 2) r += n;
-      const ar = Math.abs(r);
-      const active = r === 0;
-      const tf = active
-        ? "translate(0px, 0px) rotate(-1.5deg) scale(1)"
-        : `translate(${r * 42}px, ${ar * -14}px) rotate(${r * 3.5 - 1.5}deg) scale(${1 - ar * 0.045})`;
-      const z = 30 - ar * 3 + (r < 0 ? 1 : 0);
+      const { active, tf, z, ar } = place(i);
       let actions = "";
       if (c.app) {
         actions = `<div class="card-actions">
@@ -282,6 +259,49 @@ function renderDeck() {
     .join("");
   // Les cartes de côté se cliquent en entier : leurs liens et boutons sortent du parcours clavier.
   deck.querySelectorAll(".card.is-side a, .card.is-side button").forEach((el) => (el.tabIndex = -1));
+  S.lastR = S.week.map((_, i) => place(i).r);
+}
+
+// Position d'une carte dans la pile. La pile tourne en boucle : il y a toujours des cartes à gauche et à droite.
+function place(i) {
+  const n = S.week.length;
+  let r = i - S.active;
+  if (r > n / 2) r -= n;
+  if (r < -n / 2) r += n;
+  const ar = Math.abs(r);
+  const active = r === 0;
+  const tf = active
+    ? "translate(0px, 0px) rotate(-1.5deg) scale(1)"
+    : `translate(${r * 42}px, ${ar * -14}px) rotate(${r * 3.5 - 1.5}deg) scale(${1 - ar * 0.045})`;
+  const z = 30 - ar * 3 + (r < 0 ? 1 : 0);
+  return { r, ar, active, tf, z };
+}
+
+// Changer de carte sans tout redessiner : les cartes glissent à leur nouvelle place.
+// Celle qui passe d'un bout à l'autre de la pile y va sans animation, cachée derrière les autres.
+function layoutDeck() {
+  const cards = $("deck").querySelectorAll(".card");
+  if (cards.length !== S.week.length) return renderDeck();
+  cards.forEach((el, i) => {
+    const { r, ar, active, tf, z } = place(i);
+    const jump = Math.abs(r - (S.lastR?.[i] ?? r)) > 1;
+    if (jump) el.style.transition = "none";
+    el.classList.toggle("is-active", active);
+    el.classList.toggle("is-side", !active);
+    el.dataset.tf = tf;
+    el.style.transform = tf;
+    el.style.zIndex = z;
+    el.style.opacity = ar > 3 ? 0 : 1;
+    el.style.pointerEvents = ar > 3 ? "none" : "auto";
+    el.setAttribute("aria-hidden", String(!active));
+    el.querySelectorAll("a, button").forEach((b) => (active ? b.removeAttribute("tabindex") : (b.tabIndex = -1)));
+    if (jump) {
+      void el.offsetWidth;
+      el.style.transition = "";
+    }
+  });
+  $("tabs").querySelectorAll("[data-go]").forEach((t, i) => t.setAttribute("aria-pressed", String(i === S.active)));
+  S.lastR = S.week.map((_, i) => place(i).r);
 }
 
 function fmtLongUpper(iso) {
@@ -294,7 +314,7 @@ function fmtLongUpper(iso) {
 function go(i) {
   const n = S.week.length;
   S.active = ((i % n) + n) % n;
-  renderDeck();
+  layoutDeck();
 }
 
 // ------------------------------------------------------------ sections
@@ -303,8 +323,8 @@ function renderPills() {
   const rot = [-1.6, 1.2, -1.0, 1.4, -1.2, 1.0, -1.4];
   $("pills").innerHTML = [1, 2, 3, 4, 5, 6, 0]
     .map((wd, i) => {
-      const th = wd === 0 ? SUNDAY : THEMES[wd];
-      return `<div class="pill ${wd === 0 ? "is-rest" : ""}" style="background:${th.color};transform:rotate(${rot[i]}deg)"><b>${WEEKDAYS_SHORT[wd].toUpperCase()}</b><span>${esc(th.name)}</span></div>`;
+      const th = THEMES[wd];
+      return `<div class="pill" style="background:${th.color};transform:rotate(${rot[i]}deg)"><b>${WEEKDAYS_SHORT[wd].toUpperCase()}</b><span>${esc(th.name)}</span></div>`;
     })
     .join("");
 }
@@ -408,12 +428,14 @@ function ballotHtml(b) {
   if (b.status === "upcoming") {
     when = `Ouvre ${opens.toLowerCase()}`;
     text = b.final
-      ? "Les 5 apps de la semaine et les apps 29 et 30 s'affrontent. Une seule voix, résultat le lendemain à 20 h."
-      : `Les apps ${Number(b.candidates[0])} à ${Number(b.candidates[b.candidates.length - 1])} en lice. Une seule voix, résultat le lundi à 18 h.`;
+      ? "Les 4 apps de la semaine et les apps 27 à 30 s'affrontent. Une seule voix, résultat le lendemain à 20 h."
+      : `Les apps ${Number(b.candidates[0])} à ${Number(b.candidates[b.candidates.length - 1])} en lice. Une seule voix, résultat le mardi à 18 h.`;
     if (b.candidates) body = choicesHtml(b);
     else {
       const known = S.ballots.filter((x) => !x.final && x.winner).map((x) => x.winner);
-      body = `<div class="choices">${[...known, ...Array(5 - known.length).fill(null), "29", "30"]
+      const weeks = BALLOTS.filter((x) => !x.final).length;
+      const extra = BALLOTS.find((x) => x.final).extra;
+      body = `<div class="choices">${[...known, ...Array(weeks - known.length).fill(null), ...extra]
         .map((id, i) => `<button class="choice" type="button" disabled><i>${id ? Number(id) : "?"}</i><span>${id ? esc(candidateLabel(id)) : `Gagnante S${i + 1}`}</span></button>`)
         .join("")}</div>`;
     }
@@ -432,7 +454,7 @@ function ballotHtml(b) {
     <span class="ballot-when">${esc(when)}</span>
     ${text ? `<p>${esc(text)}</p>` : ""}
     ${body}
-    ${b.final ? "" : `<div class="mini-timeline" aria-label="Les 5 votes de la semaine">${S.ballots
+    ${b.final ? "" : `<div class="mini-timeline" aria-label="Les 4 votes de la semaine">${S.ballots
       .filter((x) => !x.final)
       .map((x) => `<span class="${x.status === "open" ? "is-open" : x.status === "closed" ? "is-closed" : ""}" title="${esc(x.label)}">${esc(x.id)}${x.status === "closed" ? " ✓" : ""}</span>`)
       .join("")}</div>`}

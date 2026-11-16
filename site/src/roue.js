@@ -293,7 +293,7 @@ function setRec(on) {
   setMode(S.mode);
 }
 
-// Le calendrier des 5 tirages : une porte par jeudi soir, ouverte une fois le tirage publié.
+// Le calendrier des tirages : une porte par jeudi soir, ouverte une fois le tirage publié.
 function renderHistory() {
   const byDay = new Map(S.draws.map((d, i) => [d.forDay, i]));
   $("history").innerHTML = WHEEL_DAYS.map((w, n) => {

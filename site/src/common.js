@@ -1,4 +1,5 @@
 // Outils partagés par l'accueil et la roue.
+import { CHALLENGE_END } from "../../shared/calendar.js";
 // Polices hébergées avec le site : aucune requête vers Google Fonts.
 import "@fontsource/bagel-fat-one/400.css";
 import "@fontsource/rubik/500.css";
@@ -213,8 +214,8 @@ document.addEventListener("click", (e) => {
   } else if (logoClicks.length > 1) e.preventDefault(); // on reste sur la page pendant qu'on clique
 });
 
-// Après le verdict du 23 décembre, le lien vers le bilan apparaît dans le menu.
-if (Date.now() >= Date.parse("2026-12-23T20:00:00+01:00")) {
+// Après le verdict de la finale, le lien vers le bilan apparaît dans le menu.
+if (Date.now() >= Date.parse(CHALLENGE_END)) {
   const nav = document.querySelector(".nav-links");
   if (nav && !nav.querySelector('[href="/bilan/"]')) nav.insertAdjacentHTML("afterbegin", '<a href="/bilan/">Le bilan 🏆</a>');
 }

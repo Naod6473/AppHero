@@ -443,7 +443,6 @@ main, header, footer { overflow-x: clip; }
 .timer strong { display: block; font-family: var(--display); font-weight: 400; font-size: clamp(28px, 4vw, 38px); line-height: 1.1; font-variant-numeric: tabular-nums; white-space: nowrap; }
 
 /* ---------- Le dimanche */
-.pill.is-rest { border-style: dashed; }
 .tab .d-short { display: none; }
 @media (max-width: 520px) {
   .tabs { gap: 4px; }
