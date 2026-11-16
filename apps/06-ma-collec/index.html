@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Ma Collec' · Apphéro 06/30</title>
+  <meta name="description" content="Les cartes Disney Leclerc de tes enfants : ce qu'ils ont, les doubles à échanger et ce qui manque.">
+  <meta property="og:title" content="Ma Collec' · Apphéro 06/30">
+  <meta property="og:description" content="Les cartes Disney Leclerc de tes enfants : ce qu'ils ont, les doubles à échanger et ce qui manque.">
+  <meta property="og:url" content="https://apphero.cloud/apps/06-ma-collec/">
+  <meta name="twitter:card" content="summary">
+  <meta name="theme-color" content="#1f4fd8">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Ma Collec'">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="logo.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icon-180.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Nunito+Sans:opsz,wght@6..12,400;6..12,600;6..12,800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <div class="brand">
+      <h1><img class="star" src="logo.svg" alt="" width="34" height="34"><span>Ma Collec'<small>Cartes Disney Leclerc 2026 · 108 cartes</small></span></h1>
+      <div class="count-down" id="countdown"></div>
+    </div>
+    <div class="kids" id="kids" role="group" aria-label="Enfants"></div>
+    <div class="stats">
+      <div class="stat"><div class="num" id="sOwn">0 / 108</div><div class="lab">cartes dans l'album</div><div class="bar"><i id="sBar" style="width:0"></i></div></div>
+      <div class="stat"><div class="num" id="sMiss">108</div><div class="lab">manquantes</div></div>
+      <div class="stat dup"><div class="num" id="sDup">0</div><div class="lab">doubles à échanger</div></div>
+    </div>
+    <nav class="tabs" role="tablist" id="tabs">
+      <button role="tab" data-tab="album" aria-selected="true">Album</button>
+      <button role="tab" data-tab="miss" aria-selected="false">Il manque<span class="n" id="tMiss"></span></button>
+      <button role="tab" data-tab="dup" aria-selected="false">Doubles<span class="n" id="tDup"></span></button>
+      <button role="tab" data-tab="swap" aria-selected="false">Échanger</button>
+      <button role="tab" data-tab="more" aria-selected="false">Réglages</button>
+    </nav>
+  </div>
+</header>
+
+<main><div class="wrap" id="view"></div></main>
+
+<button class="fab" id="fab" aria-label="Ouvrir une pochette"><span aria-hidden="true">✦</span> <span class="l">J'ouvre une pochette</span><span aria-hidden="true" class="s">+4</span></button>
+
+<dialog id="dPack"><form method="dialog" class="dlg" id="packForm">
+  <h2>Nouvelle pochette</h2>
+  <p class="hint">Tape le numéro au dos de chaque carte, puis « OK ». Une pochette contient 4 cartes.</p>
+  <div class="screen"><span class="big" id="padNum">—</span><span class="who" id="padWho">Numéro de 1 à 108</span></div>
+  <div class="pad" id="pad"></div>
+  <div class="res" id="packRes"></div>
+  <div class="row" style="justify-content:flex-end"><button class="btn" value="close">Terminé</button></div>
+</form></dialog>
+
+<dialog id="dCard"><form method="dialog" class="dlg">
+  <h2 id="cTitle"></h2>
+  <p class="hint" id="cFilm"></p>
+  <div class="stepper"><button type="button" id="cMinus" aria-label="Retirer une">−</button><output id="cCount">0</output><button type="button" id="cPlus" aria-label="Ajouter une">+</button></div>
+  <h3 style="margin:0;font-size:.9rem">Carte spéciale ?</h3>
+  <div class="sp-opts" id="cSp"></div>
+  <h3 style="margin:0;font-size:.9rem">Photo de la carte</h3>
+  <div class="photo-row"><img id="cImg" alt="" hidden><div class="ph-btns"><label class="btn ghost small" for="cFile" id="cFileLab">📷 Prendre en photo</label><input type="file" id="cFile" accept="image/*" capture="environment" hidden><button type="button" class="btn danger small" id="cDelPh" hidden>Retirer la photo</button><span class="hint">La photo reste sur ce téléphone.</span></div></div>
+  <a class="ext" href="https://www.collexstash.com/fr/collections/cards/cartes-disney-leclerc-2026" target="_blank" rel="noopener">Voir les cartes sur ColleX ↗</a>
+  <div class="row" style="justify-content:flex-end"><button class="btn" value="close">Fermer</button></div>
+</form></dialog>
+
+<a class="apphero-badge" href="/">Apphéro · 06/30</a>
+<input type="file" id="importFile" accept="application/json,.json" hidden>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<canvas id="fx" aria-hidden="true"></canvas>
+
+<script src="app.js"></script>
+</body>
+</html>

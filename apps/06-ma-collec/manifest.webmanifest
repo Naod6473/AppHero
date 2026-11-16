@@ -1,0 +1,19 @@
+{
+  "name": "Ma Collec'",
+  "short_name": "Ma Collec'",
+  "description": "Les cartes Disney Leclerc de tes enfants : ce qu'ils ont, les doubles à échanger et ce qui manque.",
+  "lang": "fr",
+  "start_url": "./",
+  "scope": "./",
+  "id": "/apps/06-ma-collec/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#eef2fb",
+  "theme_color": "#1f4fd8",
+  "categories": ["kids", "lifestyle", "utilities"],
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icon-maskable.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

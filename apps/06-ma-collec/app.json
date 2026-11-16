@@ -1,0 +1,24 @@
+{
+  "num": 6,
+  "title": "Ma Collec'",
+  "tagline": "Les cartes Disney Leclerc de tes enfants : ce qu'ils ont, les doubles à échanger et ce qui manque.",
+  "publishAt": "2026-11-23T18:00:00+01:00",
+  "color": "#FF3D9A",
+  "tags": [
+    "pwa",
+    "hors-ligne",
+    "collection",
+    "enfants",
+    "mobile"
+  ],
+  "status": "prêt",
+  "making": {
+    "buildMinutes": 35,
+    "thinkingMinutes": 25,
+    "tokens": 400000,
+    "prompts": 9,
+    "lines": 434,
+    "tool": "Claude Code",
+    "note": "Brainstorm, maquette cliquable, puis la PWA : 108 cases par film, saisie d'une pochette au pavé, doubles et liste d'échange. Tout reste sur le téléphone."
+  }
+}
