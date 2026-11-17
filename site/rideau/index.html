@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Apphéro · Ouverture mercredi à 18 h</title>
+  <meta name="description" content="30 jours, 30 apps, 30 défis. Une petite app par jour, à 18 h pile. Ouverture le mercredi 18 novembre à 18 h.">
+  <meta name="theme-color" content="#FFD83D">
+  <meta property="og:title" content="Apphéro · Ouverture mercredi à 18 h">
+  <meta property="og:description" content="30 jours, 30 apps, 30 défis. Sinon, ce serait trop simple.">
+  <meta property="og:url" content="https://apphero.cloud/">
+  <meta name="robots" content="noindex">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="/icon-192.png">
+  <script type="module" src="/src/rideau.js"></script>
+  <script src="/t.js" defer></script>
+</head>
+<body class="rideau-page">
+  <!-- Le rideau : tout le site est caché jusqu'au lancement (mer. 18 nov., 18 h). -->
+  <div class="rideau-rays" aria-hidden="true"></div>
+  <div class="rideau-glow" aria-hidden="true"></div>
+  <div class="rideau-bulbs" id="bulbs" aria-hidden="true"></div>
+
+  <main class="rideau">
+    <div class="rideau-logo">APPHÉRO</div>
+    <p class="rideau-kicker" id="kicker"><span class="rec-dot pulse" aria-hidden="true"></span>Ouverture dans</p>
+    <div class="rideau-count" id="count" role="timer" aria-live="off">
+      <div class="rc-unit" id="u-d"><b id="c-d">0</b><small>jour</small></div>
+      <div class="rc-unit"><b id="c-h">00</b><small>heures</small></div>
+      <div class="rc-unit"><b id="c-m">00</b><small>min</small></div>
+      <div class="rc-unit"><b id="c-s">00</b><small>sec</small></div>
+    </div>
+    <h1 class="rideau-title">30 jours<br>30 apps<br>30 défis</h1>
+    <p class="rideau-sub">Sinon, ce serait trop simple.</p>
+    <p class="rideau-text">Une petite app par jour, à 18 h pile, du mercredi 18 novembre au jeudi 17 décembre. Chaque app a son défi, tiré au sort. Légères, gratuites, et le code est dispo.</p>
+    <div class="rideau-actions">
+      <button class="btn btn-pink btn-lg" type="button" id="remind">🔔 Me prévenir à 18 h</button>
+      <a class="btn btn-lg" id="follow" href="https://x.com/ZeroE24661" rel="noopener">Suivre sur X</a>
+    </div>
+
+    <form class="rideau-admin" id="admin" hidden>
+      <input id="token" type="password" placeholder="Code organisateur" autocomplete="off" aria-label="Code organisateur">
+      <button class="btn" type="submit">Entrer</button>
+      <p id="admin-msg" role="status"></p>
+    </form>
+  </main>
+</body>
+</html>

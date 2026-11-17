@@ -2,11 +2,12 @@
 // jusqu'à son publishAt, et gère les j'aime, les votes, les visites et les tirages de la roue.
 import manifest from "../generated/apps.json";
 import CRITERES from "../../shared/criteres.json";
-import { BALLOTS, DAYS, ballotStatus, wheelDays, CHALLENGE_END, REVEAL_AT, parisDate, isReleased } from "../../shared/calendar.js";
+import { BALLOTS, DAYS, ballotStatus, wheelDays, CHALLENGE_END, REVEAL_AT, LAUNCH_AT, DRAW_LOCK_AT, parisDate, isReleased } from "../../shared/calendar.js";
 import { CRITERIA, criterionLabel, drawCalendar } from "../../shared/criteria.js";
 
 const MAX_PER_IP = 8; // un foyer ou un bureau partage souvent la même IP
 const COOKIE = "ah_id";
+const PREVIEW_COOKIE = "ah_preview";
 const SLICES = 20;
 
 export default {
@@ -22,6 +23,15 @@ export default {
 
     try {
       if (path.startsWith("/api/")) return await api(request, env, ctx, url, now);
+
+      // Avant le lancement : toutes les pages affichent le rideau (compte à rebours), sauf pour l'organisateur.
+      if (now < Date.parse(LAUNCH_AT) && isPage(path) && !(await isPreview(request, env))) {
+        const page = await env.ASSETS.fetch(new Request(new URL("/rideau/", request.url)));
+        return new Response(page.body, {
+          status: 200,
+          headers: { "content-type": "text/html; charset=utf-8", "cache-control": "no-store", "x-apphero-rideau": "1" },
+        });
+      }
 
       // Liens courts pour X : /05 -> /apps/05-nom/
       const short = path.match(/^\/(\d{2})\/?$/);
@@ -87,6 +97,8 @@ async function api(request, env, ctx, url, now) {
       return collect(request, env, ctx, now);
     case "GET /api/admin/stats":
       return isAdmin(request, env) ? stats(env, url, now) : json({ error: "Code organisateur incorrect." }, 401);
+    case "POST /api/admin/preview":
+      return previewOn(request, env);
     case "POST /api/admin/check":
       return isAdmin(request, env) ? json({ ok: true }) : json({ error: "Code organisateur incorrect." }, 401);
   }
@@ -126,7 +138,7 @@ async function loadCriteria(env) {
 // Possible jusqu'au lancement ; ensuite le calendrier est figé.
 async function drawCriteria(request, env, now) {
   if (!isAdmin(request, env)) return json({ error: "Code organisateur incorrect." }, 401);
-  if (now >= Date.parse(REVEAL_AT)) return json({ error: "Le défi a commencé : le calendrier ne bouge plus." }, 409);
+  if (now >= Date.parse(DRAW_LOCK_AT)) return json({ error: "Le tirage est fait : le calendrier ne bouge plus." }, 409);
   const rand = (n) => crypto.getRandomValues(new Uint32Array(1))[0] % n;
   const out = drawCalendar(DAYS, rand);
   await env.DB.batch([
@@ -138,7 +150,7 @@ async function drawCriteria(request, env, now) {
 
 // Les critères restent secrets jusqu'au lancement, sauf pour l'organisateur (page de révélation à filmer).
 async function visibleCriteria(request, env, now) {
-  if (now < Date.parse(REVEAL_AT) && !isAdmin(request, env)) return null;
+  if (now < Date.parse(REVEAL_AT) && !isAdmin(request, env) && !(await isPreview(request, env))) return null;
   return loadCriteria(env);
 }
 
@@ -404,6 +416,26 @@ function readVoter(request) {
   const cookie = request.headers.get("cookie") || "";
   const m = cookie.match(new RegExp(`(?:^|;\\s*)${COOKIE}=([a-f0-9-]{36})`));
   return m ? m[1] : null;
+}
+
+// Une page HTML (pas un fichier .js, .css, image…). Les fichiers restent servis : ils ne dévoilent rien.
+function isPage(path) {
+  if (path.startsWith("/rideau/") || path === "/rideau") return false;
+  const last = path.split("/").pop();
+  return !last.includes(".") || last.endsWith(".html");
+}
+
+// L'aperçu organisateur : un cookie signé avec ADMIN_TOKEN, posé après saisie du code sur le rideau.
+const previewValue = (env) => sha256(`${env.ADMIN_TOKEN}|preview`);
+async function isPreview(request, env) {
+  if (!env.ADMIN_TOKEN) return false;
+  const m = (request.headers.get("cookie") || "").match(new RegExp(`(?:^|;\\s*)${PREVIEW_COOKIE}=([a-f0-9]{64})`));
+  return !!m && m[1] === (await previewValue(env));
+}
+async function previewOn(request, env) {
+  if (!isAdmin(request, env)) return json({ error: "Code organisateur incorrect." }, 401);
+  const cookie = `${PREVIEW_COOKIE}=${await previewValue(env)}; Path=/; Max-Age=172800; HttpOnly; Secure; SameSite=Lax`;
+  return json({ ok: true }, 200, { "set-cookie": cookie });
 }
 
 function isAdmin(request, env) {

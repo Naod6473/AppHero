@@ -18,6 +18,7 @@ export default defineConfig({
         stats: resolve(import.meta.dirname, "site/stats/index.html"),
         bilan: resolve(import.meta.dirname, "site/bilan/index.html"),
         tirage: resolve(import.meta.dirname, "site/tirage/index.html"),
+        rideau: resolve(import.meta.dirname, "site/rideau/index.html"),
       },
     },
   },

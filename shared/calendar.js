@@ -78,8 +78,12 @@ export function fmtDateTime(isoWithTime) {
   return `${fmtShort(iso)} · ${hh} h`;
 }
 
-// Les critères sont révélés dès le tirage en direct (Simon, 17/11) : le calendrier tiré est public.
-export const REVEAL_AT = "2026-11-17T14:30:00+01:00";
+// Le lancement : avant, tout le site est derrière le « rideau » (compte à rebours, /rideau/),
+// sauf pour l'organisateur. Les critères tirés sont révélés au même moment.
+export const LAUNCH_AT = DAYS[0].publishAt;
+export const REVEAL_AT = LAUNCH_AT;
+// Le tirage en direct des 30 défis est figé depuis le 17/11 14 h 30.
+export const DRAW_LOCK_AT = "2026-11-17T14:30:00+01:00";
 
 // Les tirages de la roue : la veille au soir de chaque case tombée sur « La roue décide ».
 export function wheelDays(criteria) {
