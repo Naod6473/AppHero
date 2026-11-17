@@ -2,7 +2,8 @@
 // jusqu'à son publishAt, et gère les j'aime, les votes, les visites et les tirages de la roue.
 import manifest from "../generated/apps.json";
 import CRITERES from "../../shared/criteres.json";
-import { BALLOTS, ballotStatus, WHEEL_DAYS, CHALLENGE_END, parisDate, isReleased } from "../../shared/calendar.js";
+import { BALLOTS, ballotStatus, wheelDays, CHALLENGE_END, REVEAL_AT, parisDate, isReleased } from "../../shared/calendar.js";
+import { CRITERIA, criterionLabel } from "../../shared/criteria.js";
 
 const MAX_PER_IP = 8; // un foyer ou un bureau partage souvent la même IP
 const COOKIE = "ah_id";
@@ -46,7 +47,8 @@ export default {
       // Les apps sont copiées telles quelles : on y ajoute le petit script de mesure d'audience.
       if (app && (res.headers.get("content-type") || "").includes("text/html")) {
         // …et la fiche de l'app (fabrication, j'aime / bof, retour à l'accueil).
-        const info = JSON.stringify(publicApp(app)).replace(/</g, "\\u003c");
+        const crit = await loadCriteria(env);
+        const info = JSON.stringify(publicApp(app, crit)).replace(/</g, "\\u003c");
         return new HTMLRewriter()
           .on("head", {
             element: (el) =>
@@ -95,9 +97,33 @@ async function api(request, env, ctx, url, now) {
   return json({ error: "Route inconnue." }, 404);
 }
 
-function publicApp(a) {
-  const { num, id, slug, title, tagline, publishAt, date, theme, color, tags, criterion, making, logo } = a;
+function publicApp(a, crit) {
+  const { num, id, slug, title, tagline, publishAt, date, color, tags, criterion, making, logo } = a;
+  const c = crit?.[id];
+  const theme = c ? [c, ...(c.extra || [])].map(criterionLabel).join(" + ") : null;
   return { num, id, slug, title, tagline, publishAt, date, theme, color, tags, criterion, making, logo: logo || null };
+}
+
+// Le critère tiré pour chaque case : { "05": { key, detail, extra } }. Petit, relu à chaque fois.
+async function loadCriteria(env) {
+  try {
+    const { results } = await env.DB.prepare("SELECT day, data FROM criteria").all();
+    const out = {};
+    for (const r of results) {
+      const c = JSON.parse(r.data);
+      if (CRITERIA[c.key]) out[r.day] = { key: c.key, detail: c.detail || null, extra: (c.extra || []).filter((e) => CRITERIA[e.key]) };
+    }
+    return out;
+  } catch (err) {
+    console.error("loadCriteria", err);
+    return {};
+  }
+}
+
+// Les critères restent secrets jusqu'au lancement, sauf pour l'organisateur (page de révélation à filmer).
+async function visibleCriteria(request, env, now) {
+  if (now < Date.parse(REVEAL_AT) && !isAdmin(request, env)) return null;
+  return loadCriteria(env);
 }
 
 // Tous les compteurs utiles en une requête (quelques dizaines de lignes au plus).
@@ -159,7 +185,8 @@ function ballotsView(t, now) {
 }
 
 async function state(request, env, now) {
-  const apps = manifest.filter((a) => isReleased(a.publishAt, now)).map(publicApp);
+  const crit = await visibleCriteria(request, env, now);
+  const apps = manifest.filter((a) => isReleased(a.publishAt, now)).map((a) => publicApp(a, crit));
   const voter = readVoter(request); // pas de cookie tant que la personne n'a ni aimé ni voté
   const [t, mine] = await Promise.all([
     loadTallies(env),
@@ -184,6 +211,8 @@ async function state(request, env, now) {
   return json({
     now,
     turnstileSiteKey: env.TURNSTILE_SITE_KEY || "",
+    revealAt: REVEAL_AT,
+    criteria: crit,
     apps,
     likes: t.likes,
     rankings: { likes: top(t.likes), views: top(t.views) },
@@ -314,7 +343,7 @@ async function saveDraw(request, env, now) {
   } catch {
     return json({ error: "Requête invalide." }, 400);
   }
-  if (!WHEEL_DAYS.some((w) => w.forDay === d.forDay)) return json({ error: "Ce jour n'a pas de tirage." }, 400);
+  if (!wheelDays(await loadCriteria(env)).some((w) => w.forDay === d.forDay)) return json({ error: "Ce jour n'a pas de tirage." }, 400);
   if (!Array.isArray(d.slices) || d.slices.length !== SLICES || !d.slices.every((s) => CRITERES.includes(s)) || new Set(d.slices).size !== SLICES)
     return json({ error: "La roue doit contenir 20 critères différents de la liste." }, 400);
   if (!Number.isInteger(d.k) || d.k < 0 || d.k >= SLICES) return json({ error: "Index tiré invalide." }, 400);
@@ -552,6 +581,7 @@ async function stats(env, url, now) {
 async function bilan(env, now) {
   if (now < Date.parse(CHALLENGE_END)) return json({ ready: false, at: CHALLENGE_END });
   const apps = manifest.filter((a) => isReleased(a.publishAt, now));
+  const crit = await loadCriteria(env);
   const sum = (k) => apps.reduce((s, a) => s + (Number(a.making?.[k]) || 0), 0);
   const t = await loadTallies(env);
   const ballots = ballotsView(t, now);
@@ -563,7 +593,7 @@ async function bilan(env, now) {
   return json(
     {
       ready: true,
-      apps: apps.map(publicApp),
+      apps: apps.map((a) => publicApp(a, crit)),
       totals: {
         apps: apps.length,
         buildMinutes: sum("buildMinutes"),

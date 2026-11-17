@@ -1,7 +1,10 @@
 // Page de la roue : public (revoir les tirages), studio privé (tourner, publier), enregistrement.
 import { api, esc, toast, reducedMotion, track, confetti } from "./common.js";
 import CRITERES from "../../shared/criteres.json";
-import { WHEEL_DAYS, fmtShort } from "../../shared/calendar.js";
+import { wheelDays, fmtShort } from "../../shared/calendar.js";
+
+// Les cases tombées sur « La roue décide » (connues une fois les critères révélés, ou par l'organisateur).
+let WHEEL_DAYS = [];
 
 const SLICES = 20;
 const STEP = 360 / SLICES;
@@ -293,7 +296,7 @@ function setRec(on) {
   setMode(S.mode);
 }
 
-// Le calendrier des tirages : une porte par jeudi soir, ouverte une fois le tirage publié.
+// Le calendrier des tirages : une porte par case « La roue décide », ouverte une fois le tirage publié.
 function renderHistory() {
   const byDay = new Map(S.draws.map((d, i) => [d.forDay, i]));
   $("history").innerHTML = WHEEL_DAYS.map((w, n) => {
@@ -304,10 +307,13 @@ function renderHistory() {
     return `<button class="door is-open" type="button" data-replay="${i}" aria-label="Revoir le tirage du ${esc(slotLabel(w.forDay))} : ${esc(d.label)}">
       ${head}<span class="door-emo" aria-hidden="true">${emojiOf(d.label)}</span><b>${esc(d.label)}</b><span class="door-for">↻ Revoir</span></button>`;
   }).join("");
-  const first = WHEEL_DAYS[0];
+  const first = WHEEL_DAYS.find((w) => !byDay.has(w.forDay));
   $("replay-help").textContent = S.draws.length
     ? "Seul l'organisateur lance les tirages. Toi, tu peux les revoir."
-    : `Premier tirage le ${slotLabel(first.drawOn).toLowerCase()} au soir, pour l'app du ${slotLabel(first.forDay).toLowerCase()}.`;
+    : first
+      ? `Premier tirage le ${slotLabel(first.drawOn).toLowerCase()} au soir, pour l'app du ${slotLabel(first.forDay).toLowerCase()}.`
+      : "Les cases de la roue seront connues le mercredi 18 novembre à 18 h, avec le tirage des critères.";
+  if (!WHEEL_DAYS.length) $("history").innerHTML = `<div class="door is-closed"><span class="door-num">?</span><span class="door-lock" aria-hidden="true">🔒</span><span class="door-for">Révélé le 18 nov. à 18 h</span></div>`;
   syncButtons();
 }
 
@@ -321,6 +327,13 @@ function fillSlots() {
 }
 
 async function loadDraws() {
+  try {
+    const token = localStorage.getItem(TOKEN_KEY);
+    const st = await api("/api/state", token ? { headers: { authorization: `Bearer ${token}` } } : {});
+    WHEEL_DAYS = wheelDays(st.criteria);
+  } catch {
+    WHEEL_DAYS = [];
+  }
   try {
     const { draws } = await api("/api/draws");
     S.draws = draws;

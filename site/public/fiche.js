@@ -66,7 +66,7 @@
     '<div class="panel" id="panel" hidden role="dialog" aria-label="Fiche de l\'app">' +
     '<button class="x" id="close" type="button" aria-label="Fermer">✕</button>' +
     "<h2>" + esc(app.title) + "</h2>" +
-    '<p class="sub">App ' + esc(app.num) + "/30 · " + esc(app.theme || "") + (app.criterion ? " · " + esc(app.criterion) : "") + "</p>" +
+    '<p class="sub">App ' + esc(app.num) + "/30" + (app.theme ? " · " + esc(app.theme) : "") + (app.criterion ? " · " + esc(app.criterion) : "") + "</p>" +
     (facts.length
       ? '<div class="facts">' + facts.map(function (f) { return '<div class="fact"><small>' + f[0] + " " + esc(f[1]) + "</small><strong>" + esc(f[2]) + "</strong></div>"; }).join("") + "</div>"
       : '<p class="note">La fiche de fabrication arrive bientôt.</p>') +

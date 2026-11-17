@@ -17,6 +17,7 @@ export default defineConfig({
         legal: resolve(import.meta.dirname, "site/mentions-legales/index.html"),
         stats: resolve(import.meta.dirname, "site/stats/index.html"),
         bilan: resolve(import.meta.dirname, "site/bilan/index.html"),
+        tirage: resolve(import.meta.dirname, "site/tirage/index.html"),
       },
     },
   },

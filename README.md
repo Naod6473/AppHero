@@ -1,21 +1,21 @@
 # Apphéro
 
-**Une petite app par jour pendant 30 jours**, tous les jours, à 18 h pile (l'heure de l'apéro).
-Du mercredi 18 novembre au jeudi 17 décembre 2026. Légères, gratuites, et le code est à toi.
+**30 jours, 30 apps, 30 défis.** Sinon, ce serait trop simple. Une petite app par jour, à 18 h pile (l'heure de l'apéro).
+Du mercredi 18 novembre au jeudi 17 décembre 2026. Légères, gratuites, et le code est dispo.
 
 Site : https://apphero.cloud
 
 ## Le défi
 
-| Jour | Thème |
-|---|---|
-| Lundi | App utile |
-| Mardi | 2 heures chrono |
-| Mercredi | Idée des abonnés (proposée sur X) |
-| Jeudi | Surprise du jeudi |
-| Vendredi | La roue décide (tirage le jeudi soir : un critère, ou une idée d'app complète imaginée par l'IA) |
-| Samedi | Jeu du samedi |
-| Dimanche | Idées perso (et ouverture du vote de la semaine) |
+Chaque case du calendrier a son critère, tiré au sort parmi 22 (liste dans `shared/criteria.js`) :
+App utile, 2 heures chrono, Jeu, Idée perso, Idée d'un abonné, La roue décide, Surprise, Refonte d'une app,
+Multi-critère (en cumule plusieurs), 30 min max, Langage imposé, En cuisinant, Une seule main, Deux couleurs max,
+Sans texte, Commande à la voix, Un seul fichier, Look rétro 8 bits, Ville imposée, Codé à l'apéro,
+Pensé pour les enfants, En un seul prompt.
+
+Le tirage est fait d'avance et révélé au lancement, le mercredi 18 novembre à 18 h. Il n'est pas dans ce dépôt :
+il est en base (table `criteria`) et l'API ne le donne qu'à partir du lancement. Si une case tombe sur
+« La roue décide », la roue tourne la veille au soir (page `/roue/`).
 
 J'aime / Bof sur chaque app, sans compte. Vote de la semaine du dimanche 18 h au mardi 18 h (22, 29 novembre, 6 et 13 décembre). Finale le jeudi 17 décembre avec la 30e app, résultat le vendredi 18 à 20 h.
 

@@ -35,7 +35,7 @@ function calendarIcs() {
   ];
   const lines = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//Apphero//Defi 30 apps//FR", "CALSCALE:GREGORIAN", "METHOD:PUBLISH", "X-WR-CALNAME:Apphéro · 18 h"];
   for (const d of DAYS) {
-    lines.push(...ev(`app-${d.id}`, d.publishAt, 30, `🥂 Apphéro : app ${d.num}/30 (${d.theme})`, `La nouvelle app sort à 18 h pile : https://apphero.cloud/${d.id}`, `https://apphero.cloud/${d.id}`));
+    lines.push(...ev(`app-${d.id}`, d.publishAt, 30, `🥂 Apphéro : app ${d.num}/30`, `La nouvelle app sort à 18 h pile : https://apphero.cloud/${d.id}`, `https://apphero.cloud/${d.id}`));
   }
   lines.push(...ev("verdict", CHALLENGE_END, 30, "🏆 Apphéro : le verdict de la grande finale", "La grande gagnante des 30 apps : https://apphero.cloud/#vote", "https://apphero.cloud/#vote"));
   lines.push("END:VCALENDAR");

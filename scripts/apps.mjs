@@ -79,7 +79,6 @@ export function readApps() {
       tagline: app.tagline,
       publishAt: app.publishAt,
       date: day?.date,
-      theme: day?.theme,
       color: app.color || day?.color || "#FFF8E1",
       tags: Array.isArray(app.tags) ? app.tags : [],
       status: app.status || "prêt",
