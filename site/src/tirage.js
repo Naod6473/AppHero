@@ -126,7 +126,7 @@ async function draw() {
     remember();
     S.criteria = res.criteria;
     await openAll();
-    $("status").textContent = "Tirage enregistré. Il est visible sur le site.";
+    $("status").textContent = "Tirage enregistré. Il sera visible sur le site au lancement.";
   } catch (err) {
     $("status").textContent = err.message || "Le tirage n'a pas marché.";
   }
