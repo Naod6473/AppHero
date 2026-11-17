@@ -582,7 +582,7 @@ body.is-apero .logo { animation: wobble 0.5s ease-in-out infinite; }
 .visitors strong { font-family: var(--display); font-weight: 400; font-size: 22px; }
 .section-head .btn { align-self: center; }
 
-/* ---------- La révélation des 30 défis (/tirage/), 9:16 à filmer */
+/* ---------- Le tirage des 30 défis (/tirage/), 9:16 à filmer */
 body.tirage-page { background: #0b0918; min-height: 100vh; min-height: 100dvh; margin: 0; overflow: hidden; }
 body.tirage-page::before, body.tirage-page::after { display: none; }
 .tirage-stage {
@@ -598,43 +598,66 @@ body.tirage-page::before, body.tirage-page::after { display: none; }
 .tirage-kicker .rec-dot { width: 3cqw; height: 3cqw; border-width: 0.6cqw; }
 .tirage-title { margin: 1.5cqw 0 0; font-family: var(--display); font-weight: 400; font-size: 12cqw; line-height: 0.95; color: var(--pink); -webkit-text-stroke: 0.6cqw var(--ink); paint-order: stroke fill; text-shadow: 1cqw 1cqw 0 var(--yellow); }
 .tirage-sub { margin: 2cqw 0 0; font-weight: 800; font-size: 4.2cqw; }
-.tirage-grid { flex: 1; width: 100%; display: grid; grid-template-columns: repeat(5, 1fr); grid-auto-rows: 1fr; gap: 2.2cqw; min-height: 0; }
-.tcard { perspective: 600px; min-height: 0; }
-.tcard-in { position: relative; width: 100%; height: 100%; transform-style: preserve-3d; transition: transform 0.55s var(--bounce); }
-.tcard.is-flipped .tcard-in { transform: rotateY(180deg); }
-.tcard.is-shaking .tcard-in { animation: tshake 0.12s linear infinite; }
-@keyframes tshake { 25% { transform: rotate(-4deg); } 75% { transform: rotate(4deg); } }
-.tcard-back, .tcard-front {
-  position: absolute; inset: 0; backface-visibility: hidden; border: 0.7cqw solid var(--ink); border-radius: 2.6cqw;
-  display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; overflow: hidden; color: var(--ink);
-}
-.tcard-back { background: repeating-linear-gradient(45deg, var(--lilac) 0 2cqw, #c8b7ff 2cqw 4cqw); box-shadow: 0.8cqw 0.8cqw 0 var(--pink); }
-.tcard-back b { font-family: var(--display); font-weight: 400; font-size: 6.2cqw; line-height: 1; }
-.tcard-back small, .tcard-front small { font-weight: 800; font-size: 2.1cqw; }
-.tcard-front { transform: rotateY(180deg); background: var(--bg, var(--paper)); box-shadow: 0.8cqw 0.8cqw 0 var(--yellow); padding: 0.8cqw; gap: 0.3cqw; }
-.tcard-num { position: absolute; top: 0.6cqw; left: 1.2cqw; font-family: var(--display); font-size: 2.6cqw; }
-.tcard-emo { font-size: 5cqw; line-height: 1.1; margin-top: 1.2cqw; }
-.tcard-emo.is-multi { font-size: 3.3cqw; margin-top: 2.4cqw; letter-spacing: -0.3cqw; }
-.tcard-name { font-weight: 800; font-size: 2.3cqw; line-height: 1.05; }
+.tirage-grid { flex: 1; width: 100%; display: grid; grid-template-columns: repeat(5, 1fr); grid-auto-rows: 1fr; gap: 3cqw 2.2cqw; min-height: 0; padding-top: 2cqw; }
 .tirage-foot { font-weight: 800; font-size: 3.6cqw; color: var(--yellow); }
 .tirage-stage.is-done .tirage-grid { animation: tdone 0.6s var(--bounce); }
 @keyframes tdone { 40% { transform: scale(1.04); } }
+
+/* Une boîte cadeau : couvercle à ruban, numéro et date ; ouverte, elle prend la couleur de son défi. */
+.tbox { position: relative; min-height: 0; color: var(--ink); cursor: default; }
+.tbox-body {
+  position: absolute; inset: 0; border: 0.7cqw solid var(--ink); border-radius: 2cqw; overflow: hidden;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.4cqw; text-align: center;
+  background: linear-gradient(90deg, transparent 43%, var(--pink) 43% 57%, transparent 57%), repeating-linear-gradient(45deg, var(--lilac) 0 2cqw, #c8b7ff 2cqw 4cqw);
+  box-shadow: 0.8cqw 0.8cqw 0 #0b0918;
+}
+.tbox-body b { font-family: var(--display); font-weight: 400; font-size: 5.6cqw; line-height: 1; background: var(--paper); border: 0.5cqw solid var(--ink); border-radius: 1.4cqw; padding: 0.4cqw 1cqw; margin-top: 2cqw; }
+.tbox-body small { font-weight: 800; font-size: 2.1cqw; background: var(--paper); border-radius: 1cqw; padding: 0 0.8cqw; }
+.tbox-lid {
+  position: absolute; left: -0.8cqw; right: -0.8cqw; top: -1.6cqw; height: 4.2cqw; z-index: 2; border: 0.7cqw solid var(--ink); border-radius: 1.4cqw;
+  background: linear-gradient(90deg, var(--lilac) 43%, var(--pink) 43% 57%, var(--lilac) 57%); transform-origin: 10% 100%;
+}
+.tbox-lid::after { content: "🎀"; position: absolute; left: 50%; top: -3.2cqw; transform: translateX(-50%); font-size: 4cqw; line-height: 1; }
+.tbox.is-shaking { animation: tshake 0.1s linear infinite; }
+@keyframes tshake { 25% { transform: rotate(-5deg) scale(1.06); } 75% { transform: rotate(5deg) scale(1.06); } }
+.tbox.is-open .tbox-lid { animation: lidoff 0.6s ease-in forwards; }
+.tbox.is-open .tbox-body { background: var(--bg, var(--paper)); box-shadow: 0.8cqw 0.8cqw 0 var(--yellow); animation: pop 0.45s var(--bounce); }
+.tbox.is-open.no-anim .tbox-lid { animation: none; display: none; }
+.tbox.is-open.no-anim .tbox-body { animation: none; }
+.tbox.is-open:hover .tbox-body { transform: translate(-0.4cqw, -0.4cqw) rotate(-3deg) scale(1.08); box-shadow: 1.2cqw 1.2cqw 0 var(--pink); }
+.tbox.is-open .tbox-body { transition: transform 0.18s var(--bounce), box-shadow 0.18s; cursor: help; }
+@keyframes lidoff { 30% { transform: translateY(-6cqw) rotate(-25deg); opacity: 1; } 100% { transform: translate(-6cqw, -16cqw) rotate(-80deg); opacity: 0; } }
+@keyframes pop { 0% { transform: scale(0.6); } 60% { transform: scale(1.15); } 100% { transform: scale(1); } }
+.tbox-num { position: absolute; top: 0.5cqw; left: 1.1cqw; font-family: var(--display); font-size: 2.6cqw; }
+.tbox-emo { font-size: 6.4cqw; line-height: 1.1; margin-top: 1.4cqw; }
+.tbox-emo.is-multi { font-size: 3.6cqw; letter-spacing: -0.3cqw; }
+.tbox.is-open .tbox-body small { background: none; }
+
+/* La bulle du défi au survol. */
+.tirage-tip {
+  position: absolute; z-index: 6; width: 46cqw; pointer-events: none; display: flex; flex-direction: column; gap: 0.8cqw;
+  background: var(--bg, var(--paper)); color: var(--ink); border: 0.8cqw solid var(--ink); border-radius: 3cqw; box-shadow: 1.2cqw 1.2cqw 0 var(--pink); padding: 2.4cqw 3cqw;
+}
+.tirage-tip small { font-weight: 800; font-size: 2.6cqw; letter-spacing: 0.2cqw; }
+.tirage-tip strong { font-family: var(--display); font-weight: 400; font-size: 5cqw; line-height: 1.05; }
+.tirage-tip span { font-weight: 700; font-size: 3cqw; line-height: 1.25; }
+
+/* La grande carte de la revue des défis. */
 .tirage-spot { position: absolute; inset: 0; z-index: 5; display: flex; align-items: center; justify-content: center; background: #0b0918aa; backdrop-filter: blur(3px); perspective: 1200px; }
 .tirage-big {
   width: 74cqw; min-height: 60cqw; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2cqw; text-align: center; padding: 6cqw 5cqw;
   background: var(--bg, var(--yellow)); color: var(--ink); border: 1.2cqw solid var(--ink); border-radius: 6cqw; box-shadow: 2.4cqw 2.4cqw 0 var(--pink); transform: rotate(-3deg);
 }
-.tirage-spot.is-in .tirage-big { animation: reveal-flip 0.7s var(--bounce); }
-.tirage-spot.is-out { animation: tout 0.35s ease-in forwards; }
-@keyframes tout { to { opacity: 0; transform: scale(0.3); } }
+.tirage-spot.is-in .tirage-big { animation: reveal-flip 0.35s var(--bounce); }
 .tirage-big small { font-weight: 800; font-size: 3.6cqw; letter-spacing: 0.3cqw; }
 .tbig-emo { font-size: 15cqw; line-height: 1; }
 .tirage-big strong { font-family: var(--display); font-weight: 400; font-size: 8.5cqw; line-height: 1.02; }
 .tirage-big em { font-style: normal; font-weight: 800; font-size: 4.2cqw; line-height: 1.25; }
-.tirage-controls { position: fixed; right: 16px; bottom: 16px; z-index: 20; display: flex; flex-direction: column; gap: 10px; align-items: stretch; width: 240px; }
+
+.tirage-controls { position: fixed; right: 16px; bottom: 16px; z-index: 20; display: flex; flex-direction: column; gap: 10px; align-items: stretch; width: 250px; }
 .tirage-controls[hidden] { display: none; }
 .tirage-controls input { font: inherit; font-weight: 700; border: 3px solid var(--ink); border-radius: 12px; padding: 10px 12px; }
 .tirage-controls .btn { background: var(--yellow); }
-.tirage-controls .btn[aria-pressed="true"] { background: var(--pink); }
 .tirage-controls p { margin: 0; color: var(--paper); font-weight: 700; font-size: 14px; }
-@media (prefers-reduced-motion: reduce) { .tcard-in { transition: none; } .tcard.is-shaking .tcard-in, .tirage-spot.is-in .tirage-big { animation: none; } }
+.tirage-controls .tirage-help { opacity: 0.7; font-size: 12px; }
+@media (prefers-reduced-motion: reduce) { .tbox.is-shaking, .tbox.is-open .tbox-lid, .tbox.is-open .tbox-body, .tirage-spot.is-in .tirage-big { animation: none; } .tbox.is-open .tbox-lid { display: none; } }

@@ -50,7 +50,7 @@ async function load() {
 
 // ------------------------------------------------------------ les critères tirés au sort
 
-const SECRET = { key: null, name: "Critère secret", emoji: "❓", color: PAPER, blurb: "Les 30 critères sont tirés au sort et révélés le mercredi 18 novembre à 18 h.", label: "Critère secret" };
+const SECRET = { key: null, name: "Défi secret", emoji: "❓", color: PAPER, blurb: "Les 30 défis sont tirés au sort et révélés le mercredi 18 novembre à 18 h.", label: "Défi secret" };
 // Le critère d'une case : nom, emoji, couleur, et le texte complet (« Langage imposé : Rust », multi-critère…).
 function critOf(day) {
   const c = S.criteria?.[day.id];
@@ -331,14 +331,6 @@ function go(i) {
 }
 
 // ------------------------------------------------------------ sections
-
-function renderPills() {
-  // La pioche : tous les critères possibles.
-  const rot = [-1.6, 1.2, -1.0, 1.4, -1.2, 1.0, -1.4];
-  $("pills").innerHTML = Object.values(CRITERIA)
-    .map((c, i) => `<div class="pill" style="background:${c.color};transform:rotate(${rot[i % 7]}deg)" title="${esc(c.blurb)}"><b aria-hidden="true">${c.emoji}</b><span>${esc(c.name)}</span></div>`)
-    .join("");
-}
 
 function ballotLine(b) {
   if (b.status === "closed" && b.winner) return `Gagnante : ${appTitle(b.winner)}`;
@@ -708,7 +700,6 @@ function renderTimers() {
   $("t-end").textContent = ended ? "Merci !" : clock(CHALLENGE_END);
 }
 
-renderPills();
 renderTimers();
 S.week = currentWeek();
 pickActive();
