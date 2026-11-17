@@ -22,7 +22,7 @@ export const MONTHS = ["janvier", "février", "mars", "avril", "mai", "juin", "j
 export const MONTHS_SHORT = ["janv.", "févr.", "mars", "avr.", "mai", "juin", "juil.", "août", "sept.", "oct.", "nov.", "déc."];
 
 // Plus de thème par jour de la semaine (Simon, 17/11/2026) : chaque case a un critère tiré au sort,
-// voir shared/criteria.js. Le tirage est en base et n'est révélé qu'au lancement (REVEAL_AT).
+// voir shared/criteria.js. Le tirage est en base et est public à partir de REVEAL_AT.
 export const PAPER = "#FFF8E1";
 
 // Fin du défi : résultat de la grande finale, le lendemain de la 30e app.
@@ -78,8 +78,8 @@ export function fmtDateTime(isoWithTime) {
   return `${fmtShort(iso)} · ${hh} h`;
 }
 
-// Les critères sont révélés au lancement, avec l'app 01.
-export const REVEAL_AT = DAYS[0].publishAt;
+// Les critères sont révélés dès le tirage en direct (Simon, 17/11) : le calendrier tiré est public.
+export const REVEAL_AT = "2026-11-17T14:30:00+01:00";
 
 // Les tirages de la roue : la veille au soir de chaque case tombée sur « La roue décide ».
 export function wheelDays(criteria) {
