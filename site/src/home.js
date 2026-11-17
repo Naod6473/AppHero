@@ -348,24 +348,47 @@ function renderWeeks() {
     .join("");
 }
 
+// Le calendrier : 7 colonnes, du lundi au dimanche. La 1re semaine commence un mercredi (cases vides avant),
+// et la case Finale se place sous le vendredi 18 décembre.
+const DOW = ["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"];
+const col = (wd) => (wd + 6) % 7; // weekday : 0 = dimanche
 function renderTiles() {
-  $("tiles").innerHTML = DAYS.map((day, i) => {
+  const lead = col(DAYS[0].weekday);
+  const head = DOW.map((d) => `<div class="tiles-dow" aria-hidden="true">${d}</div>`).join("");
+  const empty = (n) => Array.from({ length: n }, () => `<div class="tile-empty" aria-hidden="true"></div>`).join("");
+  const days = DAYS.map((day, i) => {
     const app = S.apps.get(day.id);
     const crit = critOf(day);
-    const meta = `${fmtShort(day.date)} · ${crit.short || crit.label}`;
+    const date = fmtShort(day.date).replace(/^\S+\s/, "");
+    const meta = `${date} · ${crit.label}`;
+    const full = `App ${day.id}, ${fmtShort(day.date)} : ${crit.label}`;
     const rot = `${i % 2 ? 1.4 : -1.4}deg`;
+    const emo = `<span class="tile-emo" aria-hidden="true">${esc(crit.emoji)}</span>`;
     if (!app) {
-      return `<div class="tile is-soon" style="--r:${rot};--bg:${esc(crit.color)}"><span class="tile-num" aria-hidden="true">${day.id}</span>
-        <span><span class="tile-name">Bientôt</span><br><span class="tile-meta">${esc(meta)}</span></span>
-        <span class="sr-only">App ${day.id}, sortie ${esc(meta)}</span></div>`;
+      return `<div class="tile is-soon" style="--r:${rot};--bg:${esc(crit.color)}" data-tip="${esc(full)}">
+        <span class="tile-top"><span class="tile-num" aria-hidden="true">${day.id}</span>${emo}</span>
+        <span class="tile-text"><span class="tile-name">Bientôt</span><br><span class="tile-meta">${esc(meta)}</span></span>
+        <span class="sr-only">${esc(full)}</span></div>`;
     }
     return `<div class="tile is-open" style="--r:${rot};--bg:${esc(app.color)}">
-      <span class="tile-top"><span class="tile-num" aria-hidden="true">${day.id}</span>${app.logo ? `<img class="tile-logo" src="${esc(app.logo)}" alt="" loading="lazy" width="56" height="56">` : ""}</span>
-      <span><a class="tile-link tile-name" href="/apps/${esc(app.slug)}/" data-open="${esc(app.id)}">${esc(app.title)}</a><br><span class="tile-meta">${esc(meta)}</span></span>
+      <span class="tile-top"><span class="tile-num" aria-hidden="true">${day.id}</span>${app.logo ? `<img class="tile-logo" src="${esc(app.logo)}" alt="" loading="lazy" width="56" height="56">` : emo}</span>
+      <span class="tile-text"><a class="tile-link tile-name" href="/apps/${esc(app.slug)}/" data-open="${esc(app.id)}">${esc(app.title)}</a><br><span class="tile-meta">${esc(meta)}</span></span>
       ${reactButtons(app, true)}
     </div>`;
   }).join("");
+  const last = DAYS[DAYS.length - 1];
+  const final = `<div class="tile tile-final" style="--r:-1.4deg" data-tip="Grande finale : résultat le vendredi 18 décembre à 20 h">
+    <span class="tile-top"><span class="tile-num" aria-hidden="true">F</span><span class="tile-emo" aria-hidden="true">🏆</span></span>
+    <span class="tile-text"><span class="tile-name">Finale</span><br><span class="tile-meta">18 déc. · résultat à 20 h</span></span>
+    <span class="sr-only">Grande finale, résultat le vendredi 18 décembre à 20 h</span></div>`;
+  const after = 6 - col(last.weekday);
+  $("tiles").innerHTML = head + empty(lead) + days + (after > 0 ? final + empty(after - 1) : "");
 }
+// Sur téléphone, les cases ne montrent que le numéro et l'emoji : un toucher affiche le détail.
+$("tiles").addEventListener("click", (e) => {
+  const t = e.target.closest("[data-tip]");
+  if (t && matchMedia("(max-width: 760px)").matches) toast(t.dataset.tip);
+});
 
 function renderRanks() {
   const list = (rows, unit, empty) =>
