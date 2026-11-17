@@ -2,8 +2,8 @@
 // jusqu'à son publishAt, et gère les j'aime, les votes, les visites et les tirages de la roue.
 import manifest from "../generated/apps.json";
 import CRITERES from "../../shared/criteres.json";
-import { BALLOTS, ballotStatus, wheelDays, CHALLENGE_END, REVEAL_AT, parisDate, isReleased } from "../../shared/calendar.js";
-import { CRITERIA, criterionLabel } from "../../shared/criteria.js";
+import { BALLOTS, DAYS, ballotStatus, wheelDays, CHALLENGE_END, REVEAL_AT, parisDate, isReleased } from "../../shared/calendar.js";
+import { CRITERIA, criterionLabel, drawCalendar } from "../../shared/criteria.js";
 
 const MAX_PER_IP = 8; // un foyer ou un bureau partage souvent la même IP
 const COOKIE = "ah_id";
@@ -81,6 +81,8 @@ async function api(request, env, ctx, url, now) {
       return json({ draws: await listDraws(env) }, 200, { "cache-control": "public, max-age=30" });
     case "POST /api/admin/draws":
       return saveDraw(request, env, now);
+    case "POST /api/admin/criteria/draw":
+      return drawCriteria(request, env, now);
     case "POST /api/t":
       return collect(request, env, ctx, now);
     case "GET /api/admin/stats":
@@ -118,6 +120,20 @@ async function loadCriteria(env) {
     console.error("loadCriteria", err);
     return {};
   }
+}
+
+// Le tirage en direct des 30 défis (bouton de /tirage/, réservé à l'organisateur).
+// Possible jusqu'au lancement ; ensuite le calendrier est figé.
+async function drawCriteria(request, env, now) {
+  if (!isAdmin(request, env)) return json({ error: "Code organisateur incorrect." }, 401);
+  if (now >= Date.parse(REVEAL_AT)) return json({ error: "Le défi a commencé : le calendrier ne bouge plus." }, 409);
+  const rand = (n) => crypto.getRandomValues(new Uint32Array(1))[0] % n;
+  const out = drawCalendar(DAYS, rand);
+  await env.DB.batch([
+    env.DB.prepare("DELETE FROM criteria"),
+    ...Object.entries(out).map(([day, c]) => env.DB.prepare("INSERT INTO criteria (day, data) VALUES (?, ?)").bind(day, JSON.stringify(c))),
+  ]);
+  return json({ ok: true, criteria: out });
 }
 
 // Les critères restent secrets jusqu'au lancement, sauf pour l'organisateur (page de révélation à filmer).

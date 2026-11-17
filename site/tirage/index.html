@@ -10,24 +10,26 @@
   <script type="module" src="/src/tirage.js"></script>
 </head>
 <body class="tirage-page">
-  <!-- Révélation animée des 30 critères, au format 9:16, à filmer pour X. -->
+  <!-- Le tirage en direct des 30 défis, au format 9:16, à filmer pour X. -->
   <div class="tirage-stage" id="stage">
     <div class="tirage-head">
       <div class="tirage-kicker"><span class="rec-dot pulse" aria-hidden="true"></span>LE TIRAGE</div>
       <h1 class="tirage-title">30 apps,<br>30 défis</h1>
       <p class="tirage-sub" id="sub">Sinon, ce serait trop simple.</p>
     </div>
-    <div class="tirage-grid" id="grid" aria-live="polite"></div>
+    <div class="tirage-grid" id="grid"></div>
     <div class="tirage-foot" id="foot">apphero.cloud · chaque jour à 18 h</div>
+    <div class="tirage-tip" id="tip" hidden></div>
     <div class="tirage-spot" id="spot" hidden><div class="tirage-big" id="big"></div></div>
   </div>
 
   <div class="tirage-controls" id="controls">
     <input id="token" type="password" placeholder="Code organisateur" autocomplete="off" aria-label="Code organisateur">
-    <button class="btn btn-pill" type="button" id="go">▶ Lancer le tirage</button>
-    <button class="btn btn-pill" type="button" id="fast" aria-pressed="false">Rapide</button>
-    <button class="btn btn-pill" type="button" id="hide">Masquer ces boutons</button>
+    <button class="btn btn-pill" type="button" id="review">1. Revue des défis</button>
+    <button class="btn btn-pill" type="button" id="draw">2. 🎲 Tirer au sort</button>
+    <button class="btn btn-pill" type="button" id="replay">Rejouer l'ouverture</button>
     <p id="status" role="status"></p>
+    <p class="tirage-help">Touche H : cacher ces boutons.</p>
   </div>
 </body>
 </html>
