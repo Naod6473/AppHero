@@ -37,6 +37,7 @@
       <button class="btn btn-pink btn-lg" type="button" id="remind">🔔 Me prévenir à 18 h</button>
       <a class="btn btn-lg" id="follow" href="https://x.com/ZeroE24661" rel="noopener">Suivre sur X</a>
     </div>
+    <a class="rideau-more" href="#video">▼ Le défi en vidéo</a>
 
     <form class="rideau-admin" id="admin" hidden>
       <input id="token" type="password" placeholder="Code organisateur" autocomplete="off" aria-label="Code organisateur">
@@ -44,5 +45,12 @@
       <p id="admin-msg" role="status"></p>
     </form>
   </main>
+
+  <section class="rideau-video" id="video">
+    <div class="teaser-frame">
+      <video id="teaser-video" src="/media/teaser.mp4" poster="/media/teaser.jpg" muted loop playsinline preload="none" aria-label="Vidéo de présentation d'Apphéro"></video>
+      <button class="btn teaser-sound" id="teaser-sound" type="button">🔇 Activer le son</button>
+    </div>
+  </section>
 </body>
 </html>

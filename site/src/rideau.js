@@ -6,6 +6,7 @@ import "@fontsource/rubik/700.css";
 import "@fontsource/rubik/800.css";
 import "./styles.css";
 import { LAUNCH_AT } from "../../shared/calendar.js";
+import { initTeaser } from "./teaser.js";
 
 const $ = (id) => document.getElementById(id);
 const TARGET = Date.parse(LAUNCH_AT);
@@ -134,3 +135,5 @@ $("admin").addEventListener("submit", async (e) => {
     location.replace("/");
   } else $("admin-msg").textContent = "Code incorrect.";
 });
+
+initTeaser("rideau");

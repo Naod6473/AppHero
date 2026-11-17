@@ -752,3 +752,7 @@ body.is-open .rideau-bulbs i { background: #fff6c2; box-shadow: 0 0 12px 4px #ff
 .teaser-frame video { display: block; width: 100%; aspect-ratio: 16 / 9; height: auto; cursor: pointer; }
 .teaser-sound { position: absolute; right: 16px; bottom: 16px; }
 @media (max-width: 760px) { .teaser-sec { padding-top: 64px; } .teaser-frame { border-width: 4px; border-radius: 18px; box-shadow: 7px 7px 0 var(--pink); } .teaser-sound { right: 10px; bottom: 10px; font-size: 14px; padding: 8px 12px; } }
+.rideau-more { font-weight: 800; font-size: 17px; color: var(--ink); text-decoration: none; background: var(--paper); border: 4px solid var(--ink); border-radius: 999px; padding: 8px 18px; box-shadow: 4px 4px 0 var(--ink); }
+.rideau-video { position: relative; z-index: 2; box-sizing: border-box; padding: 20px 60px 110px; scroll-margin-top: 40px; }
+@media (max-width: 600px) { .rideau-video { padding: 10px 40px 80px; } .rideau-more { font-size: 15px; padding: 6px 14px; } }
+@media (max-width: 600px) { .teaser-frame .teaser-sound { min-height: 30px; font-size: 11px; padding: 4px 9px; right: 8px; bottom: 8px; border-width: 2px; box-shadow: 2px 2px 0 var(--ink); } }
