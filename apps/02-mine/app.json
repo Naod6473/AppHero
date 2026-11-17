@@ -1,0 +1,19 @@
+{
+  "num": 2,
+  "title": "Mine!?",
+  "tagline": "Tu colles un lien, tu appuies sur « À moi ! », et la vidéo ou la musique arrive dans ton navigateur.",
+  "publishAt": "2026-11-19T18:00:00+01:00",
+  "color": "#F39A1E",
+  "tags": [
+    "yt-dlp",
+    "svelte",
+    "python",
+    "proxmox",
+    "auto-hébergé"
+  ],
+  "status": "prêt",
+  "making": {
+    "tool": "Claude Code",
+    "note": "Une démo publique sur mine.apphero.cloud (avec des limites), et le code pour l'installer chez soi sans aucune limite."
+  }
+}
