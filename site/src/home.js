@@ -1,6 +1,7 @@
 // Accueil : pile de cartes de la semaine, grille des 30 apps, j'aime / bof, votes, classements.
 import { api, esc, toast, confetti, turnstileToken, track, shareApp, X_URL } from "./common.js";
-import { DAYS, BALLOTS, THEMES, CHALLENGE_END, WEEKDAYS_SHORT, WHEEL_DAYS, parisDate, fmtShort, fmtDateTime } from "../../shared/calendar.js";
+import { DAYS, BALLOTS, CHALLENGE_END, WEEKDAYS_SHORT, PAPER, wheelDays, parisDate, fmtShort, fmtDateTime } from "../../shared/calendar.js";
+import { CRITERIA, criterionLabel } from "../../shared/criteria.js";
 
 const S = {
   offset: 0, // écart entre l'horloge du serveur et celle du navigateur
@@ -10,6 +11,7 @@ const S = {
   ballots: [], // scrutins vus par le serveur (statut, candidates, gagnante)
   me: { reactions: {}, ballots: {} },
   draws: new Map(), // forDay -> tirage
+  criteria: null, // id -> critère tiré (null tant qu'ils ne sont pas révélés)
   siteKey: "",
   active: 0,
   week: [],
@@ -34,6 +36,7 @@ async function load() {
     S.ballots = st.ballots || [];
     S.me = st.me || { reactions: {}, ballots: {} };
     S.siteKey = st.turnstileSiteKey;
+    S.criteria = st.criteria || null;
   } catch (err) {
     console.warn("API indisponible, affichage du calendrier seul.", err);
   }
@@ -44,6 +47,19 @@ async function load() {
     /* pas de tirages */
   }
 }
+
+// ------------------------------------------------------------ les critères tirés au sort
+
+const SECRET = { key: null, name: "Critère secret", emoji: "❓", color: PAPER, blurb: "Les 30 critères sont tirés au sort et révélés le mercredi 18 novembre à 18 h.", label: "Critère secret" };
+// Le critère d'une case : nom, emoji, couleur, et le texte complet (« Langage imposé : Rust », multi-critère…).
+function critOf(day) {
+  const c = S.criteria?.[day.id];
+  const base = c && CRITERIA[c.key];
+  if (!base) return SECRET;
+  const all = [c, ...(c.extra || [])];
+  return { ...base, key: c.key, label: all.map(criterionLabel).join(" + "), short: all.map((x) => `${CRITERIA[x.key].emoji} ${criterionLabel(x)}`).join(" + ") };
+}
+const colorOf = (day) => (day.filler ? day.color : critOf(day).color);
 
 // ------------------------------------------------------------ la semaine en cours
 
@@ -119,7 +135,7 @@ function fillerModel(day) {
     tag: "BONUS",
     title: "Joyeuses fêtes !",
     theme: "Après le défi",
-    body: "Les 30 apps restent en ligne et le code est à toi. Merci d'avoir joué !",
+    body: "Les 30 apps restent en ligne et le code est dispo. Merci d'avoir joué !",
     footLabel: "LE CODE",
     footValue: "Sur GitHub",
     cta: { label: "Revoir les 30 apps", href: "#apps" },
@@ -133,12 +149,13 @@ function cardModel(day) {
   const isNext = nextDay && nextDay.id === day.id;
   const when = `${fmtShort(day.date)} · 18 h`;
   const draw = S.draws.get(day.date);
+  const crit = critOf(day);
 
   if (app) {
     return {
-      bg: app.color || day.color,
+      bg: app.color || crit.color,
       title: app.title,
-      theme: app.criterion ? `${day.theme} · ${app.criterion}` : day.theme,
+      theme: app.criterion ? `${crit.label} · ${app.criterion}` : crit.label,
       body: app.tagline,
       footLabel: "SORTIE LE",
       footValue: when,
@@ -147,17 +164,17 @@ function cardModel(day) {
     };
   }
   let title = "???";
-  let body = day.blurb;
+  let body = crit.blurb;
   let cta = { label: "Voir les 30 apps", href: "#apps" };
-  let theme = day.theme;
+  let theme = `${crit.emoji} ${crit.label}`;
   if (day.num === 1) {
     title = "Apphéro";
     body = "Le site qui lance le défi : les 30 apps, le vote et la roue.";
   } else if (day.num === DAYS.length) {
     title = "La finale";
     cta = { label: "Voir les classements", href: "#vote" };
-  } else if (day.wheel) {
-    const w = WHEEL_DAYS.find((x) => x.forDay === day.date);
+  } else if (crit.key === "roue") {
+    const w = wheelDays(S.criteria).find((x) => x.forDay === day.date);
     body = draw
       ? draw.idea
         ? "La roue a choisi l'idée de l'IA. Revois le tirage pour la découvrir."
@@ -165,23 +182,19 @@ function cardModel(day) {
       : `Le critère sort de la roue le ${fmtShort(w.drawOn).toLowerCase()} au soir. Tu pourras revoir le tirage.`;
     if (draw) theme = `Critère : ${draw.label}`;
     cta = { label: "Voir la roue", href: "/roue/" };
-  } else if (day.weekday === 3) {
-    title = "L'idée des abonnés";
-    body = "Propose l'app du mercredi sur X. L'idée la plus soutenue sera construite.";
+  } else if (crit.key === "abonne") {
+    title = "L'idée d'un abonné";
+    body = "Propose l'app de ce jour-là sur X. L'idée la plus soutenue sera construite.";
     cta = { label: "Proposer une idée", href: X_URL };
-  } else if (day.weekday === 0) {
-    title = "L'idée perso";
-    cta = { label: "Le vote de la semaine", href: "#vote" };
-  } else if (day.weekday === 6) {
-    title = "Le jeu du samedi";
-    cta = { label: "Comment ça marche", href: "#vote" };
+  } else if (!crit.key) {
+    cta = { label: "Suivre sur X", href: X_URL };
   }
   if (Date.parse(day.publishAt) <= now()) {
     // L'heure est passée mais l'app n'est pas encore en ligne.
-    return { bg: day.color, title: "En cuisine…", theme, body: "L'app du jour arrive très vite. Garde l'apéro au frais.", footLabel: "PRÉVUE LE", footValue: when, cta };
+    return { bg: crit.color, title: "En cuisine…", theme, body: "L'app du jour arrive très vite. Garde l'apéro au frais.", footLabel: "PRÉVUE LE", footValue: when, cta };
   }
   return {
-    bg: day.color,
+    bg: crit.color,
     title,
     theme,
     body,
@@ -253,7 +266,7 @@ function renderDeck() {
 
   $("tabs").innerHTML = S.week
     .map(
-      (day, i) => `<button class="tab" type="button" data-go="${i}" aria-pressed="${i === A}" aria-label="${esc(fmtLongUpper(day.date))}" style="background:${day.color}">
+      (day, i) => `<button class="tab" type="button" data-go="${i}" aria-pressed="${i === A}" aria-label="${esc(fmtLongUpper(day.date))}" style="background:${colorOf(day)}">
         <b><span class="d-long">${WEEKDAYS_SHORT[day.weekday].toUpperCase()}</span><span class="d-short" aria-hidden="true">${WEEKDAYS_SHORT[day.weekday][0]}</span></b><span>${new Date(day.date + "T12:00:00Z").getUTCDate()}</span></button>`,
     )
     .join("");
@@ -320,12 +333,10 @@ function go(i) {
 // ------------------------------------------------------------ sections
 
 function renderPills() {
+  // La pioche : tous les critères possibles.
   const rot = [-1.6, 1.2, -1.0, 1.4, -1.2, 1.0, -1.4];
-  $("pills").innerHTML = [1, 2, 3, 4, 5, 6, 0]
-    .map((wd, i) => {
-      const th = THEMES[wd];
-      return `<div class="pill" style="background:${th.color};transform:rotate(${rot[i]}deg)"><b>${WEEKDAYS_SHORT[wd].toUpperCase()}</b><span>${esc(th.name)}</span></div>`;
-    })
+  $("pills").innerHTML = Object.values(CRITERIA)
+    .map((c, i) => `<div class="pill" style="background:${c.color};transform:rotate(${rot[i % 7]}deg)" title="${esc(c.blurb)}"><b aria-hidden="true">${c.emoji}</b><span>${esc(c.name)}</span></div>`)
     .join("");
 }
 
@@ -348,10 +359,11 @@ function renderWeeks() {
 function renderTiles() {
   $("tiles").innerHTML = DAYS.map((day, i) => {
     const app = S.apps.get(day.id);
-    const meta = `${fmtShort(day.date)} · ${day.theme}`;
+    const crit = critOf(day);
+    const meta = `${fmtShort(day.date)} · ${crit.short || crit.label}`;
     const rot = `${i % 2 ? 1.4 : -1.4}deg`;
     if (!app) {
-      return `<div class="tile is-soon" style="--r:${rot}"><span class="tile-num" aria-hidden="true">${day.id}</span>
+      return `<div class="tile is-soon" style="--r:${rot};--bg:${esc(crit.color)}"><span class="tile-num" aria-hidden="true">${day.id}</span>
         <span><span class="tile-name">Bientôt</span><br><span class="tile-meta">${esc(meta)}</span></span>
         <span class="sr-only">App ${day.id}, sortie ${esc(meta)}</span></div>`;
     }
@@ -475,7 +487,7 @@ function renderProgress() {
   const n = S.apps.size;
   $("progress").innerHTML = `<div class="progress-cells" aria-hidden="true">${DAYS.map((d) => {
     const app = S.apps.get(d.id);
-    return `<i style="${app ? `background:${esc(app.color || d.color)}` : ""}" class="${app ? "on" : ""}"></i>`;
+    return `<i style="${app ? `background:${esc(app.color || colorOf(d))}` : ""}" class="${app ? "on" : ""}"></i>`;
   }).join("")}</div><span><strong>${n}</strong> / 30 apps sorties</span>`;
   $("progress").setAttribute("aria-label", `${n} apps sorties sur 30`);
 }

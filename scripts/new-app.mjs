@@ -25,7 +25,7 @@ const vars = {
   TITLE: title,
   TAGLINE: tagline,
   COLOR: day.color,
-  THEME: day.theme,
+  THEME: "le critère tiré au sort",
   DATE: fmtLong(day.date).toLowerCase(),
 };
 const fill = (s) => s.replace(/\{\{(\w+)\}\}/g, (_, k) => vars[k] ?? "");

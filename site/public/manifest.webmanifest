@@ -1,7 +1,7 @@
 {
   "name": "Apphéro · une app par jour",
   "short_name": "Apphéro",
-  "description": "Une petite app par jour à 18 h, du 18 novembre au 22 décembre.",
+  "description": "30 jours, 30 apps, 30 défis. Une petite app par jour à 18 h, du 18 novembre au 17 décembre.",
   "lang": "fr",
   "start_url": "/?utm_source=app",
   "scope": "/",

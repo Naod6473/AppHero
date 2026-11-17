@@ -74,3 +74,10 @@ CREATE TABLE IF NOT EXISTS seen (
   visitor TEXT NOT NULL,
   PRIMARY KEY (day, visitor)
 );
+
+-- Le critère tiré au sort pour chaque case (une ligne par app, 01 à 30), révélé au lancement.
+-- data = {"key": "langage", "detail": "Rust", "extra": [{"key": "...", "detail": null}]}
+CREATE TABLE IF NOT EXISTS criteria (
+  day TEXT PRIMARY KEY,
+  data TEXT NOT NULL
+);
