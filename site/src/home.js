@@ -754,3 +754,22 @@ setInterval(async () => {
     renderAll();
   }
 }, 1000);
+
+// La vidéo de présentation : elle démarre (sans le son) quand on arrive dessus, et s'arrête quand on la quitte.
+{
+  const v = document.getElementById("teaser-video");
+  const btn = document.getElementById("teaser-sound");
+  if (v && "IntersectionObserver" in window) {
+    new IntersectionObserver(([e]) => {
+      if (e.isIntersecting) v.play().catch(() => {});
+      else v.pause();
+    }, { threshold: 0.5 }).observe(v);
+  }
+  const sound = () => {
+    v.muted = !v.muted;
+    if (!v.muted) { v.currentTime = 0; v.play().catch(() => {}); window.ahTrack?.("teaser_son"); }
+    btn.textContent = v.muted ? "🔇 Activer le son" : "🔊 Couper le son";
+  };
+  btn?.addEventListener("click", sound);
+  v?.addEventListener("click", sound);
+}
