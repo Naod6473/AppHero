@@ -745,3 +745,10 @@ body.is-open .rideau-bulbs i { background: #fff6c2; box-shadow: 0 0 12px 4px #ff
   .rideau-title { font-size: 26px; }
   .rc-unit b { font-size: 36px; }
 }
+
+/* Vidéo de présentation sur l'accueil : se lance quand on arrive dessus */
+.teaser-sec { padding-top: 96px; }
+.teaser-frame { position: relative; max-width: 960px; margin: 0 auto; border: 6px solid var(--ink); border-radius: 28px; overflow: hidden; box-shadow: 12px 12px 0 var(--pink); background: var(--ink); transform: rotate(-1deg); }
+.teaser-frame video { display: block; width: 100%; aspect-ratio: 16 / 9; height: auto; cursor: pointer; }
+.teaser-sound { position: absolute; right: 16px; bottom: 16px; }
+@media (max-width: 760px) { .teaser-sec { padding-top: 64px; } .teaser-frame { border-width: 4px; border-radius: 18px; box-shadow: 7px 7px 0 var(--pink); } .teaser-sound { right: 10px; bottom: 10px; font-size: 14px; padding: 8px 12px; } }
