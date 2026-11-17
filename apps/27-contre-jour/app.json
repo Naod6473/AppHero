@@ -1,0 +1,23 @@
+{
+  "num": 27,
+  "title": "Contre-jour",
+  "tagline": "Une course sans fin dans une ville en deux couleurs : saute, frappe, et inverse le monde pour passer.",
+  "publishAt": "2026-12-14T18:00:00+01:00",
+  "color": "#B9FF1C",
+  "tags": [
+    "jeu",
+    "canvas",
+    "pixel-art",
+    "deux-couleurs"
+  ],
+  "status": "brouillon",
+  "making": {
+    "buildMinutes": null,
+    "thinkingMinutes": null,
+    "tokens": null,
+    "prompts": null,
+    "lines": null,
+    "tool": "Claude Code",
+    "note": "En cours : maquette jouable construite avec Simon. Effets d'Artefacts (naod.fr), persos et décors craftpix passés en deux couleurs."
+  }
+}
