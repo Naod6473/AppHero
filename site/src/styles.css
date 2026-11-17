@@ -691,7 +691,7 @@ body.tirage-page::before, body.tirage-page::after { display: none; }
 /* ---------- Le rideau : compte à rebours avant le lancement (fond fête foraine de la vidéo du tirage) */
 body.rideau-page { margin: 0; min-height: 100vh; min-height: 100dvh; background: var(--yellow); color: var(--ink); overflow-x: hidden; }
 .rideau-rays { position: fixed; left: 50%; top: 45%; width: 300vmax; height: 300vmax; margin: -150vmax 0 0 -150vmax; border-radius: 50%; z-index: 0;
-  background: repeating-conic-gradient(#ffd83d 0deg 10deg, #ffc21a 10deg 20deg); animation: rideau-spin 60s linear infinite; }
+  background: repeating-conic-gradient(#ffd83d 0deg 10deg, #ffc21a 10deg 20deg); animation: rideau-spin 20s linear infinite; }
 .rideau-glow { position: fixed; inset: 0; z-index: 0; background: radial-gradient(circle at 50% 45%, #fff8e1cc 0, #fff8e133 25%, transparent 50%), radial-gradient(ellipse at 50% 50%, transparent 55%, #15112b66 100%); }
 @keyframes rideau-spin { to { transform: rotate(360deg); } }
 .rideau-bulbs { position: fixed; inset: 0; z-index: 1; pointer-events: none; border: 36px solid var(--ink); }
