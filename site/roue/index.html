@@ -25,7 +25,7 @@
     <div class="roue-head js-ui">
       <div>
         <h1 class="mega roue-title">La roue</h1>
-        <p class="lead" style="margin: 24px 0 0">Chaque jeudi soir, la roue décide de l'app du vendredi : un critère, ou une idée d'app complète imaginée par l'IA. Tu peux revoir chaque tirage ici.</p>
+        <p class="lead" style="margin: 24px 0 0">Chaque jeudi soir, la roue décide de l'app du vendredi : un critère, ou une idée d'app complète imaginée par l'IA. Tu peux revoir chaque tirage ici, ou lancer la roue pour t'amuser.</p>
       </div>
       <div class="modes" id="modes" hidden>
         <button class="btn btn-pill" type="button" data-mode="public" aria-pressed="true">Public</button>
@@ -60,6 +60,7 @@
 
         <!-- Public -->
         <div class="controls" id="public-controls" style="flex-direction: column">
+          <button class="btn btn-yellow btn-lg" id="play" type="button">🎡 Lance la roue !</button>
           <button class="btn btn-pink btn-lg replay-btn" id="replay" type="button" hidden><span class="replay-ico" aria-hidden="true">↻</span> Revoir le dernier tirage</button>
           <span class="replay-help" id="replay-help">Seul l'organisateur lance les tirages. Toi, tu peux les revoir.</span>
         </div>
