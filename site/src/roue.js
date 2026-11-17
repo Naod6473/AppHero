@@ -1,6 +1,7 @@
 // Page de la roue : public (revoir les tirages), studio privé (tourner, publier), enregistrement.
 import { api, esc, toast, reducedMotion, track, confetti } from "./common.js";
 import CRITERES from "../../shared/criteres.json";
+import DESC from "../../shared/criteres-desc.json";
 import { wheelDays, fmtShort } from "../../shared/calendar.js";
 
 // Les cases tombées sur « La roue décide » (connues une fois les critères révélés, ou par l'organisateur).
@@ -71,11 +72,13 @@ function drawLights() {
 
 // La grande carte qui se retourne quand la roue s'arrête.
 let revealTimer;
+// Sans emoji (Simon, 17/11) : le nom du critère et une phrase qui l'explique.
 function reveal(d) {
   const isIdea = d.label === AI_IDEA;
-  $("reveal-card").innerHTML = `<small>${isIdea ? "IDÉE D'APP" : "CRITÈRE"} · ${esc(slotLabel(d.forDay).toUpperCase())}</small>
-    <span class="reveal-emo" aria-hidden="true">${emojiOf(d.label)}</span>
-    <strong>${esc(d.label)}</strong>`;
+  const head = d.forDay ? `${isIdea ? "IDÉE D'APP" : "CRITÈRE"} · ${esc(slotLabel(d.forDay).toUpperCase())}` : "TON TOUR DE ROUE";
+  const text = d.idea || DESC[d.label] || "";
+  $("reveal-card").innerHTML = `<small>${head}</small>
+    <strong>${esc(d.label)}</strong>${text ? `<em>${esc(text)}</em>` : ""}`;
   const box = $("reveal");
   box.hidden = false;
   box.classList.remove("is-in");
@@ -105,7 +108,7 @@ function showResult(sub, title, idea) {
 function resultFor(d) {
   const isIdea = d.label === AI_IDEA;
   const sub = `${isIdea ? "IDÉE D'APP" : "CRITÈRE"} POUR LE ${slotLabel(d.forDay).toUpperCase()}`;
-  return [sub, d.label, d.idea];
+  return [sub, d.label, d.idea || DESC[d.label]];
 }
 
 function nextSlot() {
@@ -259,10 +262,32 @@ async function publish() {
   }
 }
 
+// Le tour de roue des visiteurs : pour s'amuser, rien n'est enregistré.
+async function funSpin() {
+  if (S.spinning || S.mode !== "public" || S.rec) return;
+  track("roue_jouer");
+  const k = Math.floor(Math.random() * SLICES);
+  await runSpin(k);
+  const label = S.slices[k];
+  showResult("TON TOUR DE ROUE", label, DESC[label]);
+  reveal({ label });
+}
+
+// Au repos, sur la page publique, la roue tourne doucement, comme un manège.
+const IDLE_SPEED = 9; // degrés par seconde
+let idleLast = 0;
+function idle(t) {
+  if (idleLast && !S.spinning && S.mode === "public" && !S.rec && !document.hidden && !reducedMotion()) {
+    setAngle((S.angle + (IDLE_SPEED * Math.min(100, t - idleLast)) / 1000) % 3600);
+  }
+  idleLast = t;
+  requestAnimationFrame(idle);
+}
+
 // ------------------------------------------------------------ interface
 
 function syncButtons() {
-  for (const id of ["spin", "shuffle", "rec-spin", "publish"]) $(id).disabled = S.spinning;
+  for (const id of ["spin", "shuffle", "rec-spin", "publish", "play"]) $(id).disabled = S.spinning;
   $("replay").disabled = S.spinning;
   $("replay").hidden = !S.draws.length;
   document.querySelectorAll(".door[data-replay]").forEach((b) => (b.disabled = S.spinning));
@@ -309,7 +334,7 @@ function renderHistory() {
   }).join("");
   const first = WHEEL_DAYS.find((w) => !byDay.has(w.forDay));
   $("replay-help").textContent = S.draws.length
-    ? "Seul l'organisateur lance les tirages. Toi, tu peux les revoir."
+    ? "Les vrais tirages se font le jeudi soir. Toi, tu peux les revoir, ou lancer la roue pour t'amuser."
     : first
       ? `Premier tirage le ${slotLabel(first.drawOn).toLowerCase()} au soir, pour l'app du ${slotLabel(first.forDay).toLowerCase()}.`
       : "Les cases de la roue seront connues le mercredi 18 novembre à 18 h, avec le tirage des critères.";
@@ -344,7 +369,14 @@ async function loadDraws() {
 }
 
 $("replay").addEventListener("click", () => S.draws[0] && replay(S.draws[0]));
-$("reveal").addEventListener("click", hideReveal);
+$("reveal").addEventListener("click", (e) => {
+  e.stopPropagation();
+  hideReveal();
+});
+$("play").addEventListener("click", funSpin);
+$("wheel").addEventListener("click", (e) => {
+  if (!e.target.closest("#reveal")) funSpin();
+});
 $("history").addEventListener("click", (e) => {
   const b = e.target.closest("[data-replay]");
   if (b) replay(S.draws[Number(b.dataset.replay)]);
@@ -388,3 +420,4 @@ if (studioAllowed) {
   }
 }
 setMode(studioAllowed ? "studio" : "public");
+requestAnimationFrame(idle);
