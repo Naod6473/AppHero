@@ -1,0 +1,20 @@
+{
+  "num": 30,
+  "title": "Jet Flight",
+  "tagline": "Un avion de chasse en pixel art : abats les jets ennemis, bombarde la DCA et tiens le plus de vagues possible.",
+  "publishAt": "2026-12-17T18:00:00+01:00",
+  "color": "#F0580E",
+  "tags": [
+    "jeu",
+    "pixel-art",
+    "react",
+    "typescript",
+    "canvas"
+  ],
+  "status": "prêt",
+  "build": { "command": "npm ci --include=dev --no-audit --no-fund && npm run build", "output": "dist" },
+  "making": {
+    "tool": "Claude Code",
+    "note": "Le moteur en tranches empilées vient de la maquette de Simon ; le jeu (vagues, DCA, bombes, navire, améliorations, classement) a été construit par-dessus."
+  }
+}

@@ -1,0 +1,148 @@
+@import "tailwindcss";
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+  background: #2468b4;
+  font-family: Rubik, system-ui, -apple-system, "Segoe UI", sans-serif;
+  color: #15112b;
+}
+
+/* la pastille Apphéro ajoutée par le site gênerait les commandes : la page de présentation la montre déjà */
+[data-apphero-fiche] {
+  display: none !important;
+}
+
+@layer components {
+  .jf-title {
+    font-family: "Bagel Fat One", Rubik, system-ui, sans-serif;
+    font-weight: 400;
+    letter-spacing: 0.01em;
+  }
+  .jf-banner .jf-title {
+    color: #fff;
+    text-shadow: 0 4px 0 #15112b, 3px 0 0 #15112b, -3px 0 0 #15112b, 0 -3px 0 #15112b;
+  }
+  .jf-banner {
+    animation: jf-pop 2.2s ease-out both;
+  }
+  .jf-card {
+    background: #fff8e1;
+    border: 4px solid #15112b;
+    border-radius: 24px;
+    box-shadow: 8px 8px 0 #15112b;
+    padding: 24px 20px;
+  }
+  .jf-tag {
+    display: inline-block;
+    margin: 0;
+    padding: 6px 12px;
+    background: #15112b;
+    color: #ffd83d;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 800;
+  }
+  .jf-cta {
+    min-height: 56px;
+    padding: 10px 34px;
+    border: 4px solid #15112b;
+    border-radius: 16px;
+    background: #ffd83d;
+    color: #15112b;
+    box-shadow: 4px 4px 0 #15112b;
+    font-family: "Bagel Fat One", Rubik, sans-serif;
+    font-size: 28px;
+    cursor: pointer;
+    transition: transform 0.08s, box-shadow 0.08s;
+  }
+  .jf-cta:hover {
+    background: #ffe36b;
+  }
+  .jf-cta:active,
+  .jf-btn:active,
+  .jf-upgrade:active {
+    transform: translate(3px, 3px);
+    box-shadow: 1px 1px 0 #15112b;
+  }
+  .jf-btn {
+    min-height: 48px;
+    padding: 8px 18px;
+    border: 3px solid #15112b;
+    border-radius: 14px;
+    background: #fff;
+    color: #15112b;
+    box-shadow: 3px 3px 0 #15112b;
+    font-weight: 800;
+    font-size: 16px;
+    cursor: pointer;
+  }
+  .jf-btn:disabled {
+    opacity: 0.6;
+  }
+  .jf-link {
+    background: none;
+    border: 0;
+    padding: 4px 2px;
+    color: #15112b;
+    font-weight: 800;
+    font-size: 15px;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    cursor: pointer;
+  }
+  .jf-upgrade {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    padding: 16px 6px 12px;
+    border: 4px solid #15112b;
+    border-radius: 18px;
+    background: #fff;
+    color: #15112b;
+    box-shadow: 4px 4px 0 #15112b;
+    cursor: pointer;
+    transition: transform 0.08s, box-shadow 0.08s, background 0.1s;
+  }
+  .jf-upgrade:hover,
+  .jf-upgrade:focus-visible {
+    background: #ffd83d;
+    outline: none;
+  }
+  .jf-key {
+    position: absolute;
+    top: 8px;
+    left: 10px;
+    font-family: ui-monospace, monospace;
+    font-size: 12px;
+    font-weight: 700;
+    opacity: 0.5;
+  }
+  .jf-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    height: 42px;
+    border: 2px solid rgb(255 255 255 / 0.4);
+    border-radius: 10px;
+    background: rgb(11 26 51 / 0.55);
+    color: #fff;
+    cursor: pointer;
+  }
+  .jf-icon:hover {
+    background: rgb(11 26 51 / 0.8);
+  }
+}
+
+@keyframes jf-pop {
+  0% { opacity: 0; transform: scale(0.6); }
+  12% { opacity: 1; transform: scale(1.08); }
+  20% { transform: scale(1); }
+  80% { opacity: 1; }
+  100% { opacity: 0; }
+}

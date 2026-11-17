@@ -87,6 +87,10 @@ async function api(request, env, ctx, url, now) {
       return castBallot(request, env, now);
     case "GET /api/bilan":
       return bilan(env, now);
+    case "GET /api/jet/scores":
+      return jetScores(env, now);
+    case "POST /api/jet/scores":
+      return jetSubmit(request, env, now);
     case "GET /api/draws":
       return json({ draws: await listDraws(env) }, 200, { "cache-control": "public, max-age=30" });
     case "POST /api/admin/draws":
@@ -311,6 +315,43 @@ async function react(request, env, now) {
   if (value !== 0) stmts.push(bumpTally(env, kind(value), "ALL", app.id, 1));
   await env.DB.batch(stmts);
   return json({ ok: true, value }, 200, headers);
+}
+
+// ---------------------------------------------------------------- Jet Flight (app 30) : le classement
+
+const JET_APP = "30";
+const JET_TOP = 10;
+const JET_MAX_PER_IP = 30; // scores envoyés par réseau et par jour
+
+// Le plus gros score possible après `wave` vagues (jets, DCA, navire, caisses, bonus de vague) : au-delà, c'est triché.
+const jetCeiling = (wave) => wave * 4000 + 150 * wave * (wave + 1);
+
+async function jetTop(env) {
+  const { results } = await env.DB.prepare("SELECT name, score, wave FROM jet_scores ORDER BY score DESC, created_at ASC LIMIT ?").bind(JET_TOP).all();
+  return results || [];
+}
+
+async function jetScores(env, now) {
+  if (!releasedApp(JET_APP, now)) return json({ error: "Le jeu n'est pas encore sorti." }, 404);
+  return json({ scores: await jetTop(env) }, 200, { "cache-control": "public, max-age=15" });
+}
+
+async function jetSubmit(request, env, now) {
+  if (!releasedApp(JET_APP, now)) return json({ error: "Le jeu n'est pas encore sorti." }, 404);
+  const input = await readJson(request);
+  if (!input) return json({ error: "Requête invalide." }, 400);
+  const name = String(input.name || "").toUpperCase();
+  const score = Number(input.score);
+  const wave = Number(input.wave);
+  if (!/^[A-Z0-9]{3}$/.test(name)) return json({ error: "3 lettres ou chiffres, par exemple ACE." }, 400);
+  if (!Number.isInteger(wave) || wave < 1 || wave > 500) return json({ error: "Vague invalide." }, 400);
+  if (!Number.isInteger(score) || score < 1 || score > jetCeiling(wave)) return json({ error: "Score invalide." }, 400);
+  const { ipHash } = await ipHashFor(request, env, now);
+  const sent = await env.DB.prepare("SELECT COUNT(*) AS n FROM jet_scores WHERE ip_hash = ?").bind(ipHash).first();
+  if ((sent?.n || 0) >= JET_MAX_PER_IP) return json({ error: "Trop de scores envoyés depuis ce réseau aujourd'hui." }, 429);
+  await env.DB.prepare("INSERT INTO jet_scores (name, score, wave, ip_hash, created_at) VALUES (?, ?, ?, ?, ?)").bind(name, score, wave, ipHash, now).run();
+  const better = await env.DB.prepare("SELECT COUNT(*) AS n FROM jet_scores WHERE score > ?").bind(score).first();
+  return json({ ok: true, rank: (better?.n || 0) + 1, scores: await jetTop(env) });
 }
 
 async function castBallot(request, env, now) {

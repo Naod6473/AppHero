@@ -81,3 +81,16 @@ CREATE TABLE IF NOT EXISTS criteria (
   day TEXT PRIMARY KEY,
   data TEXT NOT NULL
 );
+
+-- Jet Flight (app 30) : le classement des meilleurs scores. Initiales de 3 caractères, pas de compte.
+-- ip_hash = empreinte salée de l'IP du jour, pour limiter les envois.
+CREATE TABLE IF NOT EXISTS jet_scores (
+  id INTEGER PRIMARY KEY,
+  name TEXT NOT NULL,
+  score INTEGER NOT NULL,
+  wave INTEGER NOT NULL,
+  ip_hash TEXT NOT NULL,
+  created_at INTEGER NOT NULL
+);
+CREATE INDEX IF NOT EXISTS jet_scores_rank ON jet_scores (score DESC);
+CREATE INDEX IF NOT EXISTS jet_scores_ip ON jet_scores (ip_hash);
