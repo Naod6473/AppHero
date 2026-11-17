@@ -48,7 +48,7 @@ export default {
       if (app && (res.headers.get("content-type") || "").includes("text/html")) {
         // …et la fiche de l'app (fabrication, j'aime / bof, retour à l'accueil).
         const crit = await loadCriteria(env);
-        const info = JSON.stringify(publicApp(app, crit)).replace(/</g, "\\u003c");
+        const info = JSON.stringify({ ...publicApp(app, crit), ...neighbours(app, crit, now) }).replace(/</g, "\\u003c");
         return new HTMLRewriter()
           .on("head", {
             element: (el) =>
@@ -104,6 +104,21 @@ function publicApp(a, crit) {
   const c = crit?.[id];
   const theme = c ? [c, ...(c.extra || [])].map(criterionLabel).join(" + ") : null;
   return { num, id, slug, title, tagline, publishAt, date, theme, color, tags, criterion, making, logo: logo || null };
+}
+
+// L'app d'avant et celle d'après, pour la page de présentation (plateau).
+// Une app pas encore sortie ne donne que son numéro, sa date et son défi : jamais son nom.
+function neighbours(app, crit, now) {
+  const near = (n) => {
+    const day = DAYS[n - 1];
+    if (!day) return null;
+    const a = manifest.find((x) => x.id === day.id);
+    const c = crit?.[day.id];
+    const theme = c ? [c, ...(c.extra || [])].map(criterionLabel).join(" + ") : null;
+    if (a && isReleased(a.publishAt, now)) return { num: n, id: day.id, slug: a.slug, title: a.title, theme, released: true };
+    return { num: n, id: day.id, publishAt: day.publishAt, theme, wheel: c?.key === "roue", released: false };
+  };
+  return { prev: near(app.num - 1), next: near(app.num + 1) };
 }
 
 // Le critère tiré pour chaque case : { "05": { key, detail, extra } }. Petit, relu à chaque fois.
