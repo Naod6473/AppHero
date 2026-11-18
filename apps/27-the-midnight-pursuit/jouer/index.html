@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Contre-jour · Apphéro 27/30</title>
+<title>The Midnight Pursuit · Apphéro 27/30</title>
 <meta name="description" content="Trois témoins d'un meurtre, une nuit pour échapper au tueur. Une ville en deux couleurs, et le mort qui raconte.">
 <meta name="theme-color" content="#000000">
 <link rel="icon" href="../logo.svg">
@@ -75,6 +75,7 @@ canvas{display:block;width:100%;height:100%}
 .case button{align-self:flex-start;font-family:var(--display);font-size:18px;letter-spacing:.1em;background:var(--noir);color:var(--blanc);border:0;padding:6px 12px;cursor:pointer}
 .case button:focus-visible{outline:2px dashed var(--noir);outline-offset:3px}
 .note{max-width:1000px;width:100%;font-size:13px;line-height:1.5;display:flex;flex-wrap:wrap;justify-content:space-between;gap:6px 18px}
+.son{font:inherit;font-family:var(--display);font-size:16px;letter-spacing:.08em;background:var(--blanc);color:var(--noir);border:2px solid var(--blanc);padding:2px 8px;cursor:pointer}
 .note b{font-family:var(--display);font-weight:400;font-size:16px;letter-spacing:.1em}
 </style>
 <style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}[hidden]{display:none!important}</style>
@@ -87,7 +88,7 @@ canvas{display:block;width:100%;height:100%}
   <div class="case" id="case">
     <div class="verdict">
       <span class="etiquette" id="etiquette">Apphéro · app 27</span>
-      <h1 id="titre">Contre-jour</h1>
+      <h1 id="titre">The Midnight Pursuit</h1>
       <p id="texte">23 h 40, quai n° 4. Un coup de feu, un corps dans l'eau : le mien. Trois témoins. L'homme qui m'a tué les a vus. Ils ont une nuit pour lui échapper.</p>
       <span class="action" id="action">Tape pour choisir ton témoin</span>
       <button type="button" id="changer" hidden>Changer de témoin</button>
@@ -106,6 +107,7 @@ canvas{display:block;width:100%;height:100%}
   </div>
 </div>
 <div class="note">
+  <span><button type="button" id="son" class="son">Musique : oui</button> <b>M</b> coupe ou remet la musique.</span>
   <span><b>Ordinateur</b> : ← → ralentir ou accélérer (marcher soigne) · ↑ sauter (maintiens pour aller plus haut) · F frapper · espace inverser · ↓ coup spécial.</span>
   <span><b>Téléphone</b> : glisse vers le haut pour sauter · tape à gauche pour frapper · tape à droite pour inverser · glisse vers le bas pour le coup spécial · glisse à gauche ou à droite et garde le doigt posé pour ralentir ou accélérer.</span>
   <span>Ce qui est en pointillés est fondu dans le décor : on passe à travers, et les voyous en pointillés ne te voient pas. À gauche, le tueur avance à pied, sans jamais s'arrêter : s'il te rattrape, c'est fini.</span>
@@ -123,6 +125,7 @@ const SPRITES = {"1": {"src": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABwA
 (() => {
   const scene = document.getElementById('scene');
   const cv = document.getElementById('c');
+  const AUDIO = window.CJ_AUDIO || {menu: 'audio/menu.mp3', jeu: 'audio/poursuite.mp3'};
   const ctx = cv.getContext('2d');
   const box = document.getElementById('case');
   const elEtiq = document.getElementById('etiquette');
@@ -639,8 +642,9 @@ const SPRITES = {"1": {"src": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABwA
     const m = ctx.createPattern(c, 'repeat'); motifs.set(encre, m); return m;
   }
   function dessinerTueur(encre, fond){
-    const f = Math.max(0, Math.min(1, 1 - PX / 240)), ech = ECH_JOUEUR, tk = etat === 'mort' ? t + mortT * .6 : t;
-    const kx = -46 + 76 * f + (etat === 'mort' ? Math.min(1, mortT) * 30 : 0), ky = SOL;
+    const f = Math.max(0, Math.min(1, 1 - PX / 240)), ech = ECH_JOUEUR;
+    const tir = etat === 'mort' && mortInfo && mortInfo.type === 'rattrape', tk = etat === 'mort' ? t + (tir ? 0 : mortT * .6) : t;
+    const kx = -70 + 76 * f + (etat === 'mort' && !tir ? Math.min(1, mortT) * 30 : 0), ky = SOL;
     const ox = kx - FW * ech / 2, oy = ky - FH * ech;              // coin haut gauche de l'image
     preparerTueur();
     const fr = Math.floor(tk * 9) % PERSOS[0].a.Walk[1], main = TUEUR.main[fr] || [85, 32];
@@ -657,6 +661,13 @@ const SPRITES = {"1": {"src": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABwA
     ctx.strokeStyle = encre; ctx.lineWidth = 1.5; ctx.setLineDash([6, 5]); ctx.stroke(); ctx.setLineDash([]);
     ctx.restore();
     dessinerSprite(TUEUR.img ? TUEUR : PERSOS[0], 'Walk', fr, kx, ky, encre, ech);
+    // l'éclair du coup de feu
+    if (tir && mortT < .16) {
+      ctx.fillStyle = encre; ctx.beginPath();
+      for (let i = 0; i < 14; i++) { const a = i / 14 * Math.PI * 2, r = i % 2 ? 7 : 26 - (i % 4) * 4; ctx.lineTo(hx + 10 + Math.cos(a) * r * 1.4, hy + Math.sin(a) * r * .8); }
+      ctx.closePath(); ctx.fill();
+      ctx.fillStyle = fond; ctx.beginPath(); ctx.arc(hx + 10, hy, 4, 0, Math.PI * 2); ctx.fill();
+    }
     if (f > .7 && procheT <= 0) { raconte(RECITS.proche); procheT = 14; }
   }
   const RUES = ['Rue des Tanneurs', 'Impasse Saint-Roch', 'Boulevard de la Gare', 'Rue des Abattoirs', 'Pont des Arches', 'Rue Basse', 'Place du Marché', 'Quai n° 6', 'Passage des Teinturiers'];
@@ -667,6 +678,7 @@ const SPRITES = {"1": {"src": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABwA
   function mourir(type, o){
     etat = 'mort'; mortT = 0; pret = Infinity; // pas de relance avant le verdict
     if (type !== 'rattrape') dire('joueur', pioche(PERSOS[perso].adieu), 1.4);
+    else { coupDeFeu(); flash = reduit ? 0 : .07; }
     mortInfo = {type, c: o ? o.c : null, m: Math.floor(dist / 40)};
     const cx = PX + PW / 2, cy = Math.min(py, SOL + 20) - PH * .5;
     giclee = {fx: sang(cx - 10, cy, 1.4, false), x: cx, y: cy, gouttes: Array.from({length: 26}, () => ({a: Math.random() * Math.PI * 2, d: 14 + Math.random() * 60, r: 2 + Math.random() * 7})),
@@ -679,9 +691,9 @@ const SPRITES = {"1": {"src": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABwA
     const p = PERSOS[perso], IL = p.il === 'La môme' ? 'Elle' : 'Il', SES = p.il === 'La môme' ? 'ses' : 'ses';
     let phrase;
     if (type === 'rattrape') phrase = pioche([
-      `Il l'a ${IL === 'Elle' ? 'rattrapée' : 'rattrapé'}. Il ne court jamais. Il n'en a pas besoin.`,
-      'La lampe, puis plus rien. Je connais.',
-      'Des pas, lents, réguliers. Puis plus rien.']);
+      `Il l'a ${IL === 'Elle' ? 'rattrapée' : 'rattrapé'}. Une seule balle. Il n'a jamais eu besoin de plus.`,
+      'La lampe, puis le coup de feu. Je connais.',
+      'Des pas, lents, réguliers. Un coup de feu. Puis plus rien.']);
     else if (type === 'voyou') phrase = pioche([
       "Ses hommes ont fait le travail. Lui n'a même pas pressé le pas.",
       kos ? `${kos} de ses hommes à terre. Il en avait d'autres. Il en a toujours.` : "Ils étaient trois. Ils sont toujours trois.",
@@ -724,7 +736,7 @@ const SPRITES = {"1": {"src": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABwA
       soinT += dt;
       if (soinT >= 3.5 && vies < 3) { vies++; barreFige(vies / 3); soinT = 0; dire('joueur', pioche(['Ça va mieux.', 'Je reprends mon souffle.'])); raconte(RECITS.soin); }
     } else soinT = 0;
-    if (PX < -6) { mourir('rattrape', null); return; }
+    if (PX < 40) { mourir('rattrape', null); return; }
     while (genX - dist < W + 1600) genX = segment(genX) + 120 + vitesse * .3;
     if (items.length > 60) items = items.filter(o => o.x + (o.w || 0) - dist > -80);
 
@@ -1170,9 +1182,57 @@ const SPRITES = {"1": {"src": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABwA
 
   // ---------- boucle ----------
   let avant = performance.now();
+  // ---------- la musique : le menu et la poursuite, en boucle, et le coup de feu ----------
+  const SON = {ctx: null, maitre: null, buf: {}, src: null, courant: null, muet: false};
+  const btnSon = document.getElementById('son');
+  try { SON.muet = localStorage.getItem('contrejour-muet') === '1'; } catch(e) {}
+  function etiquetteSon(){ if (btnSon) btnSon.textContent = SON.muet ? 'Musique : coupée' : 'Musique : oui'; }
+  etiquetteSon();
+  function initSon(){
+    if (SON.ctx) { if (SON.ctx.state === 'suspended') SON.ctx.resume(); return; }
+    const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return;
+    const c = SON.ctx = new AC();
+    SON.maitre = c.createGain(); SON.maitre.gain.value = SON.muet ? 0 : .8; SON.maitre.connect(c.destination);
+    for (const [nom, url] of Object.entries(AUDIO))
+      fetch(url).then(r => r.arrayBuffer()).then(b => new Promise((ok, ko) => c.decodeAudioData(b, ok, ko))).then(buf => { SON.buf[nom] = buf; }).catch(() => {});
+  }
+  function musique(nom){
+    const c = SON.ctx; if (!c || SON.courant === nom || !SON.buf[nom]) return;
+    const t = c.currentTime;
+    if (SON.src) { const {g, s} = SON.src; g.gain.cancelScheduledValues(t); g.gain.setValueAtTime(g.gain.value, t); g.gain.linearRampToValueAtTime(0, t + 1.2); s.stop(t + 1.3); }
+    const g = c.createGain(); g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(1, t + 1.2); g.connect(SON.maitre);
+    const s = c.createBufferSource(); s.buffer = SON.buf[nom]; s.loop = true; s.connect(g); s.start(t);
+    SON.src = {g, s}; SON.courant = nom;
+  }
+  function couperSon(){
+    SON.muet = !SON.muet; etiquetteSon();
+    try { localStorage.setItem('contrejour-muet', SON.muet ? '1' : '0'); } catch(e) {}
+    if (SON.maitre) SON.maitre.gain.setTargetAtTime(SON.muet ? 0 : .8, SON.ctx.currentTime, .05);
+  }
+  function coupDeFeu(){
+    const c = SON.ctx; if (!c) return; const t = c.currentTime;
+    const n = c.createBuffer(1, Math.floor(c.sampleRate * .7), c.sampleRate), d = n.getChannelData(0);
+    for (let i = 0; i < d.length; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / d.length, 5);
+    const s = c.createBufferSource(); s.buffer = n;
+    const f = c.createBiquadFilter(); f.type = 'lowpass'; f.frequency.setValueAtTime(6000, t); f.frequency.exponentialRampToValueAtTime(250, t + .5);
+    const g = c.createGain(); g.gain.value = 1.6; s.connect(f); f.connect(g); g.connect(SON.maitre); s.start(t);
+    const o = c.createOscillator(), og = c.createGain();
+    o.frequency.setValueAtTime(150, t); o.frequency.exponentialRampToValueAtTime(38, t + .22);
+    og.gain.setValueAtTime(1.2, t); og.gain.exponentialRampToValueAtTime(.001, t + .35);
+    o.connect(og); og.connect(SON.maitre); o.start(t); o.stop(t + .4);
+    if (SON.src) { const g2 = SON.src.g.gain; g2.cancelScheduledValues(t); g2.setValueAtTime(.1, t); g2.linearRampToValueAtTime(1, t + 3); }
+  }
+  if (btnSon) {
+    btnSon.addEventListener('pointerdown', e => e.stopPropagation());
+    btnSon.addEventListener('click', e => { e.stopPropagation(); initSon(); couperSon(); });
+  }
+  addEventListener('pointerdown', initSon, true);
+  addEventListener('keydown', initSon, true);
+
   function boucle(now){
     const dt = Math.min(.05, (now - avant) / 1000); avant = now;
     if (etat === 'jeu') maj(dt);
+    musique(etat === 'jeu' || (etat === 'mort' && mortT < 1.1) ? 'jeu' : 'menu');
     if (etat === 'intro') { introT += dt; if (introT > 7) partir(); }
     dessiner(etat === 'titre' ? dt * .4 : dt);
     requestAnimationFrame(boucle);
@@ -1236,6 +1296,7 @@ const SPRITES = {"1": {"src": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABwA
       else if (['Space', 'Enter'].includes(k) && performance.now() > pret) nouvellePartie();
       return;
     }
+    if (k === 'KeyM') { couperSon(); return; }
     if (k === 'KeyT' && (etat === 'titre' || etat === 'mort')) { basculerScores(); return; }
     if (etat === 'titre') { if (['Space', 'Enter', 'ArrowUp', 'KeyW', 'KeyZ'].includes(k)) versChoix(); return; }
     if (etat !== 'jeu') { if (['Space', 'Enter', 'ArrowUp', 'KeyW', 'KeyZ'].includes(k)) relancer(); if (k === 'KeyC') versChoix(); return; }
