@@ -21,16 +21,27 @@ Un jeu de course sans fin, façon polar noir. Un seul niveau : on va le plus loi
 | F | taper à gauche | frapper |
 | Espace | taper à droite | inverser le monde |
 | ↓ | glisser vers le bas | coup spécial (1 par quartier) |
-| ← / → | | ralentir / accélérer (marcher soigne) |
+| ← / → | glisser à gauche / à droite, doigt posé | ralentir / accélérer (marcher soigne) |
+
+### Le tableau des scores
+
+Sur apphero.cloud, les scores sont partagés : le Worker les garde dans D1 (table `cj_scores`, code dans `worker/src/contrejour.js`). Le classement montre le meilleur score de chaque nom. Le serveur refuse un score plus long que ce que permet la durée de la partie, et limite les envois par réseau et par jour. Ouvert en local (ou avant la sortie), le jeu garde les scores dans le navigateur.
+
+### Les fichiers
+
+- `index.html` : la page de présentation (gabarit « plateau » du site).
+- `jouer/index.html` : le jeu, en un seul fichier (sprites, décors et effets intégrés).
+- `media/` : la vidéo de présentation, son image, l'icône.
 
 ### Crédits
 
 - Effets : [Artefacts](https://naod.fr) (pluie #0184, barre de vie #0196, giclée #1012, poussière #1014), ramenés en deux couleurs.
 - Persos et décors : packs [CraftPix](https://craftpix.net) (« Homeless » et « Free City Backgrounds »), recolorés en deux couleurs. Ces images restent sous la [licence CraftPix](https://craftpix.net/file-licenses/) et ne sont pas réutilisables hors de ce jeu.
+- Polices : Bebas Neue et Special Elite (SIL Open Font License), via Fontsource.
 
 ## Lancer en local
 
-Ouvre `index.html` dans ton navigateur, ou depuis la racine du repo : `npm run dev` puis va sur `/apps/27-contre-jour/`.
+Ouvre `jouer/index.html` dans ton navigateur, ou depuis la racine du repo : `npm run dev` puis va sur `/apps/27-contre-jour/`.
 
 ## Récupérer juste cette app
 

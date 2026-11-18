@@ -45,6 +45,21 @@ CREATE TABLE IF NOT EXISTS draws (
   created_at INTEGER NOT NULL
 );
 
+-- Contre-jour (app 27) : une ligne par partie envoyée. m = mètres, dur = durée en secondes,
+-- perso = 0 Le Vieux, 1 La Môme, 2 Le Borgne. ip_hash = empreinte salée de l'IP du jour, pour limiter les envois.
+CREATE TABLE IF NOT EXISTS cj_scores (
+  id INTEGER PRIMARY KEY,
+  name TEXT NOT NULL,
+  m INTEGER NOT NULL,
+  kos INTEGER NOT NULL,
+  perso INTEGER NOT NULL,
+  dur INTEGER NOT NULL,
+  ip_hash TEXT NOT NULL,
+  created_at INTEGER NOT NULL
+);
+CREATE INDEX IF NOT EXISTS cj_scores_rank ON cj_scores (m DESC);
+CREATE INDEX IF NOT EXISTS cj_scores_ip ON cj_scores (ip_hash);
+
 -- Mesure d'audience maison, sans cookie. Une ligne par événement.
 -- visitor = empreinte de (sel secret, jour, IP, navigateur) : elle change chaque jour,
 -- on ne peut ni remonter à l'IP ni suivre quelqu'un d'un jour à l'autre.
