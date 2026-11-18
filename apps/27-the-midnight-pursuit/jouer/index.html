@@ -418,7 +418,7 @@ const SPRITES = {"1": {"src": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABwA
     if (r < .56) {                                   // fosse trop large, une enseigne au-dessus
       const w = 300 + Math.random() * 120;
       aj({k:'fosse', x, w});
-      aj({k:'plat', x: x + 50, y: SOL - 92 - Math.random() * 22, w: w - 100, c, s:'enseigne', mot: ['HÔTEL','BAR','CLUB','MOTEL'][Math.random() * 4 | 0]});
+      aj({k:'plat', x: x + 50, y: SOL - 92 - Math.random() * 22, w: w - 100, c, s:'enseigne', mot: ['HÔTEL','BAR','CINÉMA','DANCING','CABARET'][Math.random() * 5 | 0]});
       return x + w;
     }
     if (r < .70) {                                   // escalier de secours, couleurs alternées
@@ -452,7 +452,10 @@ const SPRITES = {"1": {"src": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABwA
       for (let i = 0; i < n; i++) aj({k: 'voyou', x: x + 30 + i * 150, w: 26, c: Math.random() < .5 ? 0 : 1, p: autres[Math.random() * 2 | 0], etat: 'guet', et: 0, ph: Math.random() * 9});
       return x + 60 + n * 150;
     }
-    return segmentDecor(x);
+    const fin = segmentDecor(x);
+    // le mobilier de rue, dans l'espace libre qui suit
+    if (Math.random() < .6) aj({k: 'deco', x: fin + 40 + Math.random() * 40, w: 0, s: ['reverbere', 'reverbere', 'morris', 'horloge'][Math.random() * 4 | 0]});
+    return fin;
   }
 
   function nouvellePartie(){
@@ -859,6 +862,7 @@ const SPRITES = {"1": {"src": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABwA
       ctx.stroke();
     }
   }
+  const graine = o => { const v = Math.sin(o.x * 12.9898) * 43758.5453; return v - Math.floor(v); };
   function dessinerBloc(o, fond, encre){
     const x = o.x - dist, y = SOL - o.h;
     if (o.c === mode) {
@@ -867,20 +871,62 @@ const SPRITES = {"1": {"src": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABwA
     }
     ctx.fillStyle = encre;
     if (o.s === 'auto') {
-      const hb = o.h * .55;
-      ctx.fillRect(x, SOL - hb, o.w, hb - 6);
-      ctx.beginPath(); ctx.moveTo(x + o.w * .18, SOL - hb); ctx.lineTo(x + o.w * .3, y); ctx.lineTo(x + o.w * .7, y); ctx.lineTo(x + o.w * .82, SOL - hb); ctx.fill();
+      // une berline des années 40 : ailes séparées, long capot, marchepied, roue de secours
+      const w = o.w, h = o.h, r = 9, ry = SOL - r, xa = x + w * .2, xv = x + w * .8;
+      const bas = SOL - 12, haut = SOL - h * .58;
+      ctx.beginPath();
+      ctx.moveTo(x + w * .04, bas);
+      ctx.quadraticCurveTo(x - w * .02, haut + 6, x + w * .12, haut);           // malle arrondie
+      ctx.lineTo(x + w * .2, haut);
+      ctx.quadraticCurveTo(x + w * .26, SOL - h, x + w * .4, SOL - h);          // toit bombé
+      ctx.lineTo(x + w * .52, SOL - h);
+      ctx.quadraticCurveTo(x + w * .6, SOL - h, x + w * .64, haut);             // pare-brise
+      ctx.lineTo(x + w * .9, haut + 4);                                           // long capot
+      ctx.quadraticCurveTo(x + w * .99, haut + 6, x + w * .98, bas);              // calandre
+      ctx.closePath(); ctx.fill();
+      // ailes en arceau au-dessus des roues
+      for (const [wx, sens] of [[xa, -1], [xv, 1]]) {
+        ctx.beginPath(); ctx.ellipse(wx + sens * 3, SOL - 12, 17, 13, 0, Math.PI, 0); ctx.fill();
+      }
+      ctx.fillRect(xa + 12, SOL - 13, xv - xa - 24, 3);                         // marchepied
       ctx.fillStyle = fond;
-      ctx.fillRect(x + o.w * .33, y + 5, o.w * .15, o.h * .3); ctx.fillRect(x + o.w * .52, y + 5, o.w * .15, o.h * .3);
-      for (const wx of [x + o.w * .22, x + o.w * .78]) { ctx.beginPath(); ctx.arc(wx, SOL - 7, 8, 0, Math.PI * 2); ctx.fill(); }
-      ctx.fillStyle = encre;
-      for (const wx of [x + o.w * .22, x + o.w * .78]) { ctx.beginPath(); ctx.arc(wx, SOL - 7, 5, 0, Math.PI * 2); ctx.fill(); }
-      ctx.fillStyle = fond; ctx.fillRect(x + o.w - 6, SOL - hb + 4, 4, 4); // phare
+      // vitres
+      ctx.beginPath(); ctx.moveTo(x + w * .25, haut - 2); ctx.quadraticCurveTo(x + w * .29, SOL - h + 5, x + w * .38, SOL - h + 5); ctx.lineTo(x + w * .43, SOL - h + 5); ctx.lineTo(x + w * .43, haut - 2); ctx.closePath(); ctx.fill();
+      ctx.beginPath(); ctx.moveTo(x + w * .46, haut - 2); ctx.lineTo(x + w * .46, SOL - h + 5); ctx.lineTo(x + w * .51, SOL - h + 5); ctx.quadraticCurveTo(x + w * .57, SOL - h + 5, x + w * .6, haut - 2); ctx.closePath(); ctx.fill();
+      // calandre à barreaux, phare rond, chrome de ceinture
+      for (let k = 0; k < 4; k++) ctx.fillRect(x + w * .955 + k * 2 - 4, haut + 9, 1, bas - haut - 12);
+      ctx.fillRect(x + w * .12, haut + 8, w * .8, 1.5);
+      ctx.beginPath(); ctx.arc(x + w * .86, haut + 1, 4, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = encre; ctx.beginPath(); ctx.arc(x + w * .86, haut + 1, 2, 0, Math.PI * 2); ctx.fill();
+      // roues à flanc blanc
+      for (const wx of [xa, xv]) {
+        ctx.fillStyle = encre; ctx.beginPath(); ctx.arc(wx, ry, r, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = fond; ctx.beginPath(); ctx.arc(wx, ry, r - 3, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = encre; ctx.beginPath(); ctx.arc(wx, ry, r - 5, 0, Math.PI * 2); ctx.fill();
+      }
+      // roue de secours sur la malle
+      ctx.fillStyle = fond; ctx.beginPath(); ctx.arc(x + w * .03, haut + 14, 6, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = encre; ctx.beginPath(); ctx.arc(x + w * .03, haut + 14, 3.5, 0, Math.PI * 2); ctx.fill();
     } else if (o.s === 'facade') {
+      // une devanture : store rayé, enseigne peinte, vitrine à petits bois
+      const mot = ['CAFÉ', 'TABAC', 'BISTROT', 'DANCING', 'PHARMACIE'][graine(o) * 5 | 0];
       ctx.fillRect(x, y, o.w, o.h);
       ctx.fillStyle = fond;
-      ctx.fillRect(x, y + 6, o.w, 2);
-      for (let fx = x + 14; fx < x + o.w - 20; fx += 30) ctx.fillRect(fx, y + 20, 14, o.h - 30);
+      ctx.fillRect(x + 4, y + 4, o.w - 8, 16);
+      ctx.fillStyle = encre; ctx.font = '15px "Bebas Neue", Impact, sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText(mot.split('').join(' '), x + o.w / 2, y + 12.5);
+      ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+      ctx.fillStyle = fond;
+      for (let k = 0, sx = x + 2; sx < x + o.w - 2; sx += 12, k++) if (k % 2) {
+        ctx.beginPath(); ctx.moveTo(sx, y + 24); ctx.lineTo(sx + 12, y + 24); ctx.lineTo(sx + 16, y + 36); ctx.lineTo(sx + 4, y + 36); ctx.closePath(); ctx.fill();
+      }
+      const porte = x + o.w * .62;
+      for (let fx = x + 10; fx < x + o.w - 12; fx += 40) {
+        if (fx > porte - 34 && fx < porte + 26) continue;
+        ctx.fillRect(fx, y + 42, 30, o.h - 48);
+        ctx.fillStyle = encre; ctx.fillRect(fx + 14, y + 42, 2, o.h - 48); ctx.fillRect(fx, y + 42 + (o.h - 48) / 2, 30, 2); ctx.fillStyle = fond;
+      }
+      ctx.fillRect(porte - 2, y + 40, 22, o.h - 40); ctx.fillStyle = encre; ctx.fillRect(porte + 2, y + 46, 14, 12); ctx.fillRect(porte + 14, y + 62, 2, 4);
     } else {
       ctx.fillRect(x, y, o.w, o.h);
       ctx.fillStyle = fond;
@@ -888,6 +934,18 @@ const SPRITES = {"1": {"src": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABwA
         ctx.fillRect(x, ry, o.w, 1.5);
         const dec = k % 2 ? o.w / 2 : o.w / 4;
         ctx.fillRect(x + dec, ry - 11.5, 1.5, 11.5);
+      }
+      if (o.w >= 26 && o.h > 120 && graine(o) < .6) {
+        // une affiche d'époque collée sur la brique
+        const ah = 46, ay = SOL - o.h * .62;
+        ctx.fillRect(x + 3, ay, o.w - 6, ah);
+        ctx.fillStyle = encre; ctx.font = '9px "Bebas Neue", Impact, sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+        const txt = ['AVIS', 'BAL', 'RECHERCHÉ', 'CINÉ'][graine({x: o.x + 7}) * 4 | 0];
+        ctx.fillText(txt, x + o.w / 2, ay + 3, o.w - 8);
+        ctx.fillRect(x + 7, ay + 15, o.w - 14, 16);
+        ctx.fillStyle = fond; ctx.beginPath(); ctx.arc(x + o.w / 2, ay + 21, 4, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = encre; ctx.fillRect(x + 7, ay + 35, o.w - 14, 1.5); ctx.fillRect(x + 7, ay + 39, (o.w - 14) * .6, 1.5);
+        ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
       }
     }
   }
@@ -899,12 +957,18 @@ const SPRITES = {"1": {"src": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABwA
     }
     ctx.fillStyle = encre; ctx.strokeStyle = encre;
     if (o.s === 'enseigne') {
-      ctx.fillRect(x, y, o.w, 22);
+      // une marquise art déco : cadre à ampoules, extrémités en gradins, suspendue par deux tiges
       ctx.lineWidth = 2; ctx.beginPath();
       ctx.moveTo(x + 14, y); ctx.lineTo(x + 14, y - 60); ctx.moveTo(x + o.w - 14, y); ctx.lineTo(x + o.w - 14, y - 60); ctx.stroke();
-      ctx.fillStyle = fond; ctx.font = '18px "Bebas Neue", Impact, sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillRect(x, y, o.w, 22);
+      ctx.fillRect(x - 6, y + 4, 6, 14); ctx.fillRect(x - 10, y + 8, 4, 6);
+      ctx.fillRect(x + o.w, y + 4, 6, 14); ctx.fillRect(x + o.w + 6, y + 8, 4, 6);
+      ctx.fillStyle = fond;
+      const clin = Math.floor(performance.now() / 180);
+      for (let bx = x + 5, k = 0; bx < x + o.w - 3; bx += 9, k++) if ((k + clin) % 3) { ctx.fillRect(bx, y + 2, 2, 2); ctx.fillRect(bx, y + 18, 2, 2); }
+      ctx.font = '16px "Bebas Neue", Impact, sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
       const mot = o.mot.split('').join(' ');
-      for (let mx = x + 80; mx < x + o.w - 40; mx += 150) ctx.fillText(mot, mx, y + 12);
+      for (let mx = x + 80; mx < x + o.w - 40; mx += 150) ctx.fillText(mot, mx, y + 11.5);
       ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
     } else if (o.s === 'toit') {
       ctx.fillRect(x, y, o.w, 10);
@@ -926,6 +990,44 @@ const SPRITES = {"1": {"src": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABwA
     ctx.fillStyle = fond; ctx.fillRect(x, SOL, o.w, H - SOL);
     ctx.fillStyle = encre;
     ctx.fillRect(x - 3, SOL, 3, 34); ctx.fillRect(x + o.w, SOL, 3, 34);
+  }
+
+  // le mobilier des années 40, au premier plan, sans collision : réverbère, colonne Morris, horloge
+  function dessinerDeco(o, fond, encre){
+    const x = o.x - dist;
+    ctx.fillStyle = encre; ctx.strokeStyle = encre;
+    if (o.s === 'reverbere') {
+      ctx.fillRect(x - 6, SOL - 10, 12, 10); ctx.fillRect(x - 4, SOL - 16, 8, 6);
+      ctx.fillRect(x - 2, SOL - 128, 4, 112);
+      ctx.fillRect(x - 10, SOL - 128, 20, 3);
+      ctx.beginPath(); ctx.moveTo(x - 9, SOL - 128); ctx.lineTo(x - 6, SOL - 150); ctx.lineTo(x + 6, SOL - 150); ctx.lineTo(x + 9, SOL - 128); ctx.closePath(); ctx.fill();
+      ctx.beginPath(); ctx.moveTo(x - 9, SOL - 150); ctx.lineTo(x, SOL - 160); ctx.lineTo(x + 9, SOL - 150); ctx.closePath(); ctx.fill();
+      ctx.fillStyle = fond; ctx.beginPath(); ctx.moveTo(x - 6, SOL - 131); ctx.lineTo(x - 4, SOL - 147); ctx.lineTo(x + 4, SOL - 147); ctx.lineTo(x + 6, SOL - 131); ctx.closePath(); ctx.fill();
+      ctx.fillStyle = encre; ctx.fillRect(x - .5, SOL - 147, 1, 16);
+      // halo en pointillés sous la lanterne
+      for (let i = 0; i < 26; i++) { const a = Math.PI / 2 + (i / 25 - .5) * 1.1, d = 14 + (i * 37 % 60); ctx.fillRect(x + Math.cos(a) * d, SOL - 128 + Math.sin(a) * d, 1.5, 1.5); }
+    } else if (o.s === 'morris') {
+      ctx.fillRect(x - 15, SOL - 8, 30, 8);
+      ctx.fillRect(x - 13, SOL - 98, 26, 90);
+      ctx.beginPath(); ctx.ellipse(x, SOL - 98, 17, 6, 0, 0, Math.PI * 2); ctx.fill();
+      ctx.beginPath(); ctx.moveTo(x - 12, SOL - 100); ctx.quadraticCurveTo(x, SOL - 124, x + 12, SOL - 100); ctx.fill();
+      ctx.fillRect(x - 1, SOL - 130, 2, 10);
+      ctx.fillStyle = fond;
+      ctx.fillRect(x - 11, SOL - 90, 9, 30); ctx.fillRect(x + 1, SOL - 86, 10, 22); ctx.fillRect(x - 10, SOL - 54, 20, 34);
+      ctx.fillStyle = encre; ctx.fillRect(x - 9, SOL - 86, 5, 2); ctx.fillRect(x - 9, SOL - 82, 5, 2); ctx.fillRect(x + 3, SOL - 82, 6, 8);
+      ctx.font = '8px "Bebas Neue", Impact, sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'top'; ctx.fillText('THÉÂTRE', x, SOL - 51, 18);
+      ctx.fillRect(x - 7, SOL - 40, 14, 1.5); ctx.fillRect(x - 7, SOL - 35, 10, 1.5); ctx.fillRect(x - 7, SOL - 30, 12, 1.5);
+      ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+    } else {
+      // horloge sur pied
+      ctx.fillRect(x - 5, SOL - 8, 10, 8); ctx.fillRect(x - 2, SOL - 110, 4, 102);
+      ctx.beginPath(); ctx.arc(x, SOL - 122, 14, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = fond; ctx.beginPath(); ctx.arc(x, SOL - 122, 11, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = encre; ctx.strokeStyle = encre; ctx.lineWidth = 1.5;
+      for (let i = 0; i < 12; i++) { const a = i / 12 * Math.PI * 2; ctx.fillRect(x + Math.cos(a) * 9 - .5, SOL - 122 + Math.sin(a) * 9 - .5, 1.5, 1.5); }
+      const m = (23 * 60 + 45 + dist / 160) % 720, ah = m / 720 * Math.PI * 2 - Math.PI / 2, am = (m % 60) / 60 * Math.PI * 2 - Math.PI / 2;
+      ctx.beginPath(); ctx.moveTo(x, SOL - 122); ctx.lineTo(x + Math.cos(ah) * 5, SOL - 122 + Math.sin(ah) * 5); ctx.moveTo(x, SOL - 122); ctx.lineTo(x + Math.cos(am) * 8, SOL - 122 + Math.sin(am) * 8); ctx.stroke();
+    }
   }
   function dessinerVoyou(v, encre){
     const p = PERSOS[v.p], x = v.x - dist + 13;
@@ -1044,6 +1146,7 @@ const SPRITES = {"1": {"src": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABwA
       if (o.x - dist > W + 20 || o.x + (o.w || 0) - dist < -40) continue;
       if (o.k === 'fosse') dessinerFosse(o, fond, encre);
     }
+    for (const o of items) if (o.k === 'deco' && o.x - dist < W + 40 && o.x - dist > -40) dessinerDeco(o, fond, encre);
     for (const o of items) {
       if (o.x - dist > W + 80 || o.x + (o.w || 0) - dist < -80) continue;
       if (o.k === 'bloc') dessinerBloc(o, fond, encre);
