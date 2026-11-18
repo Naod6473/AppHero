@@ -264,10 +264,10 @@ const SPRITES = {"1": {"src": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABwA
   const teintes = new Map();
   const rgb = h => [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16));
   function teinte(img, encre, fond, pointille = false){
-    if (!img.complete || !img.naturalWidth) return null;
+    if (img.complete === false || !(img.naturalWidth || img.width)) return null;
     let m = teintes.get(img); if (!m) { m = new Map(); teintes.set(img, m); }
     const k = encre + fond + pointille; if (m.has(k)) return m.get(k);
-    const c = document.createElement('canvas'); c.width = img.naturalWidth; c.height = img.naturalHeight;
+    const c = document.createElement('canvas'); c.width = img.naturalWidth || img.width; c.height = img.naturalHeight || img.height;
     const x = c.getContext('2d'); x.drawImage(img, 0, 0);
     const d = x.getImageData(0, 0, c.width, c.height), a = d.data, E = rgb(encre), F = rgb(fond), w = c.width;
     const src = pointille ? new Uint8ClampedArray(a) : null;
@@ -594,7 +594,43 @@ const SPRITES = {"1": {"src": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABwA
     for (const li of lignes) { if (reste <= 0) break; ctx.fillText(li.slice(0, reste), x + 14, yy); reste -= li.length + 1; yy += lh; }
     ctx.restore();
   }
-  // le tueur : le manteau du Vieux, un feutre, une lampe torche. Il ne fait que marcher, au bord gauche.
+  // le tueur : le manteau du Vieux, casquette plate, col relevé, lampe torche à la place de la bouteille.
+  // On redessine chaque image de la marche, en pixels, dans une copie de la planche du Vieux.
+  const TUEUR = {a: PERSOS[0].a, img: null, main: []};
+  function preparerTueur(){
+    const src = PERSOS[0].img;
+    if (TUEUR.img || !src.complete || !src.naturalWidth) return;
+    const c = document.createElement('canvas'); c.width = src.naturalWidth; c.height = src.naturalHeight;
+    const x = c.getContext('2d'); x.drawImage(src, 0, 0);
+    const [row, n] = PERSOS[0].a.Walk;
+    const d = x.getImageData(0, row * FH, n * FW, FH), a = d.data, LW = n * FW;
+    const at = (f, px, py) => (py * LW + f * FW + px) * 4;
+    const opaque = (f, px, py) => px >= 0 && px < FW && py >= 0 && py < FH && a[at(f, px, py) + 3] >= 128;
+    const mettre = (f, px, py, v) => { if (px < 0 || px >= FW || py < 0 || py >= FH) return; const i = at(f, px, py);
+      if (v === null) { a[i + 3] = 0; return; } a[i] = a[i + 1] = a[i + 2] = v ? 0 : 255; a[i + 3] = 255; };
+    const zone = (f, x0, x1, y0, y1, v) => { for (let yy = y0; yy <= y1; yy++) for (let xx = x0; xx <= x1; xx++) mettre(f, xx, yy, v); };
+    for (let f = 0; f < n; f++) {
+      let top = 0; search: for (let yy = 0; yy < FH; yy++) for (let xx = 45; xx < 90; xx++) if (opaque(f, xx, yy)) { top = yy; break search; }
+      let bt = 28; search2: for (let yy = 18; yy < 45; yy++) for (let xx = 74; xx < 95; xx++) if (opaque(f, xx, yy)) { bt = yy; break search2; }
+      const h = top - 12, b = bt - 28;
+      // casquette plate et visière
+      zone(f, 59, 74, 10 + h, 17 + h, null);
+      zone(f, 61, 70, 13 + h, 13 + h, 1); zone(f, 60, 71, 14 + h, 16 + h, 1); zone(f, 70, 76, 16 + h, 16 + h, 1); zone(f, 61, 69, 15 + h, 15 + h, 0);
+      // col relevé
+      zone(f, 59, 63, 18 + h, 25 + h, 1); zone(f, 60, 61, 19 + h, 24 + h, 0);
+      // le haut du visage dans l'ombre, un reflet dans l'œil
+      for (const yy of [17 + h, 18 + h]) for (let xx = 62; xx < 73; xx++) if (opaque(f, xx, yy)) mettre(f, xx, yy, 1);
+      mettre(f, 69, 18 + h, 0); mettre(f, 70, 18 + h, 0);
+      // la lampe torche
+      zone(f, 76, 82, 26 + b, 32 + b, null);
+      zone(f, 75, 83, 31 + b, 33 + b, 1); mettre(f, 83, 32 + b, 0); mettre(f, 84, 31 + b, 1); mettre(f, 84, 33 + b, 1);
+      zone(f, 85, 85, 30 + b, 34 + b, 1); zone(f, 74, 74, 31 + b, 33 + b, 1);
+      TUEUR.main[f] = [85, 32 + b];
+    }
+    x.putImageData(d, 0, row * FH);
+    TUEUR.img = c;
+  }
+
   const motifs = new Map();
   function motif(encre){
     if (motifs.has(encre)) return motifs.get(encre);
@@ -606,7 +642,9 @@ const SPRITES = {"1": {"src": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABwA
     const f = Math.max(0, Math.min(1, 1 - PX / 240)), ech = ECH_JOUEUR, tk = etat === 'mort' ? t + mortT * .6 : t;
     const kx = -46 + 76 * f + (etat === 'mort' ? Math.min(1, mortT) * 30 : 0), ky = SOL;
     const ox = kx - FW * ech / 2, oy = ky - FH * ech;              // coin haut gauche de l'image
-    const hx = ox + 80 * ech, hy = oy + 33 * ech + Math.sin(tk * 9) * 1.5; // la main et la lampe
+    preparerTueur();
+    const fr = Math.floor(tk * 9) % PERSOS[0].a.Walk[1], main = TUEUR.main[fr] || [85, 32];
+    const hx = ox + main[0] * ech, hy = oy + main[1] * ech; // le bout de la lampe
     // le faisceau, vers le témoin
     const cible = Math.atan2((Math.min(py, SOL) - PH * .5) - hy, PX + PW / 2 - hx);
     const ang = Math.max(-.5, Math.min(.35, cible)), L = 260 + 300 * f, ouv = .16 + .04 * Math.sin(tk * 2.3);
@@ -618,15 +656,7 @@ const SPRITES = {"1": {"src": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABwA
     ctx.fillStyle = motif(encre); ctx.fill();
     ctx.strokeStyle = encre; ctx.lineWidth = 1.5; ctx.setLineDash([6, 5]); ctx.stroke(); ctx.setLineDash([]);
     ctx.restore();
-    dessinerSprite(PERSOS[0], 'Walk', Math.floor(tk * 9) % PERSOS[0].a.Walk[1], kx, ky, encre, ech);
-    // le feutre, par-dessus le bonnet
-    const cx = ox + 66 * ech, ty = oy + 11 * ech;
-    ctx.fillStyle = fond; ctx.fillRect(cx - 13 * ech, ty + 2 * ech, 26 * ech, 4 * ech); ctx.fillRect(cx - 8 * ech, ty - 6 * ech, 16 * ech, 9 * ech);
-    ctx.fillStyle = encre; ctx.fillRect(cx - 12 * ech, ty + 3 * ech, 24 * ech, 2 * ech); ctx.fillRect(cx - 7 * ech, ty - 5 * ech, 14 * ech, 8 * ech);
-    ctx.fillStyle = fond; ctx.fillRect(cx - 7 * ech, ty, 14 * ech, 1 * ech);
-    // la lampe
-    ctx.fillStyle = encre; ctx.fillRect(hx - 4 * ech, hy - 2 * ech, 6 * ech, 4 * ech);
-    ctx.fillStyle = fond; ctx.fillRect(hx + 1 * ech, hy - 1 * ech, 1 * ech, 2 * ech);
+    dessinerSprite(TUEUR.img ? TUEUR : PERSOS[0], 'Walk', fr, kx, ky, encre, ech);
     if (f > .7 && procheT <= 0) { raconte(RECITS.proche); procheT = 14; }
   }
   const RUES = ['Rue des Tanneurs', 'Impasse Saint-Roch', 'Boulevard de la Gare', 'Rue des Abattoirs', 'Pont des Arches', 'Rue Basse', 'Place du Marché', 'Quai n° 6', 'Passage des Teinturiers'];
