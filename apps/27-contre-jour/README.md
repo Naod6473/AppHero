@@ -1,17 +1,17 @@
 # 27 · Contre-jour
 
-> Une course sans fin dans une ville en deux couleurs : saute, frappe, et inverse le monde pour passer.
+> Trois témoins d'un meurtre, une nuit pour échapper au tueur. Une ville en deux couleurs, et le mort qui raconte.
 
 Jour 27/30 du défi [Apphéro](https://apphero.cloud), sortie le lundi 14 décembre à 18 h. Défi du jour : **Deux couleurs max**.
 
 ## C'est quoi
 
-Un jeu de course sans fin, façon polar noir. Un seul niveau : on va le plus loin possible, puis on inscrit son nom au tableau des scores.
+Un jeu de course sans fin, façon polar noir. 23 h 40, quai n° 4 : un homme est abattu. Trois témoins, et le tueur les a vus. Une seule nuit pour lui échapper. On va le plus loin possible, puis on inscrit son nom au tableau des survivants.
 
-- **Deux couleurs, jamais plus.** Une tape inverse le monde : ce qui a la couleur du fond disparaît. Plateformes fantômes, voyous en pointillés, escaliers alternés.
-- **Trois persos, trois palettes.** Le Vieux (noir/blanc), La Môme (bleu électrique/rose néon), Le Borgne (violet nuit/vert acide). La palette du perso repeint tout le jeu.
-- **Un narrateur qui juge.** Intro en case de BD coupée à la serpe, bulles en route, et un verdict à chaque mort.
-- La ville défile toute seule de plus en plus vite. Une nouvelle ville tous les 400 m, des averses de temps en temps.
+- **Trois témoins.** Le Vieux file au commissariat central, La Môme vers le car de 5 h 10, Le Borgne au port pour vendre le nom du tueur. Chacun a sa palette : noir/blanc, bleu électrique/rose néon, violet nuit/vert acide.
+- **Le tueur ne fait que marcher.** Il avance au bord gauche avec sa lampe torche. S'il te rattrape, c'est fini. Ses hommes guettent dans les rues.
+- **Deux couleurs, jamais plus.** Une tape inverse le monde : ce qui a la couleur du fond disparaît. Plateformes fantômes, hommes en pointillés qui ne te voient pas.
+- **Le mort raconte.** La victime commente la course dans des cadres de récit, et livre un morceau de vérité à 200, 500, 1 000 et 2 000 m, différent pour chaque témoin.
 
 ### Commandes
 

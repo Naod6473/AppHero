@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Contre-jour · Apphéro 27/30</title>
-<meta name="description" content="Une course sans fin dans une ville en deux couleurs : saute, frappe, et inverse le monde pour passer.">
+<meta name="description" content="Trois témoins d'un meurtre, une nuit pour échapper au tueur. Une ville en deux couleurs, et le mort qui raconte.">
 <meta name="theme-color" content="#000000">
 <link rel="icon" href="../logo.svg">
 <link rel="preload" href="fonts/bebas-neue-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
@@ -88,12 +88,13 @@ canvas{display:block;width:100%;height:100%}
     <div class="verdict">
       <span class="etiquette" id="etiquette">Apphéro · app 27</span>
       <h1 id="titre">Contre-jour</h1>
-      <p id="texte">La ville ne dort jamais. Elle change juste de couleur. Un seul niveau, une seule nuit : va le plus loin possible.</p>
-      <span class="action" id="action">Tape pour choisir ton perso</span>
-      <button type="button" id="changer" hidden>Changer de perso</button>
+      <p id="texte">23 h 40, quai n° 4. Un coup de feu, un corps dans l'eau : le mien. Trois témoins. L'homme qui m'a tué les a vus. Ils ont une nuit pour lui échapper.</p>
+      <span class="action" id="action">Tape pour choisir ton témoin</span>
+      <button type="button" id="changer" hidden>Changer de témoin</button>
+      <button type="button" id="voir-scores">Les survivants</button>
     </div>
     <div class="tableau" id="tableau" hidden>
-      <span class="etiquette">Les plus loin</span>
+      <span class="etiquette">Les survivants · les plus loin</span>
       <form id="inscrire" hidden>
         <label for="nom">Ton nom</label>
         <input id="nom" maxlength="12" autocomplete="off" spellcheck="false">
@@ -107,7 +108,7 @@ canvas{display:block;width:100%;height:100%}
 <div class="note">
   <span><b>Ordinateur</b> : ← → ralentir ou accélérer (marcher soigne) · ↑ sauter (maintiens pour aller plus haut) · F frapper · espace inverser · ↓ coup spécial.</span>
   <span><b>Téléphone</b> : glisse vers le haut pour sauter · tape à gauche pour frapper · tape à droite pour inverser · glisse vers le bas pour le coup spécial · glisse à gauche ou à droite et garde le doigt posé pour ralentir ou accélérer.</span>
-  <span>Ce qui est en pointillés est fondu dans le décor : on passe à travers, et les voyous en pointillés ne te voient pas. Si le bord gauche te rattrape, c'est fini.</span>
+  <span>Ce qui est en pointillés est fondu dans le décor : on passe à travers, et les voyous en pointillés ne te voient pas. À gauche, le tueur avance à pied, sans jamais s'arrêter : s'il te rattrape, c'est fini.</span>
 </div>
 
 <script>
@@ -131,6 +132,7 @@ const SPRITES = {"1": {"src": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABwA
   const btnChanger = document.getElementById('changer');
   const elTableau = document.getElementById('tableau'), elForm = document.getElementById('inscrire');
   const elNom = document.getElementById('nom'), elScores = document.getElementById('scores');
+  const btnScores = document.getElementById('voir-scores');
 
   // ---------- tableau des scores : partagé sur apphero.cloud (D1), sinon dans ce navigateur ----------
   const API = '/api/cj/scores';
@@ -149,7 +151,7 @@ const SPRITES = {"1": {"src": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABwA
   chargerScores();
   function afficherScores(toi){
     elScores.textContent = '';
-    if (!scores.length) { const li = document.createElement('li'); li.className = 'vide'; li.textContent = 'Personne encore. La rue est à toi.'; elScores.append(li); return; }
+    if (!scores.length) { const li = document.createElement('li'); li.className = 'vide'; li.textContent = "Personne n'a encore survécu."; elScores.append(li); return; }
     scores.forEach((s, i) => {
       const li = document.createElement('li');
       if (toi && s.nom.toLowerCase() === toi.nom.toLowerCase() && s.m === toi.m) li.className = 'toi';
@@ -174,6 +176,17 @@ const SPRITES = {"1": {"src": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABwA
     // le classement a pu bouger pendant la partie
     if (enLigne) chargerScores().then(() => { if (!envoi && etat === 'mort') afficherScores(null); });
   }
+  // ouvrir ou fermer le tableau en dehors d'une fin de partie
+  function basculerScores(){
+    if (etat !== 'titre' && etat !== 'mort') return;
+    if (!elTableau.hidden && etat === 'titre') { elTableau.hidden = true; box.classList.remove('large'); btnScores.textContent = 'Les survivants'; return; }
+    elTableau.hidden = false; box.classList.add('large'); if (etat === 'titre') { elForm.hidden = true; btnScores.textContent = 'Fermer'; }
+    info(enLigne ? '' : 'Scores gardés dans ce navigateur.');
+    afficherScores(null);
+    if (enLigne) chargerScores().then(() => { if (!envoi) afficherScores(null); });
+  }
+  btnScores.addEventListener('pointerdown', e => e.stopPropagation());
+  btnScores.addEventListener('click', e => { e.stopPropagation(); basculerScores(); });
   function garderLocal(s){
     let loc = scoresLocaux(); loc.push(s); loc.sort((a, b) => b.m - a.m); loc = loc.slice(0, 10);
     try { localStorage.setItem('contrejour-scores', JSON.stringify(loc)); } catch(e) {}
@@ -206,21 +219,42 @@ const SPRITES = {"1": {"src": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABwA
   const PERSOS = [
     {id: 1, nom: 'Le Vieux',  pal: ['#000000', '#ffffff'], palNom: 'Noir et blanc',
      saut: {decol: 3, monte: [4, 5], plane: 6, chute: [7], atterr: 8}, coups: ['Attack_2', 'Attack_1'], special: 'Special', smash: 9,
-     but: "Ma dernière bouteille est vide. Le bar du port ferme à l'aube. Je traverse la ville, et personne ne m'arrête.",
-     route: ['Encore trois rues.', "J'ai soif.", 'Le port sent déjà le sel.', 'Tiens bon, la vieille carcasse.'],
-     adieu: ['Juste… une gorgée…', 'Le bar… était juste là…']},
+     but: "J'ai lâché ma bouteille. Il s'est retourné. Il m'a vu. Le commissariat central, c'est à l'autre bout de la ville.",
+     dest: 'Le commissariat central', il: 'Le vieux',
+     route: ['Pas de bruit…', 'Le commissariat. Encore quatre rues.', 'Mes jambes… pas maintenant.', "J'aurais dû rester chez moi.", "J'ai rien vu. J'ai rien vu."],
+     adieu: ["J'ai rien vu… je jure…", 'Pas comme ça…'],
+     fin: ['Le commissariat a ouvert à huit heures. Personne n\'est venu témoigner.', 'Sa fenêtre est restée allumée trois jours. Personne n\'a frappé.'],
+     verite: [
+       "Le vieux me voyait passer tous les soirs depuis dix ans. Il ne connaissait pas mon nom. Ce soir, il connaît mon visage.",
+       "J'étais comptable au port. Je tenais les livres d'un homme qui n'existe sur aucun registre.",
+       "Le vieux va voir la police. C'est la police que j'allais voir, moi aussi. Ce soir-là.",
+       "Au commissariat central, un homme l'attend au guichet. Il a encore mon sang sur ses chaussures."]},
     {id: 2, nom: 'La Môme',   pal: ['#0a14ff', '#ff2fd0'], palNom: 'Bleu électrique et rose néon',
      saut: {decol: 3, monte: [4, 5], plane: 6, chute: [7, 8], atterr: 10}, coups: ['Attack_2', 'Attack_3'], special: 'Attack_1', smash: 5,
-     but: "Il me faut mon fix avant minuit. Mon fournisseur ne fait pas crédit, et il ne m'attendra pas.",
-     route: ['Minuit approche.', "Ne t'arrête pas.", 'Mes mains tremblent.', 'Plus que quelques rues.'],
-     adieu: ['Pas comme ça…', "J'y étais presque…"]},
+     but: "J'étais dans la voiture, en face. Il m'a regardée droit dans les yeux. Le car de 5 h 10, à la gare routière. Je serai dedans.",
+     dest: 'La gare routière, car de 5 h 10', il: 'La môme',
+     route: ['5 h 10. Le car de 5 h 10.', 'Ne te retourne pas.', "Il m'a regardée…", 'Respire.', 'Personne ne te cherche. Personne.'],
+     adieu: ['Non… non…', "J'avais le billet…"],
+     fin: ['Le car de 5 h 10 est parti à l\'heure. Avec deux places vides.', 'À la gare, on a retrouvé un billet. Personne ne l\'a réclamé.'],
+     verite: [
+       "Je lui avais dit d'attendre dans la voiture. Elle a attendu. Elle a tout vu.",
+       "Le car de 5 h 10, c'est moi qui avais pris les billets. Deux. On partait ensemble.",
+       "Elle a vu son visage, elle aussi. Elle ne l'a pas reconnu. Elle ne regarde jamais les flics.",
+       "À la gare, il ne l'attend pas. Il n'a pas besoin. Les billets étaient dans ma poche. Il les a pris."]},
     {id: 3, nom: 'Le Borgne', pal: ['#1d0a3f', '#b9ff1c'], palNom: 'Violet nuit et vert acide',
      saut: {decol: 3, monte: [4, 5], plane: 6, chute: [7], atterr: 8}, coups: ['Attack_2', 'Attack_1'], special: 'Special', smash: 9,
-     but: "On m'a pris mon œil de verre. Je sais qui. Je traverse la ville pour le reprendre.",
-     route: ['Je le sens, ce voleur.', 'Un œil suffit pour viser.', "Il ne s'en tirera pas.", 'Encore un quartier.'],
-     adieu: ['Mon œil…', "Je l'aurai… la prochaine fois…"]},
+     but: "Je l'ai vu tirer. Je l'ai reconnu. Pas question d'aller chez les flics. Au port, ce nom vaut de l'or.",
+     dest: 'Le port, vendre un nom', il: 'Le borgne',
+     route: ['Je connais ce visage.', 'Au port. Ils paieront.', 'Un œil suffit pour reconnaître un flic.', 'Pas les flics. Surtout pas.', 'Ce nom vaut plus que moi.'],
+     adieu: ['Je sais qui tu es…', 'Marchal…'],
+     fin: ['Au port, personne n\'a acheté le nom. Personne ne l\'a jamais su.', 'Le nom est parti avec lui. Comme tout le reste.'],
+     verite: [
+       "Le borgne n'a qu'un œil. Mais c'est le bon. Il l'a reconnu tout de suite.",
+       "Il veut vendre le nom. Au port, tout se vend. Moi aussi, j'avais un prix. Il était trop bas.",
+       "Le nom qu'il porte vaut plus que sa vie. C'est toujours comme ça que ça finit.",
+       "Inspecteur Marchal. Brigade des quais. Vingt-deux ans de service. Il m'a serré la main, avant."]},
   ];
-  const VOYOUX = ["T'aurais pas une pièce ?", "Pas par ici, l'ami.", "Tu t'es perdu ?", "C'est mon trottoir.", 'Hé, toi !', 'Tu vas où comme ça ?'];
+  const VOYOUX = ["Pas de témoins, il a dit.", 'Toi. Bouge pas.', "C'est lui ?", "On te cherche, l'ami.", 'Le patron veut te parler.', "T'as vu quelque chose, toi ?"];
   const FW = 112, FH = 80;
   const charge = src => { const i = new Image(); i.src = src; return i; };
   for (const p of PERSOS) { p.a = SPRITES[p.id].a; p.img = charge(SPRITES[p.id].src); }
@@ -423,6 +457,7 @@ const SPRITES = {"1": {"src": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABwA
     py = SOL; vy = 0; auSol = true; support = null; coyote = 0; tampon = 0; trahi = false;
     dernierFlip = -9; eclair = null; flash = 0; poussieres = []; etoiles = []; giclee = null; effets = [];
     vies = 3; invulT = 0; toucheT = 0; coupT = -1; coupCd = 0; kos = 0;
+    recit = null; recitPause = 0; ambT = 0; procheT = 4; palier = 0; flips = 0;
     specialPret = true; specialT = -1; quartier = 0; banniereT = 0;
     averse = false; averseT = 8 + Math.random() * 8;
     ville = parties++ % DECORS.length;
@@ -438,6 +473,7 @@ const SPRITES = {"1": {"src": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABwA
   function inverser(){
     if (etat !== 'jeu') return;
     mode = 1 - mode; dernierFlip = t;
+    if (flips++ === 0 || Math.random() < .12) raconte(RECITS.flip);
     if (!reduit) { flash = .045; eclair = {t: .16, pts: foudre()}; }
     if (auSol && support && support.c === mode) { trahi = true; auSol = false; }
     const x0 = dist + PX + 5, x1 = dist + PX + PW - 5;
@@ -456,7 +492,7 @@ const SPRITES = {"1": {"src": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABwA
     specialPret = false; specialT = 0; specialFait = false; coupT = -1;
   }
   function relancer(){ if (performance.now() > pret) nouvellePartie(); }
-  function partir(){ if (etat === 'intro' && introT > .35) { etat = 'jeu'; t = 0; } }
+  function partir(){ if (etat === 'intro' && introT > .35) { etat = 'jeu'; t = 0; recitPause = 0; ambT = 0; setTimeout(() => raconte(parties === 1 ? RECITS.ouverture[0] : RECITS.ouverture, 1), 900); } }
   // les bulles : ce que disent les persos (le narrateur garde la voix off)
   function dire(qui, texte, duree = 2.2){ bulles = bulles.filter(b => b.qui !== qui); bulles.push({qui, texte, vie: duree}); }
 
@@ -487,15 +523,116 @@ const SPRITES = {"1": {"src": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABwA
     barreCoup(avant, vies / 3);
     invulT = 1.3; toucheT = .3; flash = reduit ? 0 : .04;
     etoile(PX + PW / 2, py - PH * .6, true);
-    if (vies <= 0) mourir('voyou', v);
+    if (vies <= 0) mourir('voyou', v); else raconte(RECITS.coup);
   }
   function ko(v){
     v.etat = 'ko'; v.et = 0; kos++;
     etoile(v.x - dist + 13, SOL - 42);
     tirerFx(sang(v.x + 6, SOL - 44, .8));
+    if (Math.random() < .5) raconte(RECITS.ko);
   }
 
-  // ---------- la mort, et ce qu'en pense le narrateur ----------
+  // ---------- le narrateur : l'homme du quai n° 4, en cadres de récit ----------
+  const RECITS = {
+    ouverture: ["Je suis mort à 23 h 40. Depuis, j'ai tout mon temps.",
+      "Trois personnes m'ont vu mourir. Aucune n'a appelé la police. Je ne leur en veux pas. Pas encore.",
+      "Il ne court pas. Il n'a jamais eu besoin de courir.",
+      "Cette ville m'a tout pris. Cette nuit, elle s'occupe des témoins."],
+    ambiance: ["On ne court jamais vers quelque chose. On court pour ne pas s'arrêter.",
+      "Moi aussi, j'ai couru. Jusqu'au quai.",
+      "Les morts voient tout en deux couleurs. Il n'y a pas de gris, ici.",
+      "Personne ne regarde personne, dans ce quartier. C'est pour ça qu'il l'a choisi.",
+      "Les néons mentent. Ils disent qu'il y a quelqu'un.",
+      "Il a toute la nuit. La nuit est à lui.",
+      "À cette heure, les seuls qui marchent sont ceux qui fuient, et ceux qui cherchent."],
+    flip: ["Il y a deux villes. Celle où l'on se cache, et celle où l'on meurt.",
+      "Dans l'ombre, on ne vous voit pas. C'est aussi ce que je croyais.",
+      "Changer de côté. J'ai fait ça toute ma vie."],
+    pluie: ["La pluie. Elle a lavé mon sang sur le quai.", "Il pleuvait aussi quand il a tiré.", "La pluie efface les traces. Pas toutes."],
+    ko: ["Un de ses hommes à terre. Il en a d'autres. Il en a toujours eu.", "Frapper ne sauve personne. Mais ça soulage. Je me souviens."],
+    coup: ["Ils ne frappent pas pour tuer. Ils le gardent pour lui.", "Le corps encaisse. C'est la mémoire qui garde la note."],
+    soin: ["Ralentir, c'est laisser la lampe approcher.", "Reprendre son souffle. Je n'ai pas eu ce luxe."],
+    proche: ["Sa lampe. Je l'ai vue, moi aussi. En dernier.", "Il est là. Il a toujours été là.", "Il ne court pas. Il marche. Il a toujours marché."],
+    quartier: ["Nouveau quartier. Même nuit.", "Les rues changent. Lui, non.", "Un quartier de plus. Il connaît celui-là aussi."],
+  };
+  const PALIERS = [200, 500, 1000, 2000];
+  let recit = null, recitPause = 0, ambT = 0, procheT = 0, palier = 0, flips = 0;
+  // prio 0 : ambiance (attend son tour) ; 1 : événement (passe si personne ne parle) ; 2 : vérité (coupe la parole)
+  function raconte(liste, prio = 1){
+    if (etat !== 'jeu') return;
+    const txt = typeof liste === 'string' ? liste : pioche(liste);
+    if (recit && prio < 2) return;
+    if (prio === 0 && recitPause > 0) return;
+    recit = {txt, t: 0, vie: 2.2 + txt.length / 20, verite: prio === 2}; ambT = 0;
+  }
+  function majRecit(dt){
+    recitPause -= dt; ambT += dt; procheT -= dt;
+    if (recit) { recit.t += dt; if (recit.t > recit.vie) { recit = null; recitPause = 3.5; } }
+    if (ambT > 13) raconte(RECITS.ambiance, 0);
+    const m = dist / 40;
+    if (palier < PALIERS.length && m >= PALIERS[palier]) { raconte(PERSOS[perso].verite[palier], 2); palier++; }
+  }
+  function dessinerRecit(fond, encre){
+    if (!recit) return;
+    ctx.font = '15px "Special Elite", "Courier New", monospace';
+    const haut = W - 420 >= 280, maxW = haut ? Math.min(440, W - 420) : Math.min(440, W - 60);
+    const vu = recit.txt.slice(0, Math.floor(recit.t * 40));
+    const mots = recit.txt.split(' '), lignes = []; let l = '';
+    for (const mo of mots) { const e = l ? l + ' ' + mo : mo; if (ctx.measureText(e).width > maxW && l) { lignes.push(l); l = mo; } else l = e; }
+    if (l) lignes.push(l);
+    const lh = 19, w = Math.max(...lignes.map(x => ctx.measureText(x).width)) + 28, h = lignes.length * lh + 20 + (recit.verite ? 16 : 0);
+    const x = W / 2 - w / 2, y = haut ? 12 : 112;
+    const sortie = Math.max(0, recit.t - recit.vie + .3) / .3;
+    ctx.save(); ctx.globalAlpha = 1;
+    if (sortie > 0) { ctx.beginPath(); ctx.rect(x - 6, y - 6, (w + 12) * (1 - sortie), h + 12); ctx.clip(); }
+    ctx.fillStyle = encre; ctx.fillRect(x + 5, y + 5, w, h);
+    ctx.fillStyle = fond; ctx.fillRect(x, y, w, h);
+    ctx.strokeStyle = encre; ctx.lineWidth = 2; ctx.strokeRect(x + 1, y + 1, w - 2, h - 2);
+    ctx.fillStyle = encre; ctx.textBaseline = 'top'; ctx.textAlign = 'left';
+    let reste = vu.length, yy = y + 10;
+    if (recit.verite) { ctx.font = '13px "Bebas Neue", Impact, sans-serif'; ctx.fillText('CE QU\'IL FAUT SAVOIR', x + 14, yy); yy += 16; ctx.font = '15px "Special Elite", "Courier New", monospace'; }
+    for (const li of lignes) { if (reste <= 0) break; ctx.fillText(li.slice(0, reste), x + 14, yy); reste -= li.length + 1; yy += lh; }
+    ctx.restore();
+  }
+  // le tueur : le manteau du Vieux, un feutre, une lampe torche. Il ne fait que marcher, au bord gauche.
+  const motifs = new Map();
+  function motif(encre){
+    if (motifs.has(encre)) return motifs.get(encre);
+    const c = document.createElement('canvas'); c.width = c.height = 4;
+    const x = c.getContext('2d'); x.fillStyle = encre; x.fillRect(0, 0, 1, 1); x.fillRect(2, 2, 1, 1);
+    const m = ctx.createPattern(c, 'repeat'); motifs.set(encre, m); return m;
+  }
+  function dessinerTueur(encre, fond){
+    const f = Math.max(0, Math.min(1, 1 - PX / 240)), ech = ECH_JOUEUR, tk = etat === 'mort' ? t + mortT * .6 : t;
+    const kx = -46 + 76 * f + (etat === 'mort' ? Math.min(1, mortT) * 30 : 0), ky = SOL;
+    const ox = kx - FW * ech / 2, oy = ky - FH * ech;              // coin haut gauche de l'image
+    const hx = ox + 80 * ech, hy = oy + 33 * ech + Math.sin(tk * 9) * 1.5; // la main et la lampe
+    // le faisceau, vers le témoin
+    const cible = Math.atan2((Math.min(py, SOL) - PH * .5) - hy, PX + PW / 2 - hx);
+    const ang = Math.max(-.5, Math.min(.35, cible)), L = 260 + 300 * f, ouv = .16 + .04 * Math.sin(tk * 2.3);
+    ctx.save();
+    ctx.beginPath(); ctx.rect(0, 0, W, SOL); ctx.clip();
+    ctx.beginPath(); ctx.moveTo(hx, hy);
+    ctx.lineTo(hx + Math.cos(ang - ouv) * L, hy + Math.sin(ang - ouv) * L);
+    ctx.lineTo(hx + Math.cos(ang + ouv) * L, hy + Math.sin(ang + ouv) * L); ctx.closePath();
+    ctx.fillStyle = motif(encre); ctx.fill();
+    ctx.strokeStyle = encre; ctx.lineWidth = 1.5; ctx.setLineDash([6, 5]); ctx.stroke(); ctx.setLineDash([]);
+    ctx.restore();
+    dessinerSprite(PERSOS[0], 'Walk', Math.floor(tk * 9) % PERSOS[0].a.Walk[1], kx, ky, encre, ech);
+    // le feutre, par-dessus le bonnet
+    const cx = ox + 66 * ech, ty = oy + 11 * ech;
+    ctx.fillStyle = fond; ctx.fillRect(cx - 13 * ech, ty + 2 * ech, 26 * ech, 4 * ech); ctx.fillRect(cx - 8 * ech, ty - 6 * ech, 16 * ech, 9 * ech);
+    ctx.fillStyle = encre; ctx.fillRect(cx - 12 * ech, ty + 3 * ech, 24 * ech, 2 * ech); ctx.fillRect(cx - 7 * ech, ty - 5 * ech, 14 * ech, 8 * ech);
+    ctx.fillStyle = fond; ctx.fillRect(cx - 7 * ech, ty, 14 * ech, 1 * ech);
+    // la lampe
+    ctx.fillStyle = encre; ctx.fillRect(hx - 4 * ech, hy - 2 * ech, 6 * ech, 4 * ech);
+    ctx.fillStyle = fond; ctx.fillRect(hx + 1 * ech, hy - 1 * ech, 1 * ech, 2 * ech);
+    if (f > .7 && procheT <= 0) { raconte(RECITS.proche); procheT = 14; }
+  }
+  const RUES = ['Rue des Tanneurs', 'Impasse Saint-Roch', 'Boulevard de la Gare', 'Rue des Abattoirs', 'Pont des Arches', 'Rue Basse', 'Place du Marché', 'Quai n° 6', 'Passage des Teinturiers'];
+  function heure(m){ const min = (23 * 60 + 45 + Math.floor(m / 4)) % 1440; return `${Math.floor(min / 60)} h ${String(min % 60).padStart(2, '0')}`; }
+
+  // ---------- la mort, et ce qu'en dit l'homme du quai ----------
   const pioche = a => a[Math.floor(Math.random() * a.length)];
   function mourir(type, o){
     etat = 'mort'; mortT = 0; pret = Infinity; // pas de relance avant le verdict
@@ -509,42 +646,34 @@ const SPRITES = {"1": {"src": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABwA
     const {type, c, m} = mortInfo;
     let nouveau = false;
     if (m > record) { record = m; nouveau = true; try { localStorage.setItem('contrejour-record', record); } catch(e) {} }
+    const p = PERSOS[perso], IL = p.il === 'La môme' ? 'Elle' : 'Il', SES = p.il === 'La môme' ? 'ses' : 'ses';
     let phrase;
-    if (nouveau && m >= 25) phrase = pioche([
-      `Nouveau record : ${m} mètres. Savoure. Demain, quelqu'un fera mieux.`,
-      `${m} mètres, ton meilleur. Dans cette ville, ça ne vaut pas grand-chose. Mais c'est à toi.`]);
+    if (type === 'rattrape') phrase = pioche([
+      `Il l'a ${IL === 'Elle' ? 'rattrapée' : 'rattrapé'}. Il ne court jamais. Il n'en a pas besoin.`,
+      'La lampe, puis plus rien. Je connais.',
+      'Des pas, lents, réguliers. Puis plus rien.']);
     else if (type === 'voyou') phrase = pioche([
-      "Trois coups. Tu les as tous pris. La ville appelle ça du courage. Moi, de la bêtise.",
-      "Un voyou t'a fini sur le trottoir. Demain, il ne se souviendra même pas de ta tête.",
-      kos ? `${kos} voyou${kos > 1 ? 's' : ''} au tapis, et puis toi. Les comptes sont faits. Ils ne sont pas en ta faveur.` : "Pas un seul voyou au tapis. Ils t'ont cogné comme on tape sur une porte fermée."]);
-    else if (type === 'rattrape') phrase = pioche([
-      "La ville t'a rattrapé. Elle rattrape tout le monde.",
-      "Tu as traîné. La nuit, elle, n'attend personne."]);
-    else if (type === 'flip') phrase = pioche([
-      "Tu as basculé en plein dans le mur. Le courage, c'est bien. Les yeux ouverts, c'est mieux.",
-      "Tu as fait apparaître un mur autour de toi. Peu de gens arrivent à se tuer avec autant d'application."]);
-    else if (type === 'fantome') phrase = pioche([
-      "Tu as fait confiance au sol. Erreur de débutant.",
-      "Tu as effacé la plateforme sous tes propres pieds. Personne ne t'a poussé. C'était toi."]);
+      "Ses hommes ont fait le travail. Lui n'a même pas pressé le pas.",
+      kos ? `${kos} de ses hommes à terre. Il en avait d'autres. Il en a toujours.` : "Ils étaient trois. Ils sont toujours trois.",
+      "Personne n'a ouvert sa fenêtre. Dans cette rue, on sait ce qui est bon pour soi."]);
     else if (type === 'fosse') phrase = pioche([
-      "Tombé dans le caniveau. Au moins, là, tu es à ta place.",
-      "Le trottoir s'est arrêté. Toi, non.",
-      "Tu as sauté. Pas assez. L'histoire de ta vie, en plus court."]);
-    else if (m < 15) phrase = pioche([
-      `${m} mètres. Tu n'as même pas eu le temps d'avoir peur.`,
-      `${m} mètres. La pluie n'a même pas eu le temps de te mouiller.`]);
-    else if (c === 1) phrase = pioche([
-      "Mort dans la deuxième couleur. Ironique, pour quelqu'un d'aussi terne.",
-      `${m} mètres, puis le mur. Propre. Net. Rien à voir avec ta vie.`]);
+      "La ville s'est ouverte sous ses pas. Elle fait ça, parfois. Pour rendre service.",
+      "Le trottoir s'est arrêté. La nuit, elle, a continué."]);
+    else if (type === 'flip') phrase = pioche([
+      `${IL} a changé de côté au mauvais moment. C'est ce que j'ai fait, moi aussi.`,
+      `Le mur était dans l'autre ville. ${IL} l'a fait venir dans la sienne.`]);
+    else if (type === 'fantome') phrase = pioche([
+      `Le sol n'existait que dans l'autre version. ${IL} a choisi la mauvaise.`,
+      `${IL} a effacé ce qui ${IL === 'Elle' ? 'la' : 'le'} portait. On fait tous ça, à la fin.`]);
     else phrase = pioche([
-      "Avalé par la nuit. Tu t'y sentais chez toi, pourtant.",
-      "Le mur ne pardonne pas. Il ne retiendra même pas ton nom.",
-      `${m} mètres. Le mur a fini le travail. Comme toujours.`]);
-    elEtiq.textContent = `${m} m · ${kos} voyou${kos > 1 ? 's' : ''} au tapis · record ${record} m`;
-    elTitre.textContent = pioche(['Fin de nuit', 'Rideau', 'Affaire classée']);
-    elTexte.textContent = phrase;
+      "Le mur était là depuis toujours. Il suffisait de regarder du bon côté.",
+      `${IL} a couru droit dans la nuit. La nuit ne s'écarte pour personne.`]);
+    if (nouveau && m >= 25) phrase = `${m} mètres. Plus loin que moi. ` + phrase;
+    elEtiq.textContent = `${pioche(RUES)} · ${heure(m)} · ${m} m · record ${record} m`;
+    elTitre.textContent = pioche(['Témoin effacé', 'Pas de témoin', 'Affaire classée']);
+    elTexte.textContent = phrase + ' ' + pioche(p.fin);
     elAction.textContent = 'Tape pour recommencer';
-    box.hidden = false; btnChanger.hidden = false;
+    box.hidden = false; btnChanger.hidden = false; btnScores.hidden = true;
     proposerScore(m, kos, Math.max(1, Math.round(t)));
     pret = performance.now() + 350;
   }
@@ -563,7 +692,7 @@ const SPRITES = {"1": {"src": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABwA
     marche = dir < 0 && auSol && t > 1.3;
     if (marche) {
       soinT += dt;
-      if (soinT >= 3.5 && vies < 3) { vies++; barreFige(vies / 3); soinT = 0; dire('joueur', pioche(['Ça va mieux.', 'Je reprends mon souffle.'])); }
+      if (soinT >= 3.5 && vies < 3) { vies++; barreFige(vies / 3); soinT = 0; dire('joueur', pioche(['Ça va mieux.', 'Je reprends mon souffle.'])); raconte(RECITS.soin); }
     } else soinT = 0;
     if (PX < -6) { mourir('rattrape', null); return; }
     while (genX - dist < W + 1600) genX = segment(genX) + 120 + vitesse * .3;
@@ -573,13 +702,14 @@ const SPRITES = {"1": {"src": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABwA
     const q = Math.floor(dist / 40 / QUARTIER);
     if (q > quartier) {
       quartier = q; ville = (ville + 1) % DECORS.length; specialPret = true; banniereT = 2.4;
-      dire('joueur', pioche(PERSOS[perso].route));
+      dire('joueur', pioche(PERSOS[perso].route)); raconte(RECITS.quartier, 0);
       if (!reduit) { flash = .08; eclair = {t: .2, pts: foudre()}; }
     }
     banniereT -= dt;
+    majRecit(dt);
     // averses de temps en temps
     averseT -= dt;
-    if (averseT <= 0) { averse = !averse; averseT = averse ? 9 + Math.random() * 7 : 14 + Math.random() * 16; }
+    if (averseT <= 0) { averse = !averse; averseT = averse ? 9 + Math.random() * 7 : 14 + Math.random() * 16; if (averse) raconte(RECITS.pluie); }
 
     coyote -= dt; tampon -= dt; decolT -= dt; atterrT -= dt; invulT -= dt; toucheT -= dt; coupCd -= dt;
     if (coupT >= 0) { coupT += dt; if (coupT > .3) coupT = -1; }
@@ -817,7 +947,7 @@ const SPRITES = {"1": {"src": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABwA
     ctx.fillText(`${Math.floor(dist / 40)} m`, 18, 12);
     ctx.font = '18px "Bebas Neue", Impact, sans-serif';
     ctx.textAlign = 'right';
-    ctx.fillText(`record ${record} m`, W - 18, 16);
+    ctx.fillText(`${heure(dist / 40)} · record ${record} m`, W - 18, 16);
     ctx.fillText(specialPret ? 'spécial prêt' : 'spécial : quartier suivant', W - 18, 38);
     ctx.textAlign = 'left';
     // barre de vie
@@ -840,7 +970,7 @@ const SPRITES = {"1": {"src": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABwA
       ctx.fillStyle = encre; ctx.fillRect(W / 2 - 170, 96, 340, 3); ctx.fillRect(W / 2 - 170, 169, 340, 3);
       ctx.fillText(`Quartier ${quartier + 1}`, W / 2, 104);
       ctx.font = '16px "Special Elite", "Courier New", monospace';
-      ctx.fillText('Nouvelle ville. Le spécial est rechargé.', W / 2, 146);
+      ctx.fillText(`${heure(dist / 40)}. Le spécial est rechargé.`, W / 2, 146);
       ctx.textAlign = 'left';
     }
     if (etat === 'jeu' && aideT > 0) {
@@ -883,10 +1013,12 @@ const SPRITES = {"1": {"src": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABwA
     for (const e of effets) majFx(e, etat === 'mort' ? 0 : dt, encre, fond);
     effets = effets.filter(e => e.inst.t < e.dur + (e.ech > .9 ? 2 : 0));
     dessinerParticules(etat === 'mort' ? 0 : dt, encre);
+    if (etat === 'jeu' || (etat === 'mort' && mortT < 1.1)) dessinerTueur(encre, fond);
     if (!(etat === 'mort' && mortT < .12)) dessinerJoueur(py, encre);
     dessinerBulles(etat === 'mort' ? dt * .8 : dt, fond, encre);
     if (etat === 'intro') { dessinerIntro(fond, encre); return; }
     if (etat !== 'titre') dessinerHUD(etat === 'mort' ? 0 : dt, fond, encre);
+    if (etat === 'jeu') dessinerRecit(fond, encre);
     if (flash > 0) { flash -= dt; ctx.fillStyle = encre; ctx.fillRect(0, 0, W, H); }
     if (etat === 'mort') dessinerMort(dt, fond, encre);
   }
@@ -950,7 +1082,7 @@ const SPRITES = {"1": {"src": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABwA
     ctx.fillStyle = encre; ctx.fillRect(0, 96, W, 2);
     ctx.textAlign = 'center'; ctx.textBaseline = 'top';
     ctx.font = '40px "Bebas Neue", Impact, sans-serif';
-    ctx.fillText('Choisis ton perso', W / 2, 16);
+    ctx.fillText('Choisis ton témoin', W / 2, 16);
     ctx.font = '16px "Special Elite", "Courier New", monospace';
     ctx.fillText(tactile ? 'Tape sur un perso, puis tape encore pour courir.' : '← → pour choisir, espace pour courir. Ou clique deux fois.', W / 2, 62);
     const ech = Math.min(2, W / 330), now = performance.now();
@@ -964,12 +1096,12 @@ const SPRITES = {"1": {"src": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABwA
       if (sel) {
         ctx.fillRect(cx - 46, SOL + 42, 92, 3);
         ctx.font = '14px "Special Elite", "Courier New", monospace';
-        ctx.fillText(p.palNom, cx, SOL + 50);
+        ctx.fillText(p.dest, cx, SOL + 50);
       }
     });
     ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
   }
-  function versChoix(){ etat = 'choix'; items = []; box.hidden = true; btnChanger.hidden = true; elTableau.hidden = true; box.classList.remove('large'); pret = performance.now() + 150; }
+  function versChoix(){ etat = 'choix'; items = []; box.hidden = true; btnChanger.hidden = true; btnScores.hidden = true; elTableau.hidden = true; box.classList.remove('large'); pret = performance.now() + 150; }
 
   function dessinerMort(dt, fond, encre){
     mortT += dt;
@@ -998,10 +1130,10 @@ const SPRITES = {"1": {"src": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABwA
         if (ki >= 1) { ctx.fillStyle = COUL[1]; ctx.fillRect(0, y + bande - 3, W, 3); }
       }
     }
-    // pendant la voix off, le perso boit un coup dans son coin
+    // pendant la voix off, le témoin reste à terre dans son coin
     if (mortT > 1.1) {
-      const p = PERSOS[perso], n = p.a.Idle_2[1];
-      dessinerSprite(p, 'Idle_2', Math.floor(mortT * 7) % n, Math.min(110, W * .12), H - 10, COUL[1], 2);
+      const p = PERSOS[perso];
+      dessinerSprite(p, 'Dead', p.a.Dead[1] - 1, Math.min(110, W * .12), H - 10, COUL[1], 2);
     }
     if (mortT > 1.1 && box.hidden) verdict();
   }
@@ -1074,6 +1206,7 @@ const SPRITES = {"1": {"src": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABwA
       else if (['Space', 'Enter'].includes(k) && performance.now() > pret) nouvellePartie();
       return;
     }
+    if (k === 'KeyT' && (etat === 'titre' || etat === 'mort')) { basculerScores(); return; }
     if (etat === 'titre') { if (['Space', 'Enter', 'ArrowUp', 'KeyW', 'KeyZ'].includes(k)) versChoix(); return; }
     if (etat !== 'jeu') { if (['Space', 'Enter', 'ArrowUp', 'KeyW', 'KeyZ'].includes(k)) relancer(); if (k === 'KeyC') versChoix(); return; }
     if (k === 'ArrowUp' || k === 'KeyW' || k === 'KeyZ') sauter();
