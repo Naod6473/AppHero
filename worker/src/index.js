@@ -4,6 +4,7 @@ import manifest from "../generated/apps.json";
 import CRITERES from "../../shared/criteres.json";
 import { BALLOTS, DAYS, ballotStatus, wheelDays, CHALLENGE_END, REVEAL_AT, LAUNCH_AT, DRAW_LOCK_AT, parisDate, isReleased } from "../../shared/calendar.js";
 import { CRITERIA, criterionLabel, drawCalendar } from "../../shared/criteria.js";
+import { sukkel } from "./sukkel.js";
 
 const MAX_PER_IP = 8; // un foyer ou un bureau partage souvent la même IP
 const COOKIE = "ah_id";
@@ -86,6 +87,8 @@ export default {
 
 async function api(request, env, ctx, url, now) {
   const route = `${request.method} ${url.pathname.replace(/\/$/, "")}`;
+  if (url.pathname.startsWith("/api/sukkel/"))
+    return sukkel(request, env, now, route, { json, readJson, ipHashFor, released: releasedApp, preview: isPreview });
   switch (route) {
     case "GET /api/state":
       return state(request, env, now);
