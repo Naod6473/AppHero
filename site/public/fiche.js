@@ -4,6 +4,8 @@
 (function () {
   var app = window.AH_APP;
   if (!app || window.top !== window) return;
+  // La page de présentation (plateau) a déjà sa propre fiche, ses j'aime / bof et ses liens.
+  if (document.querySelector("[data-plateau]")) return;
 
   var m = app.making || {};
   function dur(min) {
