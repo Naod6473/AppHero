@@ -109,7 +109,9 @@ async function handle(request, env, ctx, url, now) {
     if (!app || !isReleased(app.publishAt, now)) return notFound(request, env);
     const rest = m[2] || "";
     if (rest === "" || rest === "/" || rest === "/index.html") {
-      if (request.method === "GET" && !isBot(request)) ctx.waitUntil(countView(request, env, app.id, now));
+      // Seulement une vraie ouverture de page (pas une image ou un cadre posé sur un autre site).
+      const dest = request.headers.get("sec-fetch-dest");
+      if (request.method === "GET" && !isBot(request) && (!dest || dest === "document")) ctx.waitUntil(countView(request, env, app.id, now));
     }
   }
 
@@ -399,6 +401,13 @@ const bumpTally = (env, kind, bucket, app, delta) =>
     delta,
   );
 
+// Compteur recalculé depuis les lignes, dans la même transaction que l'écriture :
+// des requêtes simultanées ne peuvent ni le gonfler ni le fausser.
+const recountReactions = (env, appId, value) =>
+  env.DB.prepare(
+    "INSERT INTO tallies (kind, bucket, app, n) SELECT ?2, 'ALL', ?1, COUNT(*) FROM reactions WHERE app = ?1 AND value = ?3 ON CONFLICT (kind, bucket, app) DO UPDATE SET n = excluded.n",
+  ).bind(appId, value === 1 ? "like" : "bof", value);
+
 async function react(request, env, now) {
   const input = await readJson(request);
   if (!input) return json({ error: "Requête invalide." }, 400);
@@ -409,27 +418,17 @@ async function react(request, env, now) {
 
   const { voter, headers } = voterOrNew(request);
   const { ipHash, max } = await ipHashFor(request, env, `react|${app.id}`);
-  const row = await env.DB.prepare(
-    "SELECT (SELECT value FROM reactions WHERE app = ?1 AND voter = ?2) AS current, (SELECT COUNT(*) FROM reactions WHERE app = ?1 AND ip_hash = ?3) AS fromIp",
-  )
-    .bind(app.id, voter, ipHash)
-    .first();
-  const current = row?.current ?? 0;
-  if (current === value) return json({ ok: true, value }, 200, headers);
-  if (current === 0 && (row?.fromIp || 0) >= max) return json({ error: "Beaucoup d'avis viennent déjà de ton réseau pour cette app. Essaie depuis une autre connexion." }, 429, headers);
-
-  const kind = (v) => (v === 1 ? "like" : "bof");
-  const stmts = [];
-  if (value === 0) stmts.push(env.DB.prepare("DELETE FROM reactions WHERE app = ? AND voter = ?").bind(app.id, voter));
-  else
-    stmts.push(
-      env.DB.prepare(
-        "INSERT INTO reactions (app, voter, value, ip_hash, updated_at) VALUES (?, ?, ?, ?, ?) ON CONFLICT (app, voter) DO UPDATE SET value = excluded.value, updated_at = excluded.updated_at",
-      ).bind(app.id, voter, value, ipHash, now),
-    );
-  if (current !== 0) stmts.push(bumpTally(env, kind(current), "ALL", app.id, -1));
-  if (value !== 0) stmts.push(bumpTally(env, kind(value), "ALL", app.id, 1));
-  await env.DB.batch(stmts);
+  // La limite par réseau est vérifiée dans la requête d'écriture elle-même (une seule opération) :
+  // un avis déjà donné peut toujours changer, un nouvel avis ne passe que sous le plafond.
+  const write =
+    value === 0
+      ? env.DB.prepare("DELETE FROM reactions WHERE app = ?1 AND voter = ?2").bind(app.id, voter)
+      : env.DB.prepare(
+          "INSERT INTO reactions (app, voter, value, ip_hash, updated_at) SELECT ?1, ?2, ?3, ?4, ?5 WHERE EXISTS (SELECT 1 FROM reactions WHERE app = ?1 AND voter = ?2) OR (SELECT COUNT(*) FROM reactions WHERE app = ?1 AND ip_hash = ?4) < ?6 ON CONFLICT (app, voter) DO UPDATE SET value = excluded.value, updated_at = excluded.updated_at",
+        ).bind(app.id, voter, value, ipHash, now, max);
+  const res = await env.DB.batch([write, recountReactions(env, app.id, 1), recountReactions(env, app.id, -1)]);
+  if (value !== 0 && !res[0].meta?.changes)
+    return json({ error: "Beaucoup d'avis viennent déjà de ton réseau pour cette app. Essaie depuis une autre connexion." }, 429, headers);
   return json({ ok: true, value }, 200, headers);
 }
 
@@ -457,10 +456,16 @@ async function castBallot(request, env, now) {
   if (row?.mine) return json({ error: "Tu as déjà voté pour ce tour.", mine: row.mine }, 409, headers);
   if ((row?.fromIp || 0) >= max) return json({ error: "Beaucoup de voix viennent déjà de ton réseau pour ce tour. Essaie depuis une autre connexion." }, 429, headers);
   try {
-    await env.DB.batch([
-      env.DB.prepare("INSERT INTO ballot_votes (ballot, voter, app, ip_hash, created_at) VALUES (?, ?, ?, ?, ?)").bind(def.id, voter, appId, ipHash, now),
-      bumpTally(env, "ballot", def.id, appId, 1),
+    // Plafond par réseau vérifié dans l'écriture elle-même, et compteur recalculé depuis les voix.
+    const res = await env.DB.batch([
+      env.DB.prepare(
+        "INSERT INTO ballot_votes (ballot, voter, app, ip_hash, created_at) SELECT ?1, ?2, ?3, ?4, ?5 WHERE (SELECT COUNT(*) FROM ballot_votes WHERE ballot = ?1 AND ip_hash = ?4) < ?6",
+      ).bind(def.id, voter, appId, ipHash, now, max),
+      env.DB.prepare(
+        "INSERT INTO tallies (kind, bucket, app, n) SELECT 'ballot', ?1, ?2, COUNT(*) FROM ballot_votes WHERE ballot = ?1 AND app = ?2 ON CONFLICT (kind, bucket, app) DO UPDATE SET n = excluded.n",
+      ).bind(def.id, appId),
     ]);
+    if (!res[0].meta?.changes) return json({ error: "Beaucoup de voix viennent déjà de ton réseau pour ce tour. Essaie depuis une autre connexion." }, 429, headers);
   } catch (err) {
     if (String(err).includes("UNIQUE") || String(err).includes("PRIMARY")) return json({ error: "Tu as déjà voté pour ce tour." }, 409, headers);
     throw err;
@@ -495,6 +500,7 @@ async function saveDraw(request, env, now) {
   } catch {
     return json({ error: "Requête invalide." }, 400);
   }
+  if (!d || typeof d !== "object") return json({ error: "Requête invalide." }, 400);
   if (!wheelDays(await loadCriteria(env)).some((w) => w.forDay === d.forDay)) return json({ error: "Ce jour n'a pas de tirage." }, 400);
   if (!Array.isArray(d.slices) || d.slices.length !== SLICES || !d.slices.every((s) => CRITERES.includes(s)) || new Set(d.slices).size !== SLICES)
     return json({ error: "La roue doit contenir 20 critères différents de la liste." }, 400);
