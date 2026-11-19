@@ -93,6 +93,9 @@ img, video { display: block; max-width: 100%; }
 .pl-badge { position: absolute; right: 16px; top: 16px; background: var(--pink); color: var(--ink); font-weight: 800; font-size: 15px; border-radius: 999px; padding: 6px 14px; border: 3px solid var(--ink); pointer-events: none; }
 .pl-video.is-playing .pl-play, .pl-video.is-playing .pl-badge { display: none; }
 
+/* Le mot d'accroche, sous la vidéo */
+.pl-pitch { margin: 0 auto; max-width: 780px; text-align: center; font-size: clamp(18px, 2.2vw, 22px); line-height: 1.45; font-weight: 700; }
+
 /* Les boutons */
 .pl-actions { display: flex; flex-wrap: wrap; gap: 16px; justify-content: center; }
 .pl-cta, .pl-ghost { display: inline-flex; align-items: center; justify-content: center; gap: 12px; min-height: 56px; text-decoration: none; border: 4px solid var(--ink); border-radius: 20px; }

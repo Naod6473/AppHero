@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Mine!? · Apphéro 02/30</title>
-<meta name="description" content="Tu colles un lien, tu appuies sur « À moi ! », et la vidéo ou la musique arrive dans ton navigateur. Libre, à installer chez toi.">
+<meta name="description" content="Tu colles un lien, tu appuies sur « À moi ! », et la vidéo ou la musique arrive. En app de bureau pour Windows, Mac et Linux, sans limite.">
 <meta name="theme-color" content="#ffd83d">
 <meta property="og:title" content="Mine!? · Apphéro 02/30">
 <meta property="og:url" content="https://apphero.cloud/apps/02-mine/">
@@ -48,20 +48,23 @@
   </div>
 </figure>
 
+<p class="pl-pitch">Encore un site pour télécharger des vidéos ? Oui, mais pas seulement. Mine!? existe aussi en app de bureau pour Windows, Mac et Linux, et là, c'est illimité : vidéos, musique, playlists entières, tout ce que tu veux. Et plus si affinités.</p>
+
 <div class="pl-actions">
-  <a class="pl-cta" href="https://github.com/Naod6473/Mine-">
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 19c-4 1.5-4-2-6-2.5M15 21v-3.5c0-1 .1-1.4-.5-2 2.8-.3 5.5-1.4 5.5-6a4.6 4.6 0 0 0-1.3-3.2 4.2 4.2 0 0 0-.1-3.2s-1-.3-3.4 1.3a11.7 11.7 0 0 0-6.2 0C6.6 2.8 5.6 3.1 5.6 3.1a4.2 4.2 0 0 0-.1 3.2A4.6 4.6 0 0 0 4.2 9.5c0 4.6 2.7 5.7 5.5 6-.6.6-.6 1.2-.5 2V21"/></svg>Le code et l'installation</a>
+  <a class="pl-cta" href="https://github.com/Naod6473/Mine-/releases/latest"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>L'app de bureau</a>
+  <a class="pl-ghost" href="https://github.com/Naod6473/Mine-"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 19c-4 1.5-4-2-6-2.5M15 21v-3.5c0-1 .1-1.4-.5-2 2.8-.3 5.5-1.4 5.5-6a4.6 4.6 0 0 0-1.3-3.2 4.2 4.2 0 0 0-.1-3.2s-1-.3-3.4 1.3a11.7 11.7 0 0 0-6.2 0C6.6 2.8 5.6 3.1 5.6 3.1a4.2 4.2 0 0 0-.1 3.2A4.6 4.6 0 0 0 4.2 9.5c0 4.6 2.7 5.7 5.5 6-.6.6-.6 1.2-.5 2V21"/></svg>Le code sur GitHub</a>
+  <a class="pl-ghost" href="https://mine.apphero.cloud">Voir la démo</a>
 </div>
-<p class="pl-note">Mine!? s'installe chez toi, sans aucune limite : Proxmox, Docker ou app de bureau.</p>
+<p class="pl-note">Gratuit et libre. Il existe aussi une version serveur, pour Proxmox ou Docker.</p>
 
 <section class="pl-cards" aria-label="L'app en bref">
   <div class="pl-card">
     <h2>Au programme</h2>
     <ul>
-      <li>Vidéos, musique, sous-titres ou miniatures depuis YouTube, Instagram, TikTok, SoundCloud, X, Vimeo, Twitch… plus de mille sites.</li>
-      <li>MP3 meilleure qualité avec pochette, par défaut.</li>
-      <li>Rien ne reste sur le serveur.</li>
-      <li>Chez toi : Proxmox, Docker ou <a href="https://github.com/Naod6473/Mine-/releases/latest">l'app de bureau</a>.</li>
+      <li>YouTube, Instagram, TikTok, SoundCloud, Twitch et plus de mille autres sites.</li>
+      <li>Des vidéos, de la musique, des playlists entières, des sous-titres.</li>
+      <li>Du MP3 avec la pochette, réglé par défaut.</li>
+      <li>Chez toi, aucune limite.</li>
     </ul>
   </div>
   <div class="pl-card">
@@ -82,14 +85,13 @@
 <section class="pl-tech" aria-labelledby="tech-title">
   <h2 id="tech-title">Sous le capot</h2>
   <dl>
-    <div><dt>yt-dlp + ffmpeg</dt><dd>récupèrent la vidéo ou le son et le convertissent (MP3, MP4…).</dd></div>
-    <div><dt>Python</dt><dd>le serveur : aiohttp et Socket.IO pour suivre les téléchargements en direct.</dd></div>
-    <div><dt>Svelte 5 + Vite</dt><dd>l'interface, en français et en anglais, thème clair ou sombre.</dd></div>
-    <div><dt>Docker</dt><dd>une image prête à lancer, mise à jour automatiquement.</dd></div>
-    <div><dt>Proxmox VE</dt><dd>un script installe tout dans un conteneur LXC en une commande.</dd></div>
-    <div><dt>Tauri 2 (Rust)</dt><dd>l'app de bureau, sans serveur : les fichiers vont droit dans Téléchargements.</dd></div>
+    <div><dt>yt-dlp et ffmpeg</dt><dd>Le téléchargement et la conversion.</dd></div>
+    <div><dt>Python</dt><dd>Le serveur, avec aiohttp et Socket.IO.</dd></div>
+    <div><dt>Svelte 5 et Vite</dt><dd>L'interface.</dd></div>
+    <div><dt>Tauri 2 (Rust)</dt><dd>L'app de bureau.</dd></div>
+    <div><dt>Docker et Proxmox VE</dt><dd>Pour l'héberger chez soi.</dd></div>
   </dl>
-  <p>Dérivé de MeTube, sous licence AGPL. Tout est expliqué sur <a href="https://github.com/Naod6473/Mine-">GitHub</a>.</p>
+  <p>Basé sur MeTube, sous licence AGPL. Détails et installation sur <a href="https://github.com/Naod6473/Mine-">GitHub</a>.</p>
 </section>
 
 <section class="pl-strip" aria-label="La suite">
