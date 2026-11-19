@@ -1,4 +1,5 @@
 // Accueil : pile de cartes de la semaine, grille des 30 apps, j'aime / bof, votes, classements.
+import { initTeaser } from "./teaser.js";
 import { api, esc, toast, confetti, turnstileToken, track, shareApp, X_URL } from "./common.js";
 import { DAYS, BALLOTS, CHALLENGE_END, WEEKDAYS_SHORT, PAPER, wheelDays, parisDate, fmtShort, fmtDateTime } from "../../shared/calendar.js";
 import { CRITERIA, criterionLabel } from "../../shared/criteria.js";
@@ -754,3 +755,5 @@ setInterval(async () => {
     renderAll();
   }
 }, 1000);
+
+initTeaser("accueil");
