@@ -7,6 +7,13 @@ import "@fontsource/rubik/700.css";
 import "@fontsource/rubik/800.css";
 import "./styles.css";
 
+// Le code organisateur n'est plus jamais gardé dans le navigateur : on efface l'ancienne copie.
+try {
+  localStorage.removeItem("apphero_admin_token");
+} catch {
+  /* stockage indisponible */
+}
+
 // Le compte X du défi.
 export const X_URL = "https://x.com/ZeroE24661";
 

@@ -126,14 +126,8 @@ $("admin").addEventListener("submit", async (e) => {
   const token = $("token").value.trim();
   if (!token) return;
   const r = await fetch("/api/admin/preview", { method: "POST", headers: { authorization: `Bearer ${token}` } }).catch(() => null);
-  if (r?.ok) {
-    try {
-      localStorage.setItem("apphero_admin_token", token);
-    } catch {
-      /* stockage indisponible */
-    }
-    location.replace("/");
-  } else $("admin-msg").textContent = "Code incorrect.";
+  if (r?.ok) location.replace("/");
+  else $("admin-msg").textContent = "Code incorrect.";
 });
 
 initTeaser("rideau");

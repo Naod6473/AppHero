@@ -66,6 +66,19 @@
     buttons.forEach(function (b) { b.setAttribute("aria-pressed", String(Number(b.dataset.v) === mine)); });
     if (count) count.textContent = likes ? " · " + likes : "";
   }
+  // Si l'avis est refusé, on le dit (au lieu de revenir en arrière sans un mot).
+  var votes = $(".pl-votes"), msg = null;
+  function say(text) {
+    if (!votes) return;
+    if (!msg) {
+      msg = document.createElement("p");
+      msg.setAttribute("role", "status");
+      msg.style.cssText = "margin:10px 0 0;font-size:15px;font-weight:700";
+      votes.insertAdjacentElement("afterend", msg);
+    }
+    msg.textContent = text || "";
+    msg.hidden = !text;
+  }
   buttons.forEach(function (b) {
     b.addEventListener("click", function () {
       if (busy) return;
@@ -74,12 +87,13 @@
       likes += (mine === 1) - (before === 1);
       paint();
       busy = true;
+      if (msg) say("");
       fetch("/api/react", { method: "POST", credentials: "same-origin", headers: { "content-type": "application/json" }, body: JSON.stringify({ app: app.id, value: mine }) })
         .then(function (r) {
-          if (!r.ok) throw new Error();
+          if (!r.ok) return r.json().catch(function () { return {}; }).then(function (d) { throw new Error(d.error || ""); });
           track(mine === 1 ? "jaime" : mine === -1 ? "bof" : "avis_retire", { app: app.id, from: "plateau" });
         })
-        .catch(function () { mine = before; likes = likesBefore; paint(); })
+        .catch(function (err) { mine = before; likes = likesBefore; paint(); say(err.message || "Ton avis n'a pas pu être enregistré. Réessaie dans un instant."); })
         .then(function () { busy = false; });
     });
   });

@@ -1,0 +1,3 @@
+# Fichiers servis directement (sans passer par le Worker).
+/*
+  X-Content-Type-Options: nosniff

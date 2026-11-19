@@ -424,15 +424,24 @@ function candidateLabel(id) {
 function choicesHtml(b) {
   const mine = S.me.ballots[b.id];
   const open = b.status === "open";
+  const pick = open && !mine && S.pick?.ballot === b.id ? S.pick.app : null;
+  // Deux temps : on choisit, puis on confirme (le vote ne se change pas).
+  const confirmBar = pick
+    ? `<div class="confirm" role="group" aria-label="Confirmer ton vote">
+        <p>Ta voix pour <strong>${esc(candidateLabel(pick))}</strong> ? Une fois confirmé, le vote ne se change plus.</p>
+        <button class="btn btn-dark" type="button" data-confirm>Confirmer mon vote</button>
+        <button class="btn" type="button" data-cancel>Annuler</button>
+      </div>`
+    : "";
   return `<div class="choices">${b.candidates
     .map((id) => {
       const app = S.apps.get(id);
       const can = open && !mine && app;
-      return `<button class="choice ${mine === id ? "is-mine" : ""}" type="button" style="--bg:${esc(app?.color || "var(--paper)")}"
+      return `<button class="choice ${mine === id ? "is-mine" : ""} ${pick === id ? "is-pick" : ""}" type="button" ${can ? `aria-pressed="${pick === id}"` : ""} style="--bg:${esc(app?.color || "var(--paper)")}"
         ${can ? `data-ballot="${esc(b.id)}" data-app="${esc(id)}"` : "disabled"}
-        aria-label="${esc(open && !mine ? `Voter pour ${candidateLabel(id)}` : candidateLabel(id))}"><i>${Number(id)}</i><span>${esc(candidateLabel(id))}</span></button>`;
+        aria-label="${esc(open && !mine ? `Choisir ${candidateLabel(id)}` : candidateLabel(id))}"><i>${Number(id)}</i><span>${esc(candidateLabel(id))}</span></button>`;
     })
-    .join("")}</div>`;
+    .join("")}</div>${confirmBar}`;
 }
 
 function resultsHtml(b) {
@@ -470,7 +479,7 @@ function ballotHtml(b) {
   } else if (b.status === "open") {
     const mine = S.me.ballots[b.id];
     when = `Ferme ${closes.toLowerCase()}`;
-    text = mine ? `Merci ! Tu as voté pour ${candidateLabel(mine)}. Résultat ${closes.toLowerCase()}.` : "Une seule voix, sans compte. Choisis ton app :";
+    text = mine ? `Merci ! Tu as voté pour ${candidateLabel(mine)}. Résultat ${closes.toLowerCase()}.` : "Une seule voix, sans compte. Choisis ton app, puis confirme\u00a0:";
     body = choicesHtml(b);
   } else {
     when = `Fermé ${closes.toLowerCase()}`;
@@ -492,7 +501,7 @@ function ballotHtml(b) {
 function renderBallots() {
   const el = $("ballots");
   if (!S.ballots.length) {
-    el.innerHTML = `<div class="ballot"><h3>Le vote de la semaine</h3><p>Le premier vote ouvre le samedi 21 novembre à 18 h.</p></div>`;
+    el.innerHTML = `<div class="ballot"><h3>Le vote de la semaine</h3><p>Le premier vote ouvre le dimanche 22 novembre à 18 h.</p></div>`;
     return;
   }
   el.innerHTML = ballotHtml(featuredWeekly()) + ballotHtml(S.ballots.find((b) => b.final));
@@ -571,11 +580,12 @@ async function react(appId, value, button) {
 async function castBallot(ballotId, appId, button) {
   if (S.voting || S.me.ballots[ballotId]) return;
   S.voting = true;
-  document.querySelectorAll("[data-ballot]").forEach((b) => (b.disabled = true));
+  document.querySelectorAll("[data-ballot], [data-confirm], [data-cancel]").forEach((b) => (b.disabled = true));
   try {
     const token = await turnstileToken(S.siteKey);
     await api("/api/ballot", { method: "POST", body: JSON.stringify({ ballot: ballotId, app: appId, token }) });
     S.me.ballots[ballotId] = appId;
+    S.pick = null;
     track("vote", { ballot: ballotId, app: appId });
     renderAll();
     confetti(button?.isConnected ? button : $("ballots"));
@@ -648,7 +658,17 @@ document.addEventListener("click", (e) => {
   const r = e.target.closest("[data-react]");
   if (r) return react(r.dataset.app, Number(r.dataset.react), r);
   const b = e.target.closest("[data-ballot]");
-  if (b) return castBallot(b.dataset.ballot, b.dataset.app, b);
+  if (b) {
+    if (S.voting) return;
+    S.pick = { ballot: b.dataset.ballot, app: b.dataset.app };
+    renderBallots();
+    return document.querySelector("[data-confirm]")?.focus();
+  }
+  if (e.target.closest("[data-confirm]") && S.pick) return castBallot(S.pick.ballot, S.pick.app, document.querySelector(".choice.is-pick"));
+  if (e.target.closest("[data-cancel]")) {
+    S.pick = null;
+    return renderBallots();
+  }
   if (e.target.closest("[data-agenda]")) track("agenda");
   const sh = e.target.closest("[data-share]");
   if (sh) return S.apps.get(sh.dataset.share) && shareApp(S.apps.get(sh.dataset.share));
