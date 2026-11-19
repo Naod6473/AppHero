@@ -1,15 +1,8 @@
 // Page privée des statistiques : lit /api/admin/stats avec le code organisateur.
 import { api, esc, toast } from "./common.js";
 
-const KEY = "apphero_admin_token";
 const $ = (id) => document.getElementById(id);
 let days = 30;
-
-try {
-  $("token").value = localStorage.getItem(KEY) || "";
-} catch {
-  /* stockage indisponible */
-}
 
 const fmtSec = (s) => (s == null ? "–" : s >= 60 ? `${Math.floor(s / 60)} min ${String(Math.round(s % 60)).padStart(2, "0")} s` : `${Math.round(s)} s`);
 const pct = (a, b) => (b ? `${Math.round((a / b) * 100)} %` : "–");
@@ -86,11 +79,6 @@ async function load() {
   if (!token) return toast("Entre le code organisateur.");
   try {
     const d = await api(`/api/admin/stats?days=${days}`, { headers: { authorization: `Bearer ${token}` } });
-    try {
-      localStorage.setItem(KEY, token);
-    } catch {
-      /* rien */
-    }
     render(d);
   } catch (err) {
     toast(err.message);

@@ -61,6 +61,8 @@
     "button.r[aria-pressed=true].like{background:#FF3D9A}" +
     "button.r[aria-pressed=true].bof{background:#B9A3FF}" +
     "a.home{margin-left:auto;background:#15112B;color:#FFD83D}" +
+    ".msg{margin:10px 0 0;font-size:13px;font-weight:700}" +
+    ".msg[hidden]{display:none}" +
     ".x{position:absolute;top:8px;right:8px;width:32px;height:32px;border:0;background:none;font-size:20px;cursor:pointer;color:#15112B}" +
     "@media print{.wrap{display:none}}" +
     "</style>" +
@@ -78,7 +80,9 @@
     '<button class="r bof" type="button" data-v="-1" aria-pressed="false">👎 Bof</button>' +
     '<button class="sh" type="button" id="share" aria-label="Partager">📤</button>' +
     '<a class="home" href="/">Apphéro</a>' +
-    "</div></div>" +
+    "</div>" +
+    '<p class="msg" id="msg" role="status" hidden></p>' +
+    "</div>" +
     '<button class="pill" id="pill" type="button" aria-expanded="false" aria-controls="panel"><b>' + (app.logo ? '<img src="' + esc(app.logo) + '" alt="">' : esc(app.id)) + "</b><span>" + (short ? esc(short) : "Apphéro · la fiche") + "</span></button>" +
     "</div>";
 
@@ -91,10 +95,21 @@
   function toggle(open) {
     $("panel").hidden = !open;
     $("pill").setAttribute("aria-expanded", String(open));
+    if (open) $("close").focus();
     if (open && window.ahTrack) window.ahTrack("fiche", { app: app.id });
   }
+  function say(text) {
+    $("msg").textContent = text || "";
+    $("msg").hidden = !text;
+  }
+  host.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && !$("panel").hidden) {
+      toggle(false);
+      $("pill").focus();
+    }
+  });
   $("pill").addEventListener("click", function () { toggle($("panel").hidden); });
-  $("close").addEventListener("click", function () { toggle(false); });
+  $("close").addEventListener("click", function () { toggle(false); $("pill").focus(); });
   $("share").addEventListener("click", function () {
     var url = location.origin + "/" + app.id;
     if (window.ahTrack) window.ahTrack("partage", { app: app.id, from: "fiche" });
@@ -110,12 +125,13 @@
       likes += (mine === 1) - (before === 1);
       paint();
       busy = true;
+      say("");
       fetch("/api/react", { method: "POST", credentials: "same-origin", headers: { "content-type": "application/json" }, body: JSON.stringify({ app: app.id, value: mine }) })
         .then(function (r) {
-          if (!r.ok) throw new Error();
+          if (!r.ok) return r.json().catch(function () { return {}; }).then(function (d) { throw new Error(d.error || ""); });
           if (window.ahTrack) window.ahTrack(mine === 1 ? "jaime" : mine === -1 ? "bof" : "avis_retire", { app: app.id, from: "fiche" });
         })
-        .catch(function () { mine = before; likes = likesBefore; paint(); })
+        .catch(function (err) { mine = before; likes = likesBefore; paint(); say(err.message || "Ton avis n'a pas pu être enregistré. Réessaie dans un instant."); })
         .then(function () { busy = false; });
     });
   });

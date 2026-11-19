@@ -1,7 +1,8 @@
 -- Base D1 d'Apphéro. Rejouable sans risque (IF NOT EXISTS).
 
 -- J'aime / Bof : une réaction par personne et par app, modifiable.
--- voter = identifiant aléatoire du cookie ; ip_hash = empreinte salée de l'IP, qui change chaque jour.
+-- voter = identifiant aléatoire du cookie ; ip_hash = empreinte salée du réseau, propre à chaque app
+-- (ou à chaque scrutin) : elle ne permet pas de rapprocher deux apps entre elles.
 CREATE TABLE IF NOT EXISTS reactions (
   app TEXT NOT NULL,
   voter TEXT NOT NULL,
@@ -80,4 +81,13 @@ CREATE TABLE IF NOT EXISTS seen (
 CREATE TABLE IF NOT EXISTS criteria (
   day TEXT PRIMARY KEY,
   data TEXT NOT NULL
+);
+
+-- Compteurs du jour par réseau (empreinte) : plafond de la mesure d'audience, essais de code organisateur.
+-- On n'en garde que 2 jours.
+CREATE TABLE IF NOT EXISTS quota (
+  day TEXT NOT NULL,
+  key TEXT NOT NULL,
+  n INTEGER NOT NULL DEFAULT 0,
+  PRIMARY KEY (day, key)
 );

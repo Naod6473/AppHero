@@ -7,15 +7,19 @@
     "directory": "./dist",
     "binding": "ASSETS",
     "html_handling": "auto-trailing-slash",
-    // Le Worker passe devant tout : rideau avant le lancement, API, apps (sortie à 18 h), liens courts /05.
-    "run_worker_first": true
+    // Le Worker passe devant les pages, l'API, les apps (sortie à 18 h) et les liens courts /05.
+    // Les fichiers du site lui-même (scripts, styles, polices, images, vidéos) sont servis directement :
+    // ils ne dévoilent rien et ne comptent pas dans le quota de requêtes du Worker.
+    "run_worker_first": ["/*", "!/assets/*", "!/plateau/*", "!/media/*", "!/icon-192.png", "!/icon-512.png", "!/favicon.svg", "!/og.jpg", "!/t.js", "!/fiche.js", "!/manifest.webmanifest"]
   },
   // Le domaine du défi. www redirige vers le domaine nu (voir worker/src/index.js).
   "routes": [
     { "pattern": "apphero.cloud", "custom_domain": true },
     { "pattern": "www.apphero.cloud", "custom_domain": true }
   ],
-  "workers_dev": true,
+  // Le site ne répond que sur son domaine.
+  "workers_dev": false,
+  "preview_urls": false,
   "d1_databases": [
     {
       "binding": "DB",
