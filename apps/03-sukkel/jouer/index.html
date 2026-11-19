@@ -84,11 +84,9 @@ body.holding .prov { opacity: .45; pointer-events: none; }
 .cap-head svg { flex: none; margin-top: 1px; color: var(--muted); }
 .cap-head b { display: block; font-size: 14px; font-weight: 600; }
 .cap-head span { display: block; font-size: 13px; color: var(--muted); line-height: 1.4; }
-.captcha.warn { border-color: #e8a3b1; background: #fff6f7; }
-.captcha.warn .cap-head svg, .captcha.warn .cap-head b { color: #c42b4a; }
-.captcha.warn .cap-head span { color: #8a2338; }
-.captcha.shake { animation: shake .4s; }
-@keyframes shake { 20%, 60% { transform: translateX(-5px); } 40%, 80% { transform: translateX(5px); } }
+.captcha.info { border-color: #b9c8f7; background: #f3f6ff; }
+.captcha.info .cap-head svg, .captcha.info .cap-head b { color: var(--blue); }
+.captcha.info .cap-head span { color: #2a3a78; }
 .cap-foot { display: flex; justify-content: space-between; gap: 8px; margin-top: 16px; font-size: 11px; color: var(--soft); }
 
 /* La touche Espace */
@@ -485,10 +483,11 @@ ol.top li.empty { display: block; color: var(--muted); }
   function start() {
     if (holding || document.body.classList.contains("ended")) return;
     holding = true; endReason = "";
-    $("captcha").classList.remove("warn", "shake");
+    $("captcha").classList.remove("info");
     $("cap-text").textContent = "Vérification en cours. Ne relâche pas la touche.";
     t0 = performance.now();
-    p = 0; dec = 1; unit = 0; stalled = false; noteCount = 0;
+    if (!paused) { p = 0; dec = 1; unit = 0; }
+    paused = false; stalled = false; noteCount = 0;
     document.body.classList.add("holding");
     keyEl.classList.add("on");
     render(); eta();
@@ -521,7 +520,7 @@ ol.top li.empty { display: block; color: var(--muted); }
   }
 
   // Lâcher pendant les 5 premières secondes ne termine rien : le captcha rappelle la consigne et on recommence.
-  var GRACE = 5000;
+  var GRACE = 5000, paused = false;
   function softReset(ms) {
     holding = false;
     clearTimeout(tickTimer); clearTimeout(noteTimer); clearInterval(beatTimer); clearInterval(clockTimer);
@@ -530,16 +529,10 @@ ol.top li.empty { display: block; color: var(--muted); }
     clearToasts();
     var req = runReq;
     req.then(function (id) { if (id) post("stop", { id: id, ms: ms, early: 1 }, true).catch(function () {}); });
-    p = 0; dec = 1; unit = 0; render();
-    statusEl.textContent = "Vérification interrompue";
-    clockEl.textContent = "00:00";
-    var cap = $("captcha");
-    cap.classList.remove("shake"); void cap.offsetWidth;
-    cap.classList.add("warn", "shake");
-    $("cap-text").textContent = pick([
-      "Vérification interrompue. Pour éviter les robots, garde la touche Espace enfoncée jusqu'à la fin.",
-      "Un relâchement a été détecté. Maintiens la touche Espace sans interruption pour prouver que tu es humain.",
-    ]);
+    paused = true; render();
+    statusEl.textContent = "En pause";
+    $("captcha").classList.add("info");
+    $("cap-text").textContent = "Information : pour éviter les robots, la touche Espace doit rester enfoncée pendant toute la vérification. Appuie à nouveau pour reprendre.";
     track("sukkel_early");
   }
 
