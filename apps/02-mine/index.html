@@ -58,7 +58,7 @@
   <div class="pl-card">
     <h2>Au programme</h2>
     <ul>
-      <li>Vidéos, musique, sous-titres ou miniatures depuis plus de mille sites.</li>
+      <li>Vidéos, musique, sous-titres ou miniatures depuis YouTube, Instagram, TikTok, SoundCloud, X, Vimeo, Twitch… plus de mille sites.</li>
       <li>MP3 meilleure qualité avec pochette, par défaut.</li>
       <li>Rien ne reste sur le serveur.</li>
       <li>Chez toi : Proxmox, Docker ou <a href="https://github.com/Naod6473/Mine-/releases/latest">l'app de bureau</a>.</li>
@@ -77,6 +77,19 @@
     <small>Vote de la semaine le dimanche à 18 h.</small>
     <button class="pl-share" type="button">Partager</button>
   </div>
+</section>
+
+<section class="pl-tech" aria-labelledby="tech-title">
+  <h2 id="tech-title">Sous le capot</h2>
+  <dl>
+    <div><dt>yt-dlp + ffmpeg</dt><dd>récupèrent la vidéo ou le son et le convertissent (MP3, MP4…).</dd></div>
+    <div><dt>Python</dt><dd>le serveur : aiohttp et Socket.IO pour suivre les téléchargements en direct.</dd></div>
+    <div><dt>Svelte 5 + Vite</dt><dd>l'interface, en français et en anglais, thème clair ou sombre.</dd></div>
+    <div><dt>Docker</dt><dd>une image prête à lancer, mise à jour automatiquement.</dd></div>
+    <div><dt>Proxmox VE</dt><dd>un script installe tout dans un conteneur LXC en une commande.</dd></div>
+    <div><dt>Tauri 2 (Rust)</dt><dd>l'app de bureau, sans serveur : les fichiers vont droit dans Téléchargements.</dd></div>
+  </dl>
+  <p>Dérivé de MeTube, sous licence AGPL. Tout est expliqué sur <a href="https://github.com/Naod6473/Mine-">GitHub</a>.</p>
 </section>
 
 <section class="pl-strip" aria-label="La suite">
