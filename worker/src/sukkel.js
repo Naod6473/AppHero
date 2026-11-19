@@ -42,7 +42,7 @@ export async function sukkel(request, env, now, route, h) {
     const sent = await env.DB.prepare("SELECT COUNT(*) AS n FROM sukkel_runs WHERE ip_hash = ?").bind(ipHash).first();
     if ((sent?.n || 0) >= MAX_STARTS_PER_IP) return h.json({ error: "Trop d'essais depuis ce réseau aujourd'hui." }, 429);
     const id = crypto.randomUUID();
-    const provider = ["claude", "chatgpt", "mistral"].includes(input.provider) ? input.provider : null;
+    const provider = ["claude", "chatgpt", "mistral", "gemini", "grok", "deepseek", "hermes", "openrouter", "perplexity"].includes(input.provider) ? input.provider : null;
     await env.DB.prepare("INSERT INTO sukkel_runs (id, provider, ip_hash, started_at, beat_at) VALUES (?, ?, ?, ?, ?)")
       .bind(id, provider, ipHash, now, now).run();
     return h.json({ id });

@@ -72,7 +72,7 @@ h1 { font-size: clamp(38px, 5.4vw, 56px); line-height: 1.04; letter-spacing: -.0
 .prov legend { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
 .prov label { position: relative; cursor: pointer; }
 .prov input { position: absolute; opacity: 0; pointer-events: none; }
-.prov span { display: flex; flex-direction: column; gap: 2px; padding: 12px; border: 1px solid var(--line); border-radius: 12px; font-size: 14px; font-weight: 600; transition: border-color .15s, box-shadow .15s; }
+.prov span { display: flex; flex-direction: column; gap: 2px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 12px; font-size: 14px; font-weight: 600; transition: border-color .15s, box-shadow .15s; }
 .prov span small { font-weight: 500; font-size: 12px; color: var(--soft); }
 .prov input:checked + span { border-color: var(--ink); box-shadow: 0 0 0 1px var(--ink); }
 .prov input:focus-visible + span { outline: 2px solid var(--blue); outline-offset: 2px; }
@@ -189,7 +189,8 @@ ol.top li.empty { display: block; color: var(--muted); }
   .facts { gap: 18px; }
   .facts b { font-size: 19px; }
   .card { padding: 20px; }
-  .prov span { padding: 10px; font-size: 13px; }
+  .prov span { padding: 9px 8px; font-size: 13px; }
+  .prov span small { font-size: 11px; }
   .lead { font-size: 16px; }
 }
 @media (prefers-reduced-motion: reduce) {
@@ -236,6 +237,12 @@ ol.top li.empty { display: block; color: var(--muted); }
         <label><input type="radio" name="prov" value="claude" checked><span>Claude Code<small>Anthropic</small></span></label>
         <label><input type="radio" name="prov" value="chatgpt"><span>ChatGPT<small>OpenAI</small></span></label>
         <label><input type="radio" name="prov" value="mistral"><span>Mistral AI<small>Le Chat</small></span></label>
+        <label><input type="radio" name="prov" value="gemini"><span>Gemini<small>Google</small></span></label>
+        <label><input type="radio" name="prov" value="grok"><span>Grok<small>xAI</small></span></label>
+        <label><input type="radio" name="prov" value="deepseek"><span>DeepSeek<small>DeepSeek</small></span></label>
+        <label><input type="radio" name="prov" value="hermes"><span>Hermes<small>Nous Research</small></span></label>
+        <label><input type="radio" name="prov" value="openrouter"><span>OpenRouter<small>300+ modèles</small></span></label>
+        <label><input type="radio" name="prov" value="perplexity"><span>Perplexity<small>Sonar</small></span></label>
       </fieldset>
 
       <div class="captcha" id="captcha">
@@ -484,7 +491,8 @@ ol.top li.empty { display: block; color: var(--muted); }
     if (holding || document.body.classList.contains("ended")) return;
     holding = true; endReason = "";
     $("captcha").classList.remove("info");
-    $("cap-text").textContent = "Vérification en cours. Ne relâche pas la touche.";
+    $("cap-text").textContent = "Merci de conserver la touche enfoncée.";
+    keepI = 0; nextKeep();
     t0 = performance.now();
     if (!paused) { p = 0; dec = 1; unit = 0; }
     paused = false; stalled = false; noteCount = 0;
@@ -505,7 +513,7 @@ ol.top li.empty { display: block; color: var(--muted); }
     if (!holding) return;
     var ms = Math.round(performance.now() - t0);
     if (ms < GRACE) return softReset(ms);
-    holding = false; endReason = reason || "";
+    holding = false; endReason = reason || ""; clearTimeout(keepTimer);
     clearTimeout(tickTimer); clearTimeout(noteTimer); clearInterval(beatTimer); clearInterval(clockTimer);
     document.body.classList.remove("holding", "stalled");
     keyEl.classList.remove("on");
@@ -519,10 +527,40 @@ ol.top li.empty { display: block; color: var(--muted); }
     track("sukkel_stop", { s: Math.round(ms / 1000), reason: endReason || "lache" });
   }
 
+  // Sous la touche, des messages qui poussent à garder le doigt appuyé, plus insistants à mesure qu'on avance.
+  var KEEP = [
+    "Merci de conserver la touche enfoncée.",
+    "Vérification en cours. Ne relâche pas la touche.",
+    "Ta demande est en cours de traitement. Merci de maintenir la touche.",
+    "Ta place est réservée tant que la touche reste enfoncée.",
+    "Relâcher maintenant annulerait ta demande de 100 $.",
+    "Ne recharge pas la page et garde la touche enfoncée.",
+    "Tout se passe bien. Continue de maintenir la touche.",
+  ];
+  var KEEP_LATE = [
+    "Tu y es presque. Garde le doigt sur la touche.",
+    "Ton crédit est prêt, il ne reste qu'à le confirmer. Ne lâche pas.",
+    "Plus que quelques instants. Merci de ta patience.",
+    "8 participants sur 10 abandonnent juste avant la fin. Pas toi.",
+    "L'attribution est imminente. Surtout, ne relâche pas maintenant.",
+  ];
+  var KEEP_STALL = "Le serveur est un peu lent. Ta demande est conservée tant que la touche reste enfoncée.";
+  var keepTimer = 0, keepI = 0;
+  function nextKeep() {
+    clearTimeout(keepTimer);
+    if (!holding) return;
+    keepTimer = setTimeout(function () {
+      if (!holding) return;
+      var list = p >= 85 ? KEEP_LATE : KEEP;
+      $("cap-text").textContent = stalled ? KEEP_STALL : p >= 99.1 ? "Tu es à " + fmtPct(p, dec) + ". Lâcher maintenant serait vraiment dommage." : list[keepI++ % list.length];
+      nextKeep();
+    }, rnd(6000, 9000));
+  }
+
   // Lâcher pendant les 5 premières secondes ne termine rien : le captcha rappelle la consigne et on recommence.
   var GRACE = 5000, paused = false;
   function softReset(ms) {
-    holding = false;
+    holding = false; clearTimeout(keepTimer);
     clearTimeout(tickTimer); clearTimeout(noteTimer); clearInterval(beatTimer); clearInterval(clockTimer);
     document.body.classList.remove("holding", "stalled");
     keyEl.classList.remove("on");
