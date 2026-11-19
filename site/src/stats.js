@@ -1,5 +1,5 @@
 // Page privée des statistiques : lit /api/admin/stats avec le code organisateur.
-import { api, esc, toast } from "./common.js";
+import { api, esc, toast, turnstileToken } from "./common.js";
 
 const $ = (id) => document.getElementById(id);
 let days = 30;
@@ -84,6 +84,19 @@ async function load() {
     toast(err.message);
   }
 }
+
+// Vérifie que l'anti-robot du vote (Turnstile) répond bien dans ce navigateur, sans attendre un vrai vote.
+$("ts-test").addEventListener("click", async () => {
+  toast("Test de l'anti-robot en cours…");
+  try {
+    const st = await api("/api/state");
+    if (!st.turnstileSiteKey) return toast("Anti-robot désactivé (pas de clé).");
+    const token = await turnstileToken(st.turnstileSiteKey);
+    toast(token ? "Anti-robot : OK, le vote peut passer." : "Anti-robot : pas de jeton reçu.");
+  } catch (err) {
+    toast(`Anti-robot : ${err.message}`);
+  }
+});
 
 $("login").addEventListener("submit", (e) => {
   e.preventDefault();

@@ -79,6 +79,9 @@ export async function turnstileToken(siteKey) {
   }
   return new Promise((resolve, reject) => {
     box.innerHTML = "";
+    // Sans réponse au bout de 45 s, on rend la main (sinon les boutons de vote resteraient bloqués).
+    const fail = () => reject(new Error("Vérification anti-robot trop longue, réessaie."));
+    setTimeout(fail, 45000);
     window.turnstile.render(box, {
       sitekey: siteKey,
       appearance: "interaction-only",
@@ -88,6 +91,7 @@ export async function turnstileToken(siteKey) {
         setTimeout(() => (box.innerHTML = ""), 50);
       },
       "error-callback": () => reject(new Error("Vérification anti-robot échouée, réessaie.")),
+      "timeout-callback": fail,
     });
   });
 }
