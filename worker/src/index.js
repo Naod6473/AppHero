@@ -52,7 +52,15 @@ export default {
         }
       }
 
-      const res = await env.ASSETS.fetch(request);
+      // Pages d'app : pas de 304, sinon la fiche injectée (app suivante, etc.) resterait périmée.
+      let assetReq = request;
+      if (app) {
+        const h = new Headers(request.headers);
+        h.delete("if-none-match");
+        h.delete("if-modified-since");
+        assetReq = new Request(request, { headers: h });
+      }
+      const res = await env.ASSETS.fetch(assetReq);
       if (res.status === 404) return notFound(request, env);
       // Les apps sont copiées telles quelles : on y ajoute le petit script de mesure d'audience.
       if (app && (res.headers.get("content-type") || "").includes("text/html")) {
@@ -64,7 +72,7 @@ export default {
             element: (el) =>
               el.append(`<script src="/t.js" defer></script><script>window.AH_APP=${info}</script><script src="/fiche.js" defer></script>`, { html: true }),
           })
-          .transform(res);
+          .transform(noStore(res));
       }
       return res;
     } catch (err) {
@@ -460,6 +468,14 @@ function isAdmin(request, env) {
   let diff = 0;
   for (let i = 0; i < token.length; i++) diff |= token.charCodeAt(i) ^ given.charCodeAt(i);
   return diff === 0;
+}
+
+function noStore(res) {
+  const r = new Response(res.body, res);
+  r.headers.delete("etag");
+  r.headers.delete("last-modified");
+  r.headers.set("cache-control", "no-cache");
+  return r;
 }
 
 function isBot(request) {
