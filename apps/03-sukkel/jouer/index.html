@@ -319,7 +319,28 @@ ol.top li.empty { display: block; color: var(--muted); }
   var $ = function (id) { return document.getElementById(id); };
   var keyEl = $("key"), pctEl = $("pct"), barEl = $("bar"), statusEl = $("status"), clockEl = $("clock"), etaEl = $("eta");
   var touch = matchMedia("(hover: none) and (pointer: coarse)").matches;
-  if (touch) $("how").textContent = "Gardez le doigt appuyé sur la touche";
+  // Sur téléphone, pas de barre d'espace : tous les textes parlent du « bouton ».
+  function M(t) {
+    return t.replace(/la touche Espace de votre clavier/g, "le bouton").replace(/la touche Espace/g, "le bouton")
+      .replace(/\b(la|votre) touche/g, function (_, a) { return (a === "la" ? "le" : "votre") + " bouton"; })
+      .replace(/touche/g, "bouton").replace(/enfoncée/g, "enfoncé");
+  }
+  function mobileTexts(root) {
+    var w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT), n;
+    while ((n = w.nextNode())) {
+      if (n.parentNode && /SCRIPT|STYLE/.test(n.parentNode.nodeName)) continue;
+      var v = M(n.nodeValue);
+      if (v !== n.nodeValue) n.nodeValue = v;
+    }
+  }
+  if (touch) {
+    $("how").textContent = "Gardez le doigt appuyé ici";
+    keyEl.querySelector(".lbl").firstChild.nodeValue = "maintenir";
+    mobileTexts(document.body);
+    new MutationObserver(function (list) {
+      list.forEach(function (m) { mobileTexts(m.target.nodeType === 3 ? m.target.parentNode : m.target); });
+    }).observe(document.body, { childList: true, subtree: true, characterData: true });
+  }
   // Le compteur de crédits « attribués » grimpe tout seul, comme sur toutes les vraies pages d'offre.
   (function () {
     var n = 12482 + Math.floor((Date.now() / 1000 - 1795000000) / 37) % 4000, el = $("given");
