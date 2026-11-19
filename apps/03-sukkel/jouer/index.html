@@ -4,10 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>100 $ de crédit API offerts · Programme Développeurs</title>
-<meta name="description" content="100 $ de crédit API offerts chez le fournisseur IA de ton choix. Maintiens la touche Espace pendant la vérification.">
+<meta name="description" content="100 $ de crédit API offerts chez le fournisseur IA de votre choix. Maintenez la touche Espace pendant la vérification.">
 <meta name="theme-color" content="#f7f7f5">
 <meta property="og:title" content="100 $ de crédit API offerts">
-<meta property="og:description" content="Chez le fournisseur IA de ton choix. Il suffit de maintenir la touche Espace pendant la vérification.">
+<meta property="og:description" content="Chez le fournisseur IA de votre choix. Il suffit de maintenir la touche Espace pendant la vérification.">
 <meta property="og:url" content="https://apphero.cloud/apps/03-sukkel/jouer/">
 <meta property="og:image" content="https://apphero.cloud/apps/03-sukkel/media/poster.jpg">
 <meta name="twitter:card" content="summary_large_image">
@@ -216,7 +216,7 @@ ol.top li.empty { display: block; color: var(--muted); }
     <section>
       <span class="eyebrow"><i></i>Offre de lancement · places limitées</span>
       <h1>100 $ de crédit API offerts.</h1>
-      <p class="lead">Pour accompagner l'arrivée des agents de code, nous offrons <b>100 $ de crédit</b> chez le fournisseur IA de ton choix. Aucune carte bancaire, aucun compte à créer : il suffit de <b>maintenir la touche Espace</b> pendant la vérification.</p>
+      <p class="lead">Pour accompagner l'arrivée des agents de code, nous offrons <b>100 $ de crédit</b> chez le fournisseur IA de votre choix. Aucune carte bancaire, aucun compte à créer : il suffit de <b>maintenir la touche Espace</b> pendant la vérification.</p>
       <ul class="facts">
         <li><b id="given">12 482</b><span>crédits attribués</span></li>
         <li><b>100 $</b><span>par personne</span></li>
@@ -231,7 +231,7 @@ ol.top li.empty { display: block; color: var(--muted); }
 
     <section class="card" aria-labelledby="req-title">
       <h2 id="req-title">Demander mon crédit</h2>
-      <p class="hint">Choisis ton fournisseur, puis maintiens la touche jusqu'à la fin de la vérification.</p>
+      <p class="hint">Choisissez votre fournisseur, puis maintenez la touche jusqu'à la fin de la vérification.</p>
       <fieldset class="prov">
         <legend>Fournisseur</legend>
         <label><input type="radio" name="prov" value="claude" checked><span>Claude Code<small>Anthropic</small></span></label>
@@ -248,11 +248,11 @@ ol.top li.empty { display: block; color: var(--muted); }
       <div class="captcha" id="captcha">
         <div class="cap-head">
           <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l8 3v6c0 5-3.4 8.6-8 10-4.6-1.4-8-5-8-10v-6z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M8.5 12l2.4 2.4 4.6-4.8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          <div><b>Vérification anti-robot</b><span id="cap-text">Maintiens la touche Espace enfoncée pendant toute la vérification.</span></div>
+          <div><b>Vérification anti-robot</b><span id="cap-text">Maintenez la touche Espace enfoncée pendant toute la vérification.</span></div>
         </div>
         <div class="keywrap">
           <button class="key" id="key" type="button" aria-describedby="how">
-            <span class="lbl">espace<small id="how">Maintiens la touche Espace de ton clavier</small></span>
+            <span class="lbl">espace<small id="how">Maintenez la touche Espace de votre clavier</small></span>
           </button>
         </div>
         <div class="cap-foot"><span>HoldCheck™ · protection anti-robot</span><span>Confidentialité · Conditions</span></div>
@@ -281,17 +281,17 @@ ol.top li.empty { display: block; color: var(--muted); }
 
 <section class="reveal" id="reveal" aria-labelledby="rv-title" hidden>
   <div class="in">
-    <span class="tag">Ta demande</span>
+    <span class="tag">Votre demande</span>
     <div class="zero">0,00 $</div>
     <h2 id="rv-title">Il n'y avait rien à gagner.</h2>
-    <p class="held">Tu as tenu <b id="rv-time">0 s</b>, vérification à <b id="rv-pct">0 %</b>.</p>
+    <p class="held">Vous avez tenu <b id="rv-time">0 s</b>, vérification à <b id="rv-pct">0 %</b>.</p>
     <p class="mock" id="rv-mock"></p>
 
     <div class="panel" id="sign">
       <h3>Le mur des Sukkel</h3>
-      <p class="sub" id="sign-lead">Inscris ton nom parmi ceux qui ont tenu le plus longtemps.</p>
+      <p class="sub" id="sign-lead">Inscrivez votre nom parmi ceux qui ont tenu le plus longtemps.</p>
       <form class="name" id="name-form">
-        <input id="name" name="name" maxlength="16" autocomplete="nickname" placeholder="Ton pseudo" aria-label="Ton pseudo" required>
+        <input id="name" name="name" maxlength="16" autocomplete="nickname" placeholder="Votre pseudo" aria-label="Votre pseudo" required>
         <button class="btn" type="submit">Inscrire</button>
       </form>
       <p class="err" id="name-err"></p>
@@ -319,7 +319,7 @@ ol.top li.empty { display: block; color: var(--muted); }
   var $ = function (id) { return document.getElementById(id); };
   var keyEl = $("key"), pctEl = $("pct"), barEl = $("bar"), statusEl = $("status"), clockEl = $("clock"), etaEl = $("eta");
   var touch = matchMedia("(hover: none) and (pointer: coarse)").matches;
-  if (touch) $("how").textContent = "Garde le doigt appuyé sur la touche";
+  if (touch) $("how").textContent = "Gardez le doigt appuyé sur la touche";
   // Le compteur de crédits « attribués » grimpe tout seul, comme sur toutes les vraies pages d'offre.
   (function () {
     var n = 12482 + Math.floor((Date.now() / 1000 - 1795000000) / 37) % 4000, el = $("given");
@@ -427,30 +427,30 @@ ol.top li.empty { display: block; color: var(--muted); }
   // ---------------------------------------------------------------- les notifications
   // Des notifications qui ont l'air vraies. Le sérieux d'abord, la chute en fin de phrase.
   var FIRST = [
-    ["Sécurité", "Connexion sécurisée établie. Ne ferme pas cette page pendant la vérification."],
-    ["Demande", "Ton crédit est réservé pendant toute la durée de la session."],
+    ["Sécurité", "Ne fermez pas cette page et ne relâchez pas la touche Espace."],
+    ["Demande", "Votre crédit est réservé pendant toute la durée de la session."],
   ];
   var NOTES = [
     ["Trafic", "Forte affluence en ce moment. Le traitement peut prendre un peu plus de temps que prévu."],
     ["Demande", "Rappel : relâcher la touche annule la demande. Les crédits non réclamés sont reversés à nos actionnaires."],
-    ["File d'attente", "Ta position : 3. Les deux demandes précédentes sont inactives depuis 41 heures, touche toujours enfoncée."],
+    ["File d'attente", "Votre position : 3. Les deux demandes précédentes sont inactives depuis 41 heures, touche toujours enfoncée."],
     ["Conditions", "Mise à jour de l'article 12.4 : en cas de décès pendant le traitement, le crédit revient aux ayants droit."],
-    ["Confidentialité", "La pression exercée sur ta touche est utilisée pour améliorer nos modèles. Merci de ta contribution."],
+    ["Confidentialité", "La pression exercée sur votre touche est utilisée pour améliorer nos modèles. Merci de votre contribution."],
     ["Éligibilité", "Contrôle effectué. Consommation de la vérification : 2,4 litres d'eau douce."],
-    ["Support", "Un conseiller va valider ta demande. Délai moyen de réponse : 3 à 5 ans."],
-    ["Session", "Session active depuis {t}. Tes proches ont été informés que tout va bien."],
+    ["Support", "Un conseiller va valider votre demande. Délai moyen de réponse : 3 à 5 ans."],
+    ["Session", "Session active depuis {t}. Vos proches ont été informés que tout va bien."],
     ["Validation", "Une validation humaine est requise. Le poste est en cours de recrutement."],
     ["Sécurité", "Maintien par objet lourd détecté sur un autre compte. Le compte a été clôturé, ainsi que son titulaire."],
     ["Conditions", "Le crédit sera versé en jetons valables à partir du 1er janvier 2031."],
-    ["Entreprise", "Un résumé de ta session des {m} dernières minutes a été transmis à ton responsable."],
+    ["Entreprise", "Un résumé de votre session des {m} dernières minutes a été transmis à votre responsable."],
     ["Trafic", "Traitement en cours. Merci de ne pas respirer trop fort près du clavier."],
-    ["Statistiques", "0 demande aboutie à ce jour. La tienne pourrait être la première."],
-    ["Fournisseur", "Ton assistant IA a analysé ta patience. Il pourra bientôt attendre à ta place."],
-    ["Bien-être", "Au-delà de 45 minutes, pense à t'hydrater. Le doigt, lui, peut rester."],
-    ["Demande", "Ton dossier est complet. Il manque seulement un dossier."],
-    ["Conditions", "En poursuivant, tu acceptes que ton prochain anniversaire soit fêté sans toi."],
-    ["Emploi", "Ton poste a été confié à un agent IA plus patient. Il maintient la touche depuis 6 heures."],
-    ["Récompense", "Bonne nouvelle : ton crédit a été converti en expérience de vie. Aucune action requise."],
+    ["Statistiques", "0 demande aboutie à ce jour. La vôtre pourrait être la première."],
+    ["Fournisseur", "Votre assistant IA a analysé votre patience. Il pourra bientôt attendre à votre place."],
+    ["Bien-être", "Au-delà de 45 minutes, pensez à vous hydrater. Le doigt, lui, peut rester."],
+    ["Demande", "Votre dossier est complet. Il manque seulement un dossier."],
+    ["Conditions", "En poursuivant, vous acceptez que votre prochain anniversaire soit fêté sans vous."],
+    ["Emploi", "Votre poste a été confié à un agent IA plus patient. Il maintient la touche depuis 6 heures."],
+    ["Récompense", "Bonne nouvelle : votre crédit a été converti en expérience de vie. Aucune action requise."],
   ];;
   var noteTimer = 0, notesLeft = [], noteCount = 0;
   function minutes() { var m = Math.max(1, Math.round(heldMs() / 60000)); return String(m); }
@@ -466,7 +466,7 @@ ol.top li.empty { display: block; color: var(--muted); }
       toast(n[0], t);
       eta();
       nextNote();
-    }, noteCount === 0 ? 5000 : noteCount === 1 ? rnd(9000, 12000) : rnd(15000, 26000));
+    }, noteCount === 0 ? 2000 : noteCount === 1 ? rnd(9000, 12000) : rnd(15000, 26000));
   }
   function toast(title, text) {
     var box = $("toasts");
@@ -530,21 +530,21 @@ ol.top li.empty { display: block; color: var(--muted); }
   // Sous la touche, des messages qui poussent à garder le doigt appuyé, plus insistants à mesure qu'on avance.
   var KEEP = [
     "Merci de conserver la touche enfoncée.",
-    "Vérification en cours. Ne relâche pas la touche.",
-    "Ta demande est en cours de traitement. Merci de maintenir la touche.",
-    "Ta place est réservée tant que la touche reste enfoncée.",
-    "Relâcher maintenant annulerait ta demande de 100 $.",
-    "Ne recharge pas la page et garde la touche enfoncée.",
-    "Tout se passe bien. Continue de maintenir la touche.",
+    "Vérification en cours. Ne relâchez pas la touche.",
+    "Votre demande est en cours de traitement. Merci de maintenir la touche.",
+    "Votre place est réservée tant que la touche reste enfoncée.",
+    "Relâcher maintenant annulerait votre demande de 100 $.",
+    "Ne rechargez pas la page et gardez la touche enfoncée.",
+    "Tout se passe bien. Continuez de maintenir la touche.",
   ];
   var KEEP_LATE = [
-    "Tu y es presque. Garde le doigt sur la touche.",
-    "Ton crédit est prêt, il ne reste qu'à le confirmer. Ne lâche pas.",
-    "Plus que quelques instants. Merci de ta patience.",
-    "8 participants sur 10 abandonnent juste avant la fin. Pas toi.",
-    "L'attribution est imminente. Surtout, ne relâche pas maintenant.",
+    "Vous y êtes presque. Gardez le doigt sur la touche.",
+    "Votre crédit est prêt, il ne reste qu'à le confirmer. Ne lâchez pas.",
+    "Plus que quelques instants. Merci de votre patience.",
+    "8 participants sur 10 abandonnent juste avant la fin. Pas vous.",
+    "L'attribution est imminente. Surtout, ne relâchez pas maintenant.",
   ];
-  var KEEP_STALL = "Le serveur est un peu lent. Ta demande est conservée tant que la touche reste enfoncée.";
+  var KEEP_STALL = "Le serveur est un peu lent. Votre demande est conservée tant que la touche reste enfoncée.";
   var keepTimer = 0, keepI = 0;
   function nextKeep() {
     clearTimeout(keepTimer);
@@ -552,7 +552,7 @@ ol.top li.empty { display: block; color: var(--muted); }
     keepTimer = setTimeout(function () {
       if (!holding) return;
       var list = p >= 85 ? KEEP_LATE : KEEP;
-      $("cap-text").textContent = stalled ? KEEP_STALL : p >= 99.1 ? "Tu es à " + fmtPct(p, dec) + ". Lâcher maintenant serait vraiment dommage." : list[keepI++ % list.length];
+      $("cap-text").textContent = stalled ? KEEP_STALL : p >= 99.1 ? "Vous êtes à " + fmtPct(p, dec) + ". Lâcher maintenant serait vraiment dommage." : list[keepI++ % list.length];
       nextKeep();
     }, rnd(6000, 9000));
   }
@@ -570,7 +570,7 @@ ol.top li.empty { display: block; color: var(--muted); }
     paused = true; render();
     statusEl.textContent = "En pause";
     $("captcha").classList.add("info");
-    $("cap-text").textContent = "Information : pour éviter les robots, la touche Espace doit rester enfoncée pendant toute la vérification. Appuie à nouveau pour reprendre.";
+    $("cap-text").textContent = "Information : pour éviter les robots, la touche Espace doit rester enfoncée pendant toute la vérification. Appuyez à nouveau pour reprendre.";
     track("sukkel_early");
   }
 
@@ -610,18 +610,18 @@ ol.top li.empty { display: block; color: var(--muted); }
   function mockFor(ms) {
     var s = ms / 1000;
     if (endReason === "onglet") return pick([
-      "Tu as changé d'onglet. On comprend : il y avait sûrement une meilleure arnaque ailleurs.",
-      "Tu es parti voir ailleurs. Comme tous ceux qui ont failli toucher 100 $.",
+      "Vous avez changé d'onglet. On comprend : il y avait sûrement une meilleure arnaque ailleurs.",
+      "Vous êtes parti voir ailleurs. Comme tous ceux qui ont failli toucher 100 $.",
     ]);
-    if (s < 2) return "Même pas deux secondes. Tu ne crois plus en rien, et franchement, tu as raison.";
-    if (s < 10) return "Quelques secondes et tu as flairé le piège. Ou alors on t'a appelé pour manger.";
+    if (s < 2) return "Même pas deux secondes. Vous ne croyez plus en rien, et franchement, vous avez raison.";
+    if (s < 10) return "Quelques secondes et vous avez flairé le piège. Ou alors on vous a appelé pour manger.";
     if (s < 30) return "Moins de trente secondes de foi aveugle. C'est mignon. Pas rentable, mais mignon.";
-    if (s < 60) return "Presque une minute pour 0 $. Ton taux horaire vient de passer à 0 $ de l'heure. Bienvenue dans l'économie de demain.";
-    if (s < 180) return "Tu y as cru. Un peu. Assez pour rester. On t'a vu.";
-    if (s < 600) return "Plusieurs minutes de ta vie, offertes gracieusement à une barre de chargement. Elle te remercie. Elle est la seule.";
-    if (s < 1200) return "Tu as tenu plus longtemps que la plupart des résolutions du Nouvel An. Pour rien. Exactement comme elles.";
-    if (s < 3600) return "Plus d'un quart d'heure. Quelqu'un devrait vérifier que tu vas bien. Pas nous, on est occupés.";
-    return "Plus d'une heure. Ton doigt mérite des excuses. Toi, on ne sait pas encore.";
+    if (s < 60) return "Presque une minute pour 0 $. Votre taux horaire vient de passer à 0 $ de l'heure. Bienvenue dans l'économie de demain.";
+    if (s < 180) return "Vous y avez cru. Un peu. Assez pour rester. On vous a vu.";
+    if (s < 600) return "Plusieurs minutes de votre vie, offertes gracieusement à une barre de chargement. Elle vous remercie. Elle est la seule.";
+    if (s < 1200) return "Vous avez tenu plus longtemps que la plupart des résolutions du Nouvel An. Pour rien. Exactement comme elles.";
+    if (s < 3600) return "Plus d'un quart d'heure. Quelqu'un devrait vérifier que vous allez bien. Pas nous, on est occupés.";
+    return "Plus d'une heure. Votre doigt mérite des excuses. Vous, on ne sait pas encore.";
   }
 
   var lastMs = 0, lastRank = null;
@@ -633,7 +633,7 @@ ol.top li.empty { display: block; color: var(--muted); }
     $("rv-mock").textContent = mockFor(ms);
     $("name-err").textContent = "";
     $("sign").style.display = "";
-    $("sign-lead").textContent = "Inscris ton nom parmi ceux qui ont tenu le plus longtemps.";
+    $("sign-lead").textContent = "Inscrivez votre nom parmi ceux qui ont tenu le plus longtemps.";
     var saved = store("name"); if (saved) $("name").value = saved;
     document.body.classList.add("ended");
     $("reveal").hidden = false;
@@ -645,7 +645,7 @@ ol.top li.empty { display: block; color: var(--muted); }
       lastMs = r.ms; lastRank = r.rank;
       $("rv-time").textContent = fmtDur(r.ms, true);
       if (r.ms < 1000) { $("sign").style.display = "none"; }
-      else $("sign-lead").textContent = "Avec ce temps, tu serais " + (r.rank === 1 ? "1er" : r.rank + "e") + " sur le mur. Inscris ton nom (ou garde ta dignité).";
+      else $("sign-lead").textContent = "Avec ce temps, vous seriez " + (r.rank === 1 ? "1er" : r.rank + "e") + " sur le mur. Inscrivez votre nom (ou gardez votre dignité).";
       loadTop();
     });
   }
@@ -653,7 +653,7 @@ ol.top li.empty { display: block; color: var(--muted); }
   function esc(s) { return String(s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
   function drawTop(scores, me) {
     var ol = $("top");
-    if (!scores || !scores.length) { ol.innerHTML = '<li class="empty">Personne pour l\'instant. Tu peux être le premier pigeon.</li>'; return; }
+    if (!scores || !scores.length) { ol.innerHTML = '<li class="empty">Personne pour l\'instant. Vous pouvez être le premier pigeon.</li>'; return; }
     ol.innerHTML = scores.map(function (s) {
       var mine = me && s.name.toLowerCase() === me.toLowerCase();
       return '<li' + (mine ? ' class="me"' : "") + "><span>" + esc(s.name) + "</span><time>" + fmtDur(s.ms, true) + "</time></li>";
@@ -664,7 +664,7 @@ ol.top li.empty { display: block; color: var(--muted); }
       drawTop(j.scores, store("name"));
       if (j.runs) $("tot").textContent = j.runs.toLocaleString("fr-FR") + " personnes y ont cru, pour un total de " + fmtDur(j.wasted, true) + " de vie perdues.";
     }).catch(function () {
-      $("top").innerHTML = '<li class="empty">Classement indisponible. Ton record ici : ' + fmtDur(Number(store("best") || 0), true) + ".</li>";
+      $("top").innerHTML = '<li class="empty">Classement indisponible. Votre record ici : ' + fmtDur(Number(store("best") || 0), true) + ".</li>";
     });
   }
 
@@ -690,7 +690,7 @@ ol.top li.empty { display: block; color: var(--muted); }
   $("again").addEventListener("click", function () {
     document.body.classList.remove("ended");
     $("reveal").hidden = true;
-    $("cap-text").textContent = "Maintiens la touche Espace enfoncée pendant toute la vérification.";
+    $("cap-text").textContent = "Maintenez la touche Espace enfoncée pendant toute la vérification.";
     p = 0; dec = 1; render();
     statusEl.textContent = "En attente";
     clockEl.textContent = "00:00";
@@ -699,9 +699,9 @@ ol.top li.empty { display: block; color: var(--muted); }
 
   $("share").addEventListener("click", function () {
     var url = "https://apphero.cloud/03";
-    var text = "100 $ de crédit API offerts chez ton prestataire IA préféré. Il suffit de maintenir la touche Espace.";
+    var text = "100 $ de crédit API offerts chez votre prestataire IA préféré. Il suffit de maintenir la touche Espace.";
     if (navigator.share) navigator.share({ title: "100 $ de crédit API offerts", text: text, url: url }).catch(function () {});
-    else if (navigator.clipboard) navigator.clipboard.writeText(text + " " + url).then(function () { $("share").textContent = "Lien copié, à toi de jouer"; });
+    else if (navigator.clipboard) navigator.clipboard.writeText(text + " " + url).then(function () { $("share").textContent = "Lien copié, à vous de jouer"; });
     track("share", { app: "03" });
   });
 
