@@ -9,6 +9,8 @@ import { CRITERIA, criterionLabel, drawCalendar } from "../../shared/criteria.js
 // En IPv4, un opérateur mobile ou une entreprise partage une adresse entre beaucoup de monde.
 const MAX_PER_IP6 = 8;
 const MAX_PER_IP4 = 30;
+// Pour les votes (une voix peut faire basculer un tour), le plafond IPv4 est plus serré.
+const MAX_BALLOT_PER_IP4 = 10;
 const MAX_T_PER_DAY = 600; // envois de mesure d'audience par réseau et par jour
 const MAX_ADMIN_FAILS = 20; // codes organisateur faux par réseau et par jour
 const COOKIE = "ah_id";
@@ -443,7 +445,9 @@ async function castBallot(request, env, now) {
   if (!view.candidates?.includes(appId) || !releasedApp(appId, now)) return json({ error: "Cette app ne fait pas partie de ce vote." }, 400);
 
   const { voter, headers } = voterOrNew(request);
-  const { ip, ipHash, max } = await ipHashFor(request, env, `ballot|${def.id}`);
+  const net = await ipHashFor(request, env, `ballot|${def.id}`);
+  const { ip, ipHash } = net;
+  const max = Math.min(net.max, MAX_BALLOT_PER_IP4);
   if (env.TURNSTILE_SECRET) {
     const ok = await verifyTurnstile(env.TURNSTILE_SECRET, input.token, ip);
     if (!ok) return json({ error: "Vérification anti-robot échouée, réessaie." }, 403, headers);
