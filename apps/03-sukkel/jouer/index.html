@@ -78,6 +78,19 @@ h1 { font-size: clamp(38px, 5.4vw, 56px); line-height: 1.04; letter-spacing: -.0
 .prov input:focus-visible + span { outline: 2px solid var(--blue); outline-offset: 2px; }
 body.holding .prov { opacity: .45; pointer-events: none; }
 
+/* Le captcha */
+.captcha { border: 1px solid var(--line); border-radius: 14px; background: #fafaf8; padding: 14px 14px 10px; transition: border-color .2s, background .2s; }
+.cap-head { display: flex; gap: 10px; align-items: flex-start; margin-bottom: 14px; color: var(--ink); }
+.cap-head svg { flex: none; margin-top: 1px; color: var(--muted); }
+.cap-head b { display: block; font-size: 14px; font-weight: 600; }
+.cap-head span { display: block; font-size: 13px; color: var(--muted); line-height: 1.4; }
+.captcha.warn { border-color: #e8a3b1; background: #fff6f7; }
+.captcha.warn .cap-head svg, .captcha.warn .cap-head b { color: #c42b4a; }
+.captcha.warn .cap-head span { color: #8a2338; }
+.captcha.shake { animation: shake .4s; }
+@keyframes shake { 20%, 60% { transform: translateX(-5px); } 40%, 80% { transform: translateX(5px); } }
+.cap-foot { display: flex; justify-content: space-between; gap: 8px; margin-top: 16px; font-size: 11px; color: var(--soft); }
+
 /* La touche Espace */
 .keywrap { --a: 0deg; position: relative; isolation: isolate; perspective: 700px; }
 .keywrap::before { content: ""; position: absolute; inset: -6px; border-radius: 22px; z-index: -1; pointer-events: none;
@@ -227,10 +240,17 @@ ol.top li.empty { display: block; color: var(--muted); }
         <label><input type="radio" name="prov" value="mistral"><span>Mistral AI<small>Le Chat</small></span></label>
       </fieldset>
 
-      <div class="keywrap">
-        <button class="key" id="key" type="button" aria-describedby="how">
-          <span class="lbl">espace<small id="how">Maintiens la touche Espace de ton clavier</small></span>
-        </button>
+      <div class="captcha" id="captcha">
+        <div class="cap-head">
+          <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l8 3v6c0 5-3.4 8.6-8 10-4.6-1.4-8-5-8-10v-6z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M8.5 12l2.4 2.4 4.6-4.8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <div><b>Vérification anti-robot</b><span id="cap-text">Maintiens la touche Espace enfoncée pendant toute la vérification.</span></div>
+        </div>
+        <div class="keywrap">
+          <button class="key" id="key" type="button" aria-describedby="how">
+            <span class="lbl">espace<small id="how">Maintiens la touche Espace de ton clavier</small></span>
+          </button>
+        </div>
+        <div class="cap-foot"><span>HoldCheck™ · protection anti-robot</span><span>Confidentialité · Conditions</span></div>
       </div>
 
       <div class="proc" aria-live="polite">
@@ -465,6 +485,8 @@ ol.top li.empty { display: block; color: var(--muted); }
   function start() {
     if (holding || document.body.classList.contains("ended")) return;
     holding = true; endReason = "";
+    $("captcha").classList.remove("warn", "shake");
+    $("cap-text").textContent = "Vérification en cours. Ne relâche pas la touche.";
     t0 = performance.now();
     p = 0; dec = 1; unit = 0; stalled = false; noteCount = 0;
     document.body.classList.add("holding");
@@ -483,6 +505,7 @@ ol.top li.empty { display: block; color: var(--muted); }
   function stop(reason) {
     if (!holding) return;
     var ms = Math.round(performance.now() - t0);
+    if (ms < GRACE) return softReset(ms);
     holding = false; endReason = reason || "";
     clearTimeout(tickTimer); clearTimeout(noteTimer); clearInterval(beatTimer); clearInterval(clockTimer);
     document.body.classList.remove("holding", "stalled");
@@ -495,6 +518,29 @@ ol.top li.empty { display: block; color: var(--muted); }
     });
     showReveal(ms, reached, result);
     track("sukkel_stop", { s: Math.round(ms / 1000), reason: endReason || "lache" });
+  }
+
+  // Lâcher pendant les 5 premières secondes ne termine rien : le captcha rappelle la consigne et on recommence.
+  var GRACE = 5000;
+  function softReset(ms) {
+    holding = false;
+    clearTimeout(tickTimer); clearTimeout(noteTimer); clearInterval(beatTimer); clearInterval(clockTimer);
+    document.body.classList.remove("holding", "stalled");
+    keyEl.classList.remove("on");
+    clearToasts();
+    var req = runReq;
+    req.then(function (id) { if (id) post("stop", { id: id, ms: ms, early: 1 }, true).catch(function () {}); });
+    p = 0; dec = 1; unit = 0; render();
+    statusEl.textContent = "Vérification interrompue";
+    clockEl.textContent = "00:00";
+    var cap = $("captcha");
+    cap.classList.remove("shake"); void cap.offsetWidth;
+    cap.classList.add("warn", "shake");
+    $("cap-text").textContent = pick([
+      "Vérification interrompue. Pour éviter les robots, garde la touche Espace enfoncée jusqu'à la fin.",
+      "Un relâchement a été détecté. Maintiens la touche Espace sans interruption pour prouver que tu es humain.",
+    ]);
+    track("sukkel_early");
   }
 
   // Clavier : seulement la barre d'espace, et pas pendant la saisie du pseudo.
@@ -602,6 +648,7 @@ ol.top li.empty { display: block; color: var(--muted); }
     }).then(function (j) {
       store("name", name);
       drawTop(j.scores, name);
+      loadTop();
       $("sign").style.display = "none";
       track("sukkel_name");
     }).catch(function (j) {
@@ -612,6 +659,7 @@ ol.top li.empty { display: block; color: var(--muted); }
   $("again").addEventListener("click", function () {
     document.body.classList.remove("ended");
     $("reveal").hidden = true;
+    $("cap-text").textContent = "Maintiens la touche Espace enfoncée pendant toute la vérification.";
     p = 0; dec = 1; render();
     statusEl.textContent = "En attente";
     clockEl.textContent = "00:00";

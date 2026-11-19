@@ -31,7 +31,7 @@ async function rankOf(env, ms) {
 export async function sukkel(request, env, now, route, h) {
   if (!h.released(APP, now) && !(await h.preview(request, env))) return h.json({ error: "L'app n'est pas encore sortie." }, 404);
   if (route === "GET /api/sukkel/scores") {
-    const total = await env.DB.prepare("SELECT COUNT(*) AS n, COALESCE(SUM(ms), 0) AS ms FROM sukkel_runs WHERE ended_at IS NOT NULL").first();
+    const total = await env.DB.prepare("SELECT COUNT(*) AS n, COALESCE(SUM(ms), 0) AS ms FROM sukkel_runs WHERE ended_at IS NOT NULL AND ms >= 5000").first();
     return h.json({ scores: await top(env), runs: total?.n || 0, wasted: total?.ms || 0 }, 200, { "cache-control": "public, max-age=10" });
   }
 
