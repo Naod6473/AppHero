@@ -1,0 +1,23 @@
+{
+  "num": 3,
+  "title": "Zephir",
+  "tagline": "L'IA la plus sûre du monde libre. Elle ne répond jamais, mais cite toujours la loi.",
+  "publishAt": "2026-11-20T18:00:00+01:00",
+  "color": "#0050FF",
+  "tags": [
+    "parodie",
+    "ia",
+    "ai-act",
+    "rgpd"
+  ],
+  "status": "prêt",
+  "making": {
+    "buildMinutes": 130,
+    "thinkingMinutes": 30,
+    "tokens": 1400000,
+    "prompts": 38,
+    "lines": 2065,
+    "tool": "Claude Code",
+    "note": "Idée de Simon à 1 h du matin : une IA européenne qui ne répond jamais et cite des articles de loi. D'abord une maquette du chat, puis tout le faux site de l'éditeur, page par page, et une vidéo de lancement façon grande marque."
+  }
+}

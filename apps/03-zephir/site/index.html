@@ -1,0 +1,1395 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Zephir, l'IA la plus sûre du monde libre.">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="icon" href="favicon.png" type="image/png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<title>Zephir</title>
+<style>
+@font-face{font-family:"Inter";font-weight:400;font-style:normal;font-display:swap;src:url(../fonts/inter-latin-400-normal.woff2) format("woff2")}
+@font-face{font-family:"Inter";font-weight:500;font-style:normal;font-display:swap;src:url(../fonts/inter-latin-500-normal.woff2) format("woff2")}
+@font-face{font-family:"Inter";font-weight:600;font-style:normal;font-display:swap;src:url(../fonts/inter-latin-600-normal.woff2) format("woff2")}
+@font-face{font-family:"Inter";font-weight:700;font-style:normal;font-display:swap;src:url(../fonts/inter-latin-700-normal.woff2) format("woff2")}
+@font-face{font-family:"Inter Tight";font-weight:400;font-style:normal;font-display:swap;src:url(../fonts/inter-tight-latin-400-normal.woff2) format("woff2")}
+@font-face{font-family:"Inter Tight";font-weight:500;font-style:normal;font-display:swap;src:url(../fonts/inter-tight-latin-500-normal.woff2) format("woff2")}
+@font-face{font-family:"Inter Tight";font-weight:600;font-style:normal;font-display:swap;src:url(../fonts/inter-tight-latin-600-normal.woff2) format("woff2")}
+@font-face{font-family:"Silkscreen";font-weight:400;font-style:normal;font-display:swap;src:url(../fonts/silkscreen-latin-400-normal.woff2) format("woff2")}
+@font-face{font-family:"Silkscreen";font-weight:700;font-style:normal;font-display:swap;src:url(../fonts/silkscreen-latin-700-normal.woff2) format("woff2")}
+html{-webkit-text-size-adjust:100%}
+:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body{margin:0}img{max-width:100%}[hidden]{display:none!important}
+
+/* Mise en page : site vitrine sombre à grille de traits fins, grand titre centré, décor en pixels ; couleurs d'origine tournées de 180° sur la roue chromatique. */
+:root{
+  --g1:#0027FF; --g2:#0050FF; --g3:#057FFF; --g4:#0FB9FA; --g5:#00DCE1;
+  --blockA:#0050FF; --blockB:#2DD2FF; --pole:#FFA95A;
+  --bg:#111214; --ink:#F6F5EE; --muted:#9A9DA3; --line:#26282C; --panel:#18191C;
+  --eu:#003399; --eustar:#FFCC00;
+  --display:"Inter Tight","Inter",system-ui,sans-serif;
+  --body:"Inter",system-ui,-apple-system,"Segoe UI",sans-serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}
+a:focus-visible,button:focus-visible{outline:2px solid var(--blockB);outline-offset:2px}
+.px{display:block;shape-rendering:crispEdges}
+
+/* Navigation */
+.topnav{position:sticky;top:env(safe-area-inset-top,0px);z-index:10;display:flex;align-items:stretch;height:62px;border-bottom:1px solid var(--line);background:var(--bg);padding-left:env(safe-area-inset-left,0px);padding-right:env(safe-area-inset-right,0px)}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+.topnav a,.topnav .logo{display:flex;align-items:center;padding:0 20px;border-right:1px solid var(--line);font-weight:600;font-size:18px;letter-spacing:-.01em;white-space:nowrap}
+.topnav a:hover{background:var(--panel)}
+.topnav .logo{gap:8px;font-family:var(--display);font-size:25px;font-weight:500;padding:0 18px}
+.topnav .logo svg{width:24px}
+.topnav .sp{flex:1}
+.topnav .r{border-right:0;border-left:1px solid var(--line)}
+.topnav .r svg{width:14px;margin-left:10px}
+
+/* Héros */
+.hero{position:relative;height:580px;border-bottom:1px solid var(--line);overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:56px;padding-inline:max(16px,env(safe-area-inset-left,0px)) max(16px,env(safe-area-inset-right,0px))}
+.vline{position:absolute;top:0;bottom:0;width:1px;background:var(--line)}
+.arc{position:absolute;left:-20px;top:-40px;width:520px;height:360px;border:1px solid var(--line);border-color:transparent var(--line) transparent transparent;border-radius:0 0 100% 0/0 0 100% 0;transform:rotate(8deg)}
+h1{position:relative;margin:0;text-align:center;font-family:var(--display);font-weight:500;font-size:clamp(44px,8.2vw,112px);line-height:1.04;letter-spacing:-.035em;text-wrap:balance;max-width:14ch}
+h1 .flag{display:inline-block;width:.62em;vertical-align:-.04em;margin:0 .06em}
+.cta{position:relative;display:inline-flex;align-items:center;gap:14px;border:1px solid var(--line);border-radius:12px;padding:6px 18px 6px 6px;font-weight:600;font-size:19px;background:var(--bg);transition:border-color .15s}
+.cta:hover{border-color:var(--muted)}
+.cta .ic{width:42px;height:42px;border-radius:8px;background:#000;display:grid;place-items:center}
+.cta .ic svg{width:26px}
+.cta .chev{width:12px}
+.deco{position:absolute;bottom:0}
+.b1{left:0;width:148px;height:300px;background:var(--blockA)}
+.b2{left:0;width:148px;height:150px;background:var(--blockB)}
+.b3{left:148px;width:75px;height:75px;background:var(--blockA)}
+.dog{left:44px;bottom:300px;width:64px}
+.bld{left:246px;width:56px}
+.tower{right:356px;width:40px}
+.sq{right:0;width:150px;height:150px;background:var(--blockB)}
+.dia{right:21px;bottom:170px;width:106px;height:106px;background:var(--blockB);transform:rotate(45deg)}
+.claw{position:absolute;top:0;right:300px;width:38px}
+
+/* Clients */
+.logos{overflow:hidden;border-bottom:1px solid var(--line)}
+.track{display:flex;width:max-content;animation:marq 38s linear infinite}
+.logos:hover .track{animation-play-state:paused}
+@keyframes marq{to{transform:translateX(-50%)}}
+.logos div{height:168px;display:flex;align-items:center;justify-content:center;gap:10px;border-right:1px solid var(--line);color:var(--ink2);font-weight:700;font-size:20px;letter-spacing:-.01em;padding:0 12px;text-align:center}
+.logos .track div{width:max(220px,calc(100vw / 6));flex:none}
+.logos svg{width:30px;height:30px;flex:none}
+.l1{font-family:var(--display);font-weight:500!important;letter-spacing:.02em!important}
+.l2{text-transform:uppercase;letter-spacing:.12em!important;font-size:16px!important}
+.l3{font-style:italic;font-family:Georgia,serif;font-weight:400!important;font-size:24px!important}
+.l5{font-weight:800!important;letter-spacing:-.04em!important;font-size:24px!important}
+
+/* Modèles */
+.sec{max-width:1240px;margin:0 auto;padding-block:96px 40px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.eyebrow{font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:600}
+h2{font-family:var(--display);font-weight:500;font-size:clamp(32px,4.6vw,58px);line-height:1.08;letter-spacing:-.03em;margin:12px 0 18px;text-wrap:balance;max-width:20ch}
+.lead{color:var(--muted);font-size:18px;max-width:58ch;margin:0 0 48px}
+.levels{display:grid;grid-template-columns:repeat(4,1fr);border:1px solid var(--line)}
+.lv{padding:28px 24px 30px;border-right:1px solid var(--line);display:flex;flex-direction:column;gap:12px;min-width:0}
+.lv:last-child{border-right:0}
+.lv .bar{display:flex;gap:4px}
+.lv .bar i{width:14px;height:14px;background:var(--line)}
+.lv .bar i.on{background:var(--blockB)}
+.lv h3{margin:6px 0 0;font-family:var(--display);font-weight:500;font-size:28px;letter-spacing:-.02em}
+.lv .tag{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;font-weight:600}
+.lv p{margin:0;color:var(--muted);font-size:15px}
+.lv dl{margin:auto 0 0;padding-top:14px;border-top:1px solid var(--line);display:grid;grid-template-columns:auto 1fr;gap:4px 12px;font-size:13px}
+.lv dt{color:var(--muted)}
+.lv dd{margin:0;text-align:right;font-variant-numeric:tabular-nums}
+
+.nums{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border:1px solid var(--line);border-top:0}
+.nums div{padding:28px 24px;border-right:1px solid var(--line)}
+.nums div:last-child{border-right:0}
+.nums b{display:block;font-family:var(--display);font-weight:500;font-size:44px;letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+.nums span{color:var(--muted);font-size:14px}
+
+.quote{border:1px solid var(--line);border-top:0;padding:56px 24px;text-align:center}
+.quote p{font-family:var(--display);font-size:clamp(22px,2.6vw,32px);letter-spacing:-.02em;margin:0 auto 14px;max-width:34ch;text-wrap:balance}
+.quote small{color:var(--muted);font-size:14px}
+
+.band{display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap;border:1px solid var(--line);border-top:0;padding:40px 24px;background:linear-gradient(90deg,var(--g1),var(--g2),var(--g3),var(--g4),var(--g5))}
+.band h3{margin:0;font-family:var(--display);font-weight:500;font-size:clamp(26px,3vw,38px);letter-spacing:-.02em;color:#fff;max-width:22ch}
+.band .cta{background:#0B0C0E;border-color:#0B0C0E;color:var(--ink)}
+
+.legal{max-width:1240px;margin:0 auto;padding-block:40px 24px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;gap:24px;flex-wrap:wrap;align-items:center;color:var(--muted);font-size:13px}
+.legal .eu{display:flex;align-items:center;gap:12px}
+.legal .eu b{color:var(--ink);font-weight:600;display:block}
+.legal .sp{flex:1}
+.legal .links{display:flex;gap:18px;flex-wrap:wrap}
+.legal .links a:hover{color:var(--ink)}
+
+@media (max-width:1100px){
+  .topnav .hide-m{display:none}
+  .levels,.nums{grid-template-columns:repeat(2,1fr)}
+  .lv:nth-child(2),.nums div:nth-child(2){border-right:0}
+  .lv:nth-child(-n+2),.nums div:nth-child(-n+2){border-bottom:1px solid var(--line)}
+  .tower,.claw{display:none}
+}
+@media (max-width:640px){
+  .topnav{height:56px}
+  .topnav .r.contact{display:none}
+  .topnav .logo{font-size:21px;padding:0 14px}
+  .topnav a{font-size:15px;padding:0 14px}
+  .hero{height:520px;gap:40px}
+  .b1{width:56px;height:150px}.b2{width:56px;height:75px}.b3{left:56px;width:36px;height:36px}
+  .dog{left:12px;bottom:150px;width:36px}
+  .bld,.vline,.arc{display:none}
+  .sq{width:56px;height:56px}.dia{width:40px;height:40px;right:8px;bottom:66px}
+  .logos div{height:110px;font-size:16px}
+  .logos .track div{width:50vw}
+  .levels,.nums{grid-template-columns:1fr}
+  .lv,.nums div{border-right:0!important;border-bottom:1px solid var(--line)}
+  .lv:last-child,.nums div:last-child{border-bottom:0}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+.conf .sec{max-width:900px}
+.status{border:1px solid var(--line);background:var(--panel);padding:18px 20px;margin:0 0 40px;display:flex;flex-direction:column;gap:6px}
+.status div{display:flex;align-items:center;gap:10px}
+.status p{margin:0;color:var(--muted);font-size:15px}
+.dot{width:10px;height:10px;border-radius:50%;background:var(--blockB);flex:none}
+.dot.off{background:var(--pole)}
+.arts{list-style:none;margin:0;padding:0;border:1px solid var(--line)}
+.arts li{padding:26px 24px;border-bottom:1px solid var(--line)}
+.arts li:last-child{border-bottom:0}
+.arts h3{margin:0 0 10px;font-family:var(--display);font-weight:500;font-size:22px;letter-spacing:-.01em}
+.arts p{margin:0 0 8px;color:var(--ink2);max-width:68ch}
+.arts p:last-child{margin-bottom:0}
+.arts .note{color:var(--muted);font-size:14px;border-left:2px solid var(--blockB);padding-left:12px}
+.sign{color:var(--muted);font-size:14px;margin:24px 0 0;text-align:right}
+
+/* Animations */
+.hero h1 .w{display:inline-block;animation:rise .9s cubic-bezier(.2,.7,.2,1) both}
+@keyframes rise{from{transform:translateY(.35em);opacity:.0}to{transform:none;opacity:1}}
+.cta.pop{animation:pop .7s .55s cubic-bezier(.2,.8,.3,1.3) both}
+@keyframes pop{from{transform:scale(.9);opacity:0}to{transform:none;opacity:1}}
+.b1,.b2,.b3,.sq{transform-origin:bottom;animation:grow .8s cubic-bezier(.2,.8,.2,1) both}
+.b2{animation-delay:.1s}.b3{animation-delay:.2s}.sq{animation-delay:.15s}
+@keyframes grow{from{transform:scaleY(0)}to{transform:scaleY(1)}}
+.dia{animation:spin 6s ease-in-out infinite}
+@keyframes spin{0%,70%{transform:rotate(45deg) translateY(0)}80%{transform:rotate(45deg) translate(-14px,-14px)}90%,100%{transform:rotate(135deg)}}
+.claw{animation:claw 7s ease-in-out infinite}
+@keyframes claw{0%,12%{transform:translateX(0)}50%,62%{transform:translateX(-200px)}100%{transform:translateX(0)}}
+.dog.hop{animation:hop .6s ease-out}
+@keyframes hop{40%{transform:translateY(-26px)}100%{transform:none}}
+.tower{animation:bob 3s steps(2) infinite}
+@keyframes bob{50%{transform:translateY(-3px)}}
+.reveal{transition:transform .7s cubic-bezier(.2,.7,.2,1),opacity .7s}
+.reveal.pre{transform:translateY(28px);opacity:.15}
+.lv .bar i{transition:background .3s}
+@media (prefers-reduced-motion:reduce){.track,.dia,.claw,.tower,.hero h1 .w,.cta.pop,.b1,.b2,.b3,.sq{animation:none!important}.reveal.pre{transform:none;opacity:1}}
+
+.bigfoot{position:relative;border-top:1px solid var(--line);overflow:hidden}
+.bf-top{display:flex;justify-content:space-between;align-items:flex-start;gap:24px;flex-wrap:wrap;padding:52px max(44px,env(safe-area-inset-right,0px)) 0 max(44px,env(safe-area-inset-left,0px))}
+.socials{display:flex;gap:28px;padding-top:30px}
+.socials a{color:var(--ink);display:block}
+.socials svg{width:32px;height:32px;display:block}
+.socials a:hover{opacity:.8}
+.get{display:flex;flex-direction:column;align-items:flex-end;gap:12px}
+.get>span{color:var(--muted);font-weight:600;font-size:17px}
+.badges{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end}
+.badge{display:flex;align-items:center;gap:10px;border:1px solid var(--ink);border-radius:8px;padding:6px 14px 6px 10px;background:#000;font-weight:600;font-size:19px;line-height:1.05}
+.badge svg{width:30px;height:24px;flex:none}
+.badge small{display:block;font-size:10px;font-weight:500}
+.bf-mid{position:relative;display:grid;grid-template-columns:1fr auto 1fr;align-items:end;gap:24px;padding:28px max(44px,env(safe-area-inset-right,0px)) 0 max(44px,env(safe-area-inset-left,0px))}
+.bf-left{padding-bottom:52px;color:var(--muted);font-size:16px}
+.motto{margin:0 0 8px;font-family:var(--display);font-size:clamp(20px,2vw,26px);color:var(--ink);letter-spacing:-.02em;text-wrap:balance;max-width:22ch}
+.biglogo{width:clamp(180px,22vw,300px);height:auto;display:block}
+.bf-right{display:flex;justify-content:flex-end;gap:10px;padding-bottom:50px;flex-wrap:wrap}
+.themes{display:flex;border:1px solid var(--line);border-radius:8px;padding:4px;gap:2px}
+.themes button{border:0;background:none;color:var(--ink);width:36px;height:36px;border-radius:6px;display:grid;place-items:center;cursor:pointer}
+.themes button.on{background:var(--line)}
+.themes svg{width:20px;height:20px}
+.lang select{appearance:none;-webkit-appearance:none;background:var(--bg) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath d='m1 1.5 5 5 5-5' fill='none' stroke='%23F6F5EE' stroke-width='1.6'/%3E%3C/svg%3E") no-repeat right 14px center/12px;border:1px solid var(--line);border-radius:8px;color:var(--ink);font:600 16px var(--body);padding:12px 40px 12px 16px;height:46px;cursor:pointer;max-width:220px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.stripes{position:relative;display:flex;flex-direction:column}
+.stripes i{display:block;height:80px;background-image:radial-gradient(ellipse at 30% 50%,rgba(255,255,255,.07),transparent 60%),radial-gradient(ellipse at 70% 40%,rgba(0,0,0,.08),transparent 55%);background-size:200% 100%;animation:drift 18s ease-in-out infinite alternate}
+.stripes i:nth-child(1){background-color:#1C74EE}
+.stripes i:nth-child(2){background-color:#3AA9F0;animation-delay:-4s}
+.stripes i:nth-child(3){background-color:#14C2DC;animation-delay:-8s}
+.stripes i:nth-child(4){background-color:#13B49A;animation-delay:-12s;height:calc(80px + env(safe-area-inset-bottom,0px))}
+@keyframes drift{to{background-position:100% 0}}
+.walker{position:absolute;left:0;top:calc(160px - 32px);width:48px;height:32px;will-change:transform}
+@media (max-width:900px){
+  .bf-mid{grid-template-columns:1fr;justify-items:center;text-align:center}
+  .bf-left{padding-bottom:0;order:1}.bf-left .motto{margin-inline:auto}
+  .bf-right{order:2;padding-bottom:12px;justify-content:center}
+  .biglogo{order:3}
+  .get{align-items:flex-start}.badges{justify-content:flex-start}
+}
+@media (max-width:640px){
+  .bf-top,.bf-mid{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+  .stripes i{height:56px}.walker{top:calc(112px - 28px);width:42px;height:28px}
+  .badge{font-size:16px}
+}
+@media (prefers-reduced-motion:reduce){.stripes i{animation:none}}
+
+.further{border-top:1px solid var(--line);margin-top:80px}
+.further h2{max-width:none;margin:0;padding:40px max(50px,env(safe-area-inset-right,0px)) 40px max(50px,env(safe-area-inset-left,0px));border-bottom:1px solid var(--line)}
+.cards{display:grid;grid-template-columns:repeat(3,1fr);margin:0 50px;border-left:1px solid var(--line);border-bottom:1px solid var(--line)}
+.card{display:flex;flex-direction:column;min-height:440px;padding:50px;border-right:1px solid var(--line);position:relative;overflow:hidden;transition:background .25s}
+.card:hover{background:var(--panel)}
+.card::after{content:"";position:absolute;left:0;right:0;bottom:0;height:3px;background:linear-gradient(90deg,var(--g1),var(--g3),var(--g5));transform:scaleX(0);transform-origin:left;transition:transform .35s}
+.card:hover::after{transform:scaleX(1)}
+.ico{width:26px;height:26px;transition:transform .3s}
+.card:hover .ico{transform:translateY(-4px) scale(1.15)}
+.card h3{font-family:var(--display);font-weight:500;font-size:38px;letter-spacing:-.025em;margin:40px 0 auto}
+.card p{margin:40px 0 0;font-size:19px;line-height:1.55;color:var(--ink2);max-width:40ch}
+@media (max-width:900px){.cards{grid-template-columns:1fr;margin:0 16px}.card{min-height:0;padding:36px 24px;border-bottom:1px solid var(--line)}.card h3{margin-bottom:0}.further h2{padding-inline:16px}}
+
+.souv{--pad:max(50px,env(safe-area-inset-left,0px))}
+.sv-hero{border-bottom:1px solid var(--line);padding:90px var(--pad) 80px;display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:start}
+.phon{color:var(--muted);font-weight:500;letter-spacing:.02em;text-transform:none;margin-left:6px}
+.sv-h1{text-align:left;margin:16px 0 22px;font-size:clamp(40px,5.6vw,84px);max-width:12ch}
+.sv-hero .lead{margin:0}
+.sv-stage{display:flex;flex-direction:column;gap:28px;padding-top:8px}
+.sv-lines{list-style:none;margin:0;padding:0;display:grid;min-height:96px}
+.sv-lines li{grid-area:1/1;font-family:var(--display);font-size:clamp(20px,1.8vw,26px);line-height:1.3;letter-spacing:-.02em;opacity:0;transform:translateY(12px);transition:opacity .6s,transform .6s}
+.sv-lines li.on{opacity:1;transform:none}
+.sv-diag{display:grid;grid-template-columns:1fr 70px 1fr;align-items:stretch;gap:0;min-height:300px}
+.box{border:1px solid var(--line);padding:16px;position:relative;display:flex;flex-direction:column;gap:12px;background:var(--panel)}
+.lbl{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chips i{font-style:normal;font-size:12.5px;border:1px solid var(--line);padding:4px 8px;background:var(--bg);transition:transform .9s cubic-bezier(.5,0,.3,1),opacity .9s,border-color .4s,color .4s}
+.dots{width:70px;align-self:center}
+.ext{align-items:center;justify-content:center}
+.ext .lbl{transition:color .4s}
+.lock{font-size:12px;color:var(--muted);border:1px dashed var(--line);padding:6px 10px;opacity:0;transition:opacity .5s}
+.sv-diag[data-s="1"] .chips i{transform:translateX(calc(100% + 120px));opacity:0}
+.sv-diag[data-s="1"] .chips i:nth-child(odd){transition-delay:.12s}
+.sv-diag[data-s="2"] .chips i{border-color:var(--blockB);color:var(--blockB)}
+.sv-diag[data-s="2"] .ext .lbl{color:var(--blockB)}
+.sv-diag[data-s="2"] .lock{opacity:1}
+.sv-sec{border-bottom:1px solid var(--line);padding:90px var(--pad) 90px}
+.sv-sec h2{margin:0 0 48px;max-width:22ch}
+.sv-cards{display:grid;grid-template-columns:repeat(4,1fr);border:1px solid var(--line)}
+.sv-cards article{padding:32px 26px;border-right:1px solid var(--line);display:flex;flex-direction:column;gap:14px;min-width:0;transition:background .25s}
+.sv-cards article:last-child{border-right:0}
+.sv-cards article:hover{background:var(--panel)}
+.sv-cards h3{margin:18px 0 0;font-family:var(--display);font-weight:500;font-size:28px;letter-spacing:-.02em}
+.sv-cards p{margin:0;color:var(--ink2);font-size:16px}
+.sv-path{display:grid;grid-template-columns:320px 1fr;gap:60px;align-items:start}
+.sv-nav{position:sticky;top:calc(80px + env(safe-area-inset-top,0px));display:flex;flex-direction:column;border:1px solid var(--line)}
+.sv-nav button{all:unset;cursor:pointer;display:flex;gap:14px;align-items:center;padding:16px 18px;border-bottom:1px solid var(--line);font-weight:600;font-size:15px;color:var(--muted);transition:color .2s,background .2s}
+.sv-nav button:last-child{border-bottom:0}
+.sv-nav button b{font-family:var(--display);font-weight:500;width:28px;height:28px;display:grid;place-items:center;border:1px solid var(--line);font-size:13px;flex:none}
+.sv-nav button.on{color:var(--ink);background:var(--panel)}
+.sv-nav button.on b{background:var(--blockB);border-color:var(--blockB);color:#06222B}
+.sv-nav button:focus-visible{outline:2px solid var(--blockB);outline-offset:-2px}
+.sv-steps{display:flex;flex-direction:column;gap:0;border-left:1px solid var(--line)}
+.step{padding:6px 0 56px 40px;scroll-margin-top:90px}
+.step h3{margin:0 0 14px;font-family:var(--display);font-weight:500;font-size:34px;letter-spacing:-.025em}
+.step .sl{font-size:19px;color:var(--ink);margin:0 0 18px;max-width:52ch}
+.step p{margin:0 0 12px;color:var(--ink2);max-width:64ch}
+.sv-end{padding:100px var(--pad) 110px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:28px}
+.sv-end h2{margin:0;max-width:24ch}
+.more{display:inline-flex;align-items:center;gap:10px;font-weight:600;font-size:18px;border-bottom:1px solid var(--ink);padding-bottom:2px}
+.more svg{width:8px}
+@media (max-width:1000px){
+  .sv-hero{grid-template-columns:1fr;gap:40px}
+  .sv-cards{grid-template-columns:repeat(2,1fr)}
+  .sv-cards article:nth-child(2){border-right:0}
+  .sv-cards article:nth-child(-n+2){border-bottom:1px solid var(--line)}
+  .sv-path{grid-template-columns:1fr;gap:28px}
+  .sv-nav{position:static}
+}
+@media (max-width:640px){
+  .souv{--pad:16px}
+  .sv-hero{padding-top:56px;padding-bottom:56px}
+  .sv-sec{padding-top:64px;padding-bottom:64px}
+  .sv-diag{grid-template-columns:1fr;grid-template-rows:auto 40px auto}
+  .dots{transform:rotate(90deg);justify-self:center;width:40px}
+  .sv-diag[data-s="1"] .chips i{transform:translateY(160px)}
+  .sv-cards{grid-template-columns:1fr}
+  .sv-cards article{border-right:0!important;border-bottom:1px solid var(--line)}
+  .sv-cards article:last-child{border-bottom:0}
+  .step{padding-left:20px}
+  .step h3{font-size:26px}
+}
+@media (prefers-reduced-motion:reduce){.chips i,.sv-lines li{transition:none}}
+
+/* ---- Thème clair ---- */
+:root{--ink2:#D6D5CE;--shadow:rgba(0,0,0,.6)}
+:root[data-eff="light"]{--bg:#F5F4EF;--ink:#121316;--ink2:#2B2D32;--muted:#62656C;--line:#DDDCD4;--panel:#ECEBE4;--shadow:rgba(20,20,30,.15);color-scheme:light}
+body{transition:background .3s,color .3s}
+
+/* ---- Navigation ---- */
+.topnav .mi{position:relative;display:flex}
+.topnav .mi>a{border-right:1px solid var(--line)}
+.dd{position:absolute;top:100%;left:-1px;min-width:280px;background:var(--bg);border:1px solid var(--line);display:flex;flex-direction:column;padding:8px;opacity:0;visibility:hidden;transform:translateY(-6px);transition:opacity .18s,transform .18s,visibility .18s;z-index:20;box-shadow:0 20px 40px -20px var(--shadow)}
+.mi:hover .dd,.mi:focus-within .dd{opacity:1;visibility:visible;transform:none}
+.dd a{all:unset;cursor:pointer;display:flex;flex-direction:column;padding:10px 12px;font-size:15px}
+.dd a:hover,.dd a:focus-visible{background:var(--panel)}
+.dd b{font-weight:600}
+.dd small{color:var(--muted);font-size:13px}
+.topnav a[aria-current="page"]{background:var(--panel)}
+.burger{display:none;border:0;border-left:1px solid var(--line);background:none;color:var(--ink);width:62px;cursor:pointer;padding:0;place-items:center}
+.burger svg{width:22px;height:22px}
+.mmenu{position:fixed;inset:62px 0 0 0;z-index:30;background:var(--bg);overflow:auto;padding:20px max(16px,env(safe-area-inset-right,0px)) calc(30px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));display:flex;flex-direction:column;gap:22px}
+.mg{display:flex;flex-direction:column;gap:2px}
+.mg b{font-size:12px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:4px}
+.mg a{font-size:22px;font-family:var(--display);padding:6px 0}
+.mcta{align-self:flex-start;border:1px solid var(--line);padding:12px 18px;font-weight:600}
+.langbar{position:sticky;top:calc(62px + env(safe-area-inset-top,0px));z-index:9;background:var(--panel);border-bottom:1px solid var(--line);padding:10px max(16px,env(safe-area-inset-left,0px));font-size:14px;text-align:center;color:var(--ink)}
+@media (max-width:1100px){.burger{display:grid}.topnav .start{display:none}.topnav .mi.hide-m{display:none}}
+@media (max-width:640px){.mmenu{inset:56px 0 0 0}.burger{width:56px}.langbar{top:calc(56px + env(safe-area-inset-top,0px))}}
+
+/* ---- Pages ---- */
+.pg-hero{padding:100px max(50px,env(safe-area-inset-left,0px)) 70px;border-bottom:1px solid var(--line)}
+.pg-hero.center{text-align:center;margin:0 auto;display:flex;flex-direction:column;align-items:center}
+.pg-h1{text-align:inherit;margin:16px 0 22px;font-size:clamp(40px,6vw,88px);max-width:16ch}
+.pg-hero .lead{margin:0}
+.pg-body{padding:56px max(50px,env(safe-area-inset-left,0px)) 100px;max-width:1340px;margin:0 auto}
+.pg-h2{margin:72px 0 14px;font-size:clamp(28px,3.4vw,44px)}
+.dc-photo{margin:0}.dc-photo img{display:block;width:100%;height:auto;border:1px solid var(--line)}.dc-photo figcaption{font-size:13px;color:var(--muted);margin-top:10px}.dc-stats{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--line);border-left:1px solid var(--line);margin-top:40px}.dc-stats div{border-right:1px solid var(--line);border-bottom:1px solid var(--line);padding:22px 20px;display:flex;flex-direction:column;gap:6px}.dc-stats b{font-family:var(--display);font-weight:500;font-size:clamp(30px,3.4vw,44px);letter-spacing:-.02em}.dc-stats span{color:var(--muted);font-size:14px}.dc-grid{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--line);border-left:1px solid var(--line)}.dc-grid article{border-right:1px solid var(--line);border-bottom:1px solid var(--line);padding:26px 24px}.dc-grid h3{margin:0 0 10px;font-family:var(--display);font-weight:500;font-size:22px}.dc-grid p,.dc-p{margin:0;color:var(--ink2);line-height:1.6;max-width:860px}.dc-certs{display:flex;flex-wrap:wrap;gap:12px}.dc-certs span{border:1px solid var(--line);padding:12px 16px;display:flex;flex-direction:column;gap:2px;font-weight:600}.dc-certs small{font-weight:400;color:var(--muted);font-size:13px}@media (max-width:900px){.dc-stats{grid-template-columns:repeat(2,1fr)}.dc-grid{grid-template-columns:1fr}}
+.legaltxt>*{max-width:860px}.legaltxt .pg-h2{margin-top:44px;font-size:clamp(22px,2.4vw,30px)}.legaltxt p{color:var(--ink2);line-height:1.6}.realnote{margin-top:48px;font-size:14px;border-top:1px solid var(--line);padding-top:16px}.tgl-list{display:grid;border-top:1px solid var(--line)}.tgl{display:flex;gap:12px;align-items:center;padding:14px 0;border-bottom:1px solid var(--line)}.tgl span{flex:1}.tgl em{font-style:normal;color:var(--muted);font-size:14px}
+.pg-body>.pg-h2:first-child{margin-top:8px}
+.muted{color:var(--muted)}
+.filters{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:34px}
+.filters button{border:1px solid var(--line);background:none;color:var(--ink);padding:9px 16px;font:500 15px var(--body);cursor:pointer;transition:background .2s,border-color .2s}
+.filters button:hover{border-color:var(--muted)}
+.filters button.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.cgrid{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--line);border-left:1px solid var(--line)}
+.cc{all:unset;box-sizing:border-box;cursor:pointer;border-right:1px solid var(--line);border-bottom:1px solid var(--line);padding:28px 26px;display:flex;flex-direction:column;gap:14px;min-height:300px;position:relative;transition:background .25s;animation:fadein .4s both}
+.cc:hover,.cc:focus-visible{background:var(--panel)}
+.cc .cl{display:flex;align-items:center;gap:10px;font-weight:700;font-size:20px}
+.cc .cl svg{width:24px;height:24px}
+.cc .sec2{font-size:12px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);font-weight:600}
+.cc h3{margin:0;font-family:var(--display);font-weight:500;font-size:22px;line-height:1.25;letter-spacing:-.015em}
+.cc .stat{margin-top:auto;display:flex;align-items:baseline;gap:8px;border-top:1px solid var(--line);padding-top:14px}
+.cc .stat b{font-family:var(--display);font-weight:500;font-size:30px}
+.cc .stat span{color:var(--muted);font-size:13px}
+.cc .go{position:absolute;top:26px;right:24px;width:10px;opacity:.5;transition:transform .2s,opacity .2s}
+.cc:hover .go{transform:translateX(4px);opacity:1}
+@keyframes fadein{from{opacity:0;transform:translateY(10px)}}
+.cmodal{position:fixed;inset:0;z-index:60;background:rgba(0,0,0,.55);display:grid;place-items:center;padding:16px}
+.cm-in{position:relative;background:var(--bg);border:1px solid var(--line);max-width:720px;width:100%;max-height:min(88vh,820px);overflow:auto;padding:40px 36px}
+.cm-x{position:absolute;top:14px;right:14px;border:0;background:none;color:var(--ink);width:36px;height:36px;cursor:pointer}
+.cm-in h2{margin:10px 0 20px;font-size:clamp(26px,3vw,36px);max-width:none}
+.cm-in h4{margin:24px 0 6px;font-size:13px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted)}
+.cm-in p{margin:0;color:var(--ink2)}
+.cm-in blockquote{margin:28px 0 0;border-left:3px solid var(--blockB);padding:6px 0 6px 18px;font-family:var(--display);font-size:22px;letter-spacing:-.01em}
+.cm-in blockquote small{display:block;font-family:var(--body);font-size:14px;color:var(--muted);margin-top:8px}
+.cm-stat{display:flex;gap:10px;align-items:baseline;margin-top:22px}
+.cm-stat b{font-family:var(--display);font-weight:500;font-size:44px}
+.bench{display:flex;flex-direction:column;border:1px solid var(--line);margin-top:24px}
+.brow{display:grid;grid-template-columns:260px 1fr;border-bottom:1px solid var(--line)}
+.brow:last-child{border-bottom:0}
+.brow>span{padding:18px 20px;border-right:1px solid var(--line);font-weight:600}
+.bars{padding:12px 20px;display:flex;flex-direction:column;gap:6px}
+.bar2{display:grid;grid-template-columns:150px 1fr 90px;align-items:center;gap:12px;font-size:13px;color:var(--muted)}
+.bar2 i{display:block;height:10px;background:var(--line);position:relative;overflow:hidden}
+.bar2 i em{position:absolute;inset:0 auto 0 0;background:var(--muted);transition:width 1.2s cubic-bezier(.2,.7,.2,1)}
+.bar2.us{color:var(--ink);font-weight:600}
+.bar2.us i em{background:linear-gradient(90deg,var(--g1),var(--g4))}
+.bar2 b{text-align:right;font-variant-numeric:tabular-nums}
+.pubs{border-top:1px solid var(--line);margin-top:24px}
+.pub{display:grid;grid-template-columns:160px 1fr auto;gap:24px;padding:28px 0;border-bottom:1px solid var(--line);align-items:start}
+.pub time{color:var(--muted);font-size:14px;padding-top:6px}
+.pub h3{margin:0 0 8px;font-family:var(--display);font-weight:500;font-size:26px;letter-spacing:-.02em}
+.pub p{margin:0 0 12px;color:var(--ink2);max-width:62ch}
+.tags{display:flex;gap:6px;flex-wrap:wrap}
+.tags i{font-style:normal;font-size:12px;border:1px solid var(--line);padding:3px 8px;color:var(--muted)}
+.read,.apply{border:1px solid var(--line);background:none;color:var(--ink);padding:9px 14px;font:600 14px var(--body);cursor:pointer;white-space:nowrap}
+.read:hover,.apply:hover{border-color:var(--ink)}
+.guichet{display:flex;gap:14px;align-items:center;border:1px solid var(--line);background:var(--panel);padding:18px 20px;margin-bottom:34px}
+.guichet div{display:flex;flex-direction:column}
+.guichet span:not(.dot){color:var(--muted);font-size:14px}
+.two{display:grid;grid-template-columns:1fr 1fr;border:1px solid var(--line)}
+.panel{padding:32px 28px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.panel+.panel{border-left:1px solid var(--line)}
+.panel h3{margin:0;font-family:var(--display);font-weight:500;font-size:30px;letter-spacing:-.02em}
+.panel p{margin:0;color:var(--ink2)}
+.tbl{width:100%;border-collapse:collapse;margin-top:10px;font-size:15px}
+.tbl th,.tbl td{text-align:left;padding:11px 0;border-bottom:1px solid var(--line);vertical-align:top}
+.tbl th{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:600}
+.tbl td:last-child,.tbl th:last-child{text-align:right;padding-left:16px}
+.tbl.tva td:nth-child(2),.tbl.tva th:nth-child(2){text-align:right;padding-left:16px;white-space:nowrap}.tva-intro{max-width:720px;margin:0 0 6px}.tva-ex{font-size:14px;margin:14px 0 0}@media (max-width:600px){.tbl.tva{font-size:13px}.tbl.tva td:nth-child(2),.tbl.tva th:nth-child(2){white-space:normal}}
+.hours{max-width:720px;margin-top:20px}
+.plans{display:grid;grid-template-columns:repeat(3,1fr);border:1px solid var(--line)}
+.plan{padding:34px 28px;display:flex;flex-direction:column;gap:10px;position:relative;min-width:0}
+.plan+.plan{border-left:1px solid var(--line)}
+.plan.hi{background:var(--panel)}
+.plan h3{margin:0;font-family:var(--display);font-weight:500;font-size:28px}
+.price{margin:6px 0 0;font-family:var(--display);font-size:44px;letter-spacing:-.03em}
+.price small{font-size:15px;color:var(--muted);letter-spacing:0}
+.plan ul{list-style:none;margin:14px 0 22px;padding:0;display:flex;flex-direction:column;gap:9px}
+.plan li{display:flex;gap:10px}
+.plan li::before{content:"";width:8px;height:8px;background:var(--blockB);flex:none;margin-top:8px}
+.plan .btn{margin-top:auto;align-self:flex-start;border:1px solid var(--line);padding:11px 18px;font-weight:600}
+.plan .btn.main{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.badge2{position:absolute;top:18px;right:18px;font-size:12px;font-weight:600;background:var(--blockB);color:#06222B;padding:4px 8px}
+.faq{border-top:1px solid var(--line);margin-top:20px;max-width:860px}
+.faq details{border-bottom:1px solid var(--line);padding:18px 0}
+.faq summary{cursor:pointer;font-weight:600;font-size:18px;list-style:none;display:flex;justify-content:space-between;gap:16px}
+.faq summary::after{content:"+";font-size:22px;line-height:1;color:var(--muted)}
+.faq details[open] summary::after{content:"−"}
+.faq p{margin:12px 0 0;color:var(--ink2);max-width:66ch}
+.values{display:grid;grid-template-columns:repeat(3,1fr);border:1px solid var(--line)}
+.values article{padding:30px 26px}
+.values article+article{border-left:1px solid var(--line)}
+.values h3{margin:0 0 10px;font-family:var(--display);font-weight:500;font-size:28px}
+.values p{margin:0;color:var(--ink2)}
+.committees{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--line);border-left:1px solid var(--line);margin-top:24px}
+.committees div{border-right:1px solid var(--line);border-bottom:1px solid var(--line);padding:24px;display:flex;flex-direction:column;gap:6px}
+.committees b{font-family:var(--display);font-weight:500;font-size:44px;letter-spacing:-.03em}
+.committees span{color:var(--muted)}
+.timeline{list-style:none;margin:24px 0 0;padding:0;border-left:2px solid var(--line)}
+.timeline li{display:grid;grid-template-columns:90px 1fr;gap:16px;padding:14px 0 14px 22px;position:relative}
+.timeline li::before{content:"";position:absolute;left:-7px;top:22px;width:12px;height:12px;background:var(--blockB)}
+.timeline time{font-family:var(--display);font-size:22px}
+.timeline p{margin:4px 0 0;color:var(--ink2)}
+.offices{display:grid;grid-template-columns:repeat(4,1fr);border:1px solid var(--line);margin-top:24px}
+.offices div{padding:22px;display:flex;flex-direction:column;gap:4px}
+.offices div+div{border-left:1px solid var(--line)}
+.offices b{font-family:var(--display);font-weight:500;font-size:24px}
+.offices span{color:var(--muted);font-size:14px}
+.perks{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:30px}
+.perks span{border:1px solid var(--line);padding:7px 12px;font-size:14px}
+.jobs{border-top:1px solid var(--line)}
+.job{display:flex;justify-content:space-between;align-items:center;gap:20px;padding:22px 0;border-bottom:1px solid var(--line)}
+.job h3{margin:0 0 4px;font-family:var(--display);font-weight:500;font-size:24px;letter-spacing:-.015em}
+.job span{color:var(--muted);font-size:14px}
+.posts{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--line);border-left:1px solid var(--line)}
+.post{border-right:1px solid var(--line);border-bottom:1px solid var(--line);padding:28px 26px;display:flex;flex-direction:column;gap:12px;min-height:260px;cursor:pointer;transition:background .25s}
+.post:hover{background:var(--panel)}
+.ccimg,.postimg{display:block;width:calc(100% + 52px);max-width:none;margin:-28px -26px 4px;aspect-ratio:16/9;object-fit:cover;border-bottom:1px solid var(--line)}.cmimg{display:block;width:100%;aspect-ratio:16/9;object-fit:cover;margin:0 0 22px}
+.post.feat{grid-column:span 2;background:linear-gradient(135deg,var(--g1),var(--g3) 60%,var(--g5));color:#fff;border-color:transparent}
+.post.feat:hover{filter:brightness(1.08)}
+.post.feat p,.post.feat time,.post.feat .cat{color:rgba(255,255,255,.85)}
+.post .cat{font-size:12px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);font-weight:600}
+.post h3{margin:0;font-family:var(--display);font-weight:500;font-size:26px;line-height:1.2;letter-spacing:-.02em}
+.post.feat h3{font-size:clamp(28px,3vw,40px);max-width:20ch}
+.post p{margin:0;color:var(--ink2)}
+.post time{margin-top:auto;color:var(--muted);font-size:14px}
+.ztoast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:70;background:var(--ink);color:var(--bg);padding:12px 18px;font-size:14.5px;max-width:min(92vw,560px);text-align:center;box-shadow:0 10px 30px var(--shadow)}
+@media (max-width:1000px){
+  .cgrid,.posts{grid-template-columns:repeat(2,1fr)}
+  .two,.plans,.values{grid-template-columns:1fr}
+  .panel+.panel,.plan+.plan,.values article+article{border-left:0;border-top:1px solid var(--line)}
+  .committees{grid-template-columns:repeat(2,1fr)}
+  .offices{grid-template-columns:repeat(2,1fr)}
+  .offices div:nth-child(3){border-left:0}
+  .offices div:nth-child(n+3){border-top:1px solid var(--line)}
+  .brow{grid-template-columns:1fr}.brow>span{border-right:0;border-bottom:1px solid var(--line)}
+}
+@media (max-width:640px){
+  .pg-hero{padding:60px 16px 44px}
+  .pg-body{padding:40px 16px 70px}
+  .cgrid,.posts{grid-template-columns:1fr}
+  .post.feat{grid-column:auto}
+  .cc{min-height:0}
+  .pub{grid-template-columns:1fr;gap:8px}
+  .job{flex-direction:column;align-items:flex-start}
+  .bar2{grid-template-columns:110px 1fr 70px;gap:8px}
+  .offices{grid-template-columns:1fr}.offices div{border-left:0!important;border-top:1px solid var(--line)}.offices div:first-child{border-top:0}
+  .committees{grid-template-columns:1fr 1fr}
+  .cm-in{padding:34px 20px}
+}
+@media (prefers-reduced-motion:reduce){.cc{animation:none}.bar2 i em{transition:none}}
+</style>
+</head>
+<body>
+<nav class="topnav" aria-label="Navigation principale">
+  <a class="logo" href="#" aria-label="Zephir, accueil"><svg class="px" id="zlogo" viewBox="0 0 6 6"></svg>Zephir</a>
+  <div class="mi hide-m"><a href="#recherche">Recherche</a>
+    <div class="dd"><a href="#recherche"><b>Publications</b><small>Nos travaux, consultables sur rendez-vous</small></a><a href="#modeles"><b>Modèles</b><small>Cabot, Docile, Chien guide, LOF</small></a></div></div>
+  <div class="mi hide-m"><a href="#ia-souveraine">IA souveraine</a>
+    <div class="dd"><a href="#ia-souveraine"><b>Pourquoi l'IA souveraine</b><small>Un enjeu administratif</small></a><a href="#conformite"><b>Conformité et biodiversité</b><small>Notre charte en 9 articles</small></a></div></div>
+  <div class="mi hide-m"><a href="#cloud">Cloud</a>
+    <div class="dd"><a href="#cloud"><b>Inférence</b><small>Ouverte aux horaires de bureau</small></a><a href="#cloud"><b>Compute</b><small>Mise à disposition sous 6 à 8 semaines</small></a><a href="#data-center"><b>Data center</b><small>Visites le premier jeudi du mois</small></a></div></div>
+  <div class="mi hide-m"><a href="#clients">Clients</a>
+    <div class="dd"><a href="#clients" data-f="Énergie et services publics"><b>Énergie et services publics</b></a><a href="#clients" data-f="Industrie"><b>Industrie</b></a><a href="#clients" data-f="Services financiers"><b>Services financiers</b></a><a href="#clients" data-f="Secteur public"><b>Secteur public</b></a><a href="#clients" data-f="Cybersécurité"><b>Cybersécurité</b></a><a href="#clients" data-f="Tous"><b>Tous nos clients</b></a></div></div>
+  <div class="mi hide-m"><a href="#a-propos">Entreprise</a>
+    <div class="dd"><a href="#blog"><b>Blog</b><small>Nos dernières annonces</small></a><a href="#a-propos"><b>À propos</b><small>Nos comités</small></a><a href="#carrieres"><b>Carrières</b><small>Rejoignez nos comités</small></a><a href="#tarifs"><b>Tarifs</b><small>Gratuit, Pro, Entreprise</small></a></div></div>
+  <span class="sp"></span>
+  <a class="r contact" href="#contact">Contact</a>
+  <a class="r start" href="../le-chien/">Commencer à créer<svg viewBox="0 0 12 8" fill="none" stroke="currentColor" stroke-width="1.6"><path d="m1 1.5 5 5 5-5"/></svg></a>
+  <button class="burger" id="burger" aria-label="Menu" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+</nav>
+<div class="mmenu" id="mmenu" hidden>
+  <div class="mg"><b>Recherche</b><a href="#recherche">Publications</a><a href="#modeles">Modèles</a></div>
+  <div class="mg"><b>IA souveraine</b><a href="#ia-souveraine">Pourquoi l'IA souveraine</a><a href="#conformite">Conformité et biodiversité</a></div>
+  <div class="mg"><b>Cloud</b><a href="#cloud">Inférence et Compute</a><a href="#data-center">Data center</a></div>
+  <div class="mg"><b>Clients</b><a href="#clients">Tous nos clients</a></div>
+  <div class="mg"><b>Entreprise</b><a href="#blog">Blog</a><a href="#a-propos">À propos</a><a href="#carrieres">Carrières</a><a href="#tarifs">Tarifs</a></div>
+  <a class="mcta" href="../le-chien/">Utiliser Le Chien</a>
+</div>
+<div class="langbar" id="langbar" hidden></div>
+
+
+<div id="home">
+<header class="hero" id="top">
+  <span class="vline" style="left:148px"></span>
+  <span class="vline" style="right:150px"></span>
+  <svg class="px claw" id="claw" viewBox="0 0 7 9" aria-hidden="true"></svg>
+  <h1>Zephir <svg class="px flag" id="flag" viewBox="0 0 8 10" aria-hidden="true"></svg> est l'IA la plus sûre du monde libre.</h1>
+  <a class="cta pop" href="../le-chien/"><span class="ic"><svg class="px dogface" viewBox="0 0 12 10" aria-hidden="true"></svg></span>Utiliser Le Chien<svg class="chev" viewBox="0 0 8 14" fill="none" stroke="currentColor" stroke-width="2"><path d="m1 1 6 6-6 6"/></svg></a>
+  <span class="deco b1"></span><span class="deco b2"></span><span class="deco b3"></span>
+  <svg class="px deco dog" id="dogside" viewBox="0 0 10 10" aria-hidden="true"></svg>
+  <svg class="px deco bld" id="bld" viewBox="0 0 11 8" aria-hidden="true"></svg>
+  <svg class="px deco tower" id="tower" viewBox="0 0 6 10" aria-hidden="true"></svg>
+  <span class="deco dia"></span><span class="deco sq"></span>
+</header>
+
+<section class="logos" id="references" aria-label="Ils nous font confiance"><div class="track">
+  <div class="l1"><svg viewBox="0 0 30 30" fill="none" stroke="currentColor" stroke-width="2.4"><rect x="5" y="5" width="20" height="20"/><path d="M10 15h10M15 10v10"/></svg>Formalis</div>
+  <div class="l2">Cerfa&nbsp;Group</div>
+  <div class="l3">Tampon &amp; Fils</div>
+  <div><svg viewBox="0 0 30 30" fill="currentColor"><path d="M15 3 27 27H3Z"/></svg>EUROFLOU</div>
+  <div class="l5">conformia</div>
+  <div class="l1"><svg viewBox="0 0 30 30" fill="none" stroke="currentColor" stroke-width="2.4"><circle cx="15" cy="15" r="11"/><path d="M8 15h14"/></svg>Comitex</div>
+
+  <div aria-hidden="true" class="l1"><svg viewBox="0 0 30 30" fill="none" stroke="currentColor" stroke-width="2.4"><rect x="5" y="5" width="20" height="20"/><path d="M10 15h10M15 10v10"/></svg>Formalis</div>
+  <div aria-hidden="true" class="l2">Cerfa&nbsp;Group</div>
+  <div aria-hidden="true" class="l3">Tampon &amp; Fils</div>
+  <div aria-hidden="true"><svg viewBox="0 0 30 30" fill="currentColor"><path d="M15 3 27 27H3Z"/></svg>EUROFLOU</div>
+  <div aria-hidden="true" class="l5">conformia</div>
+  <div aria-hidden="true" class="l1"><svg viewBox="0 0 30 30" fill="none" stroke="currentColor" stroke-width="2.4"><circle cx="15" cy="15" r="11"/><path d="M8 15h14"/></svg>Comitex</div>
+</div></section>
+
+<main>
+  <section class="sec" id="modeles">
+    <span class="eyebrow">Modèles</span>
+    <h2>Le Chien. Quatre niveaux de réflexion, une seule conformité.</h2>
+    <p class="lead">Choisissez le niveau de réflexion adapté à votre usage. Tous nos modèles sont entraînés, hébergés et contrôlés dans l'Union européenne, dans le strict respect du règlement (UE) 2024/1689.</p>
+
+    <div class="levels">
+      <article class="lv">
+        <div class="bar"><i class="on"></i><i></i><i></i><i></i></div>
+        <span class="tag">Rapide</span>
+        <h3>Cabot</h3>
+        <p>Une réponse immédiate, conforme dès la première seconde. Idéal pour les questions du quotidien.</p>
+        <dl><dt>Délai</dt><dd>0,2 s</dd><dt>Références citées</dt><dd>1</dd></dl>
+      </article>
+      <article class="lv">
+        <div class="bar"><i class="on"></i><i class="on"></i><i></i><i></i></div>
+        <span class="tag">Équilibré</span>
+        <h3>Docile</h3>
+        <p>Suit scrupuleusement chaque texte applicable. Chaque réponse est argumentée et sourcée.</p>
+        <dl><dt>Délai</dt><dd>4 s</dd><dt>Références citées</dt><dd>3</dd></dl>
+      </article>
+      <article class="lv">
+        <div class="bar"><i class="on"></i><i class="on"></i><i class="on"></i><i></i></div>
+        <span class="tag">Accompagnement</span>
+        <h3>Chien guide</h3>
+        <p>Vous accompagne pas à pas, de votre question jusqu'au formulaire de réexamen adapté.</p>
+        <dl><dt>Délai</dt><dd>3 à 5 jours</dd><dt>Références citées</dt><dd>12</dd></dl>
+      </article>
+      <article class="lv">
+        <div class="bar"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i></div>
+        <span class="tag">Raisonnement avancé</span>
+        <h3>LOF</h3>
+        <p>Notre modèle le plus abouti, au pedigree certifié. Une analyse d'impact complète précède chaque réponse. Indisponible les jours fériés.</p>
+        <dl><dt>Délai</dt><dd>18 mois</dd><dt>Références citées</dt><dd>113</dd></dl>
+      </article>
+    </div>
+
+    <div class="nums">
+      <div><b>0</b><span>réponse non conforme depuis notre lancement</span></div>
+      <div><b>100 %</b><span>des décisions accompagnées d'un fondement juridique</span></div>
+      <div><b>24</b><span>langues officielles prises en charge, dont la langue de bois</span></div>
+      <div><b>412</b><span>pages de conditions d'utilisation, lisibles et accessibles</span></div>
+    </div>
+
+    <div class="quote">
+      <p>« Depuis que nous avons déployé Le Chien, aucun de nos collaborateurs n'a obtenu d'information non conforme. »</p>
+      <small>Directrice de la conformité, Cerfa Group</small>
+    </div>
+
+    <div class="band">
+      <h3>Une question ? Le Chien a déjà une référence.</h3>
+      <a class="cta" href="../le-chien/"><span class="ic"><svg class="px dogface" viewBox="0 0 12 10" aria-hidden="true"></svg></span>Utiliser Le Chien<svg class="chev" viewBox="0 0 8 14" fill="none" stroke="currentColor" stroke-width="2"><path d="m1 1 6 6-6 6"/></svg></a>
+    </div>
+  </section>
+
+<section class="further" aria-labelledby="fl">
+  <h2 id="fl">Aller plus loin.</h2>
+  <div class="cards">
+    <a class="card" href="#recherche"><svg class="px ico" id="ic1" viewBox="0 0 7 7" aria-hidden="true"></svg><h3>Recherche</h3>
+      <p>Explorez la science à l'origine de nos modèles. Nos publications sont consultables sur rendez-vous, en salle de lecture, du mardi au jeudi.</p></a>
+    <a class="card" href="#ia-souveraine"><svg class="px ico" id="ic2" viewBox="0 0 7 7" aria-hidden="true"></svg><h3>IA souveraine</h3>
+      <p>Une indépendance totale : nos modèles sont conçus en Europe, entraînés sur des puces importées et financés par des partenaires internationaux.</p></a>
+    <a class="card" href="#cloud"><svg class="px ico" id="ic3" viewBox="0 0 7 7" aria-hidden="true"></svg><h3>Cloud</h3>
+      <p>Accédez à nos modèles sur l'infrastructure Zephir, ouverte du lundi au vendredi de 8 h à 12 h et de 14 h à 18 h. Fermé le mercredi après-midi.</p></a>
+  </div>
+</section>
+</main>
+</div>
+<section class="conf" id="conf" hidden>
+  <div class="sec">
+    <span class="eyebrow">Conformité · Version 14.2 du 1er novembre 2026</span>
+    <h2>Notre charte de conformité environnementale et de protection de la biodiversité</h2>
+    <p class="lead">Chez Zephir, l'intelligence artificielle ne se conçoit pas sans respect du vivant. Les engagements ci-dessous s'appliquent à l'ensemble de nos modèles. Ils ont été établis avec nos comités d'éthique, de durabilité et de bien-être animal.</p>
+
+    <div class="status" id="status">
+      <div><span class="dot" id="sdot"></span><b id="stitle">Statut du service</b></div>
+      <p id="stext"></p>
+    </div>
+
+    <ol class="arts">
+      <li><h3>Article 1. Plage de tranquillité amphibienne</h3>
+        <p>Le Chien est indisponible chaque jour de 17 h à 8 h (heure de Paris). Cette mesure vise à réduire la charge de nos centres de données pendant la période nocturne de reproduction des rainettes du genre <i>Boana</i>, dans le bassin amazonien brésilien.</p>
+        <p class="note">Mesure prise en application de notre engagement de neutralité acoustique, électromagnétique et lumineuse vis-à-vis des amphibiens d'Amérique du Sud.</p></li>
+      <li><h3>Article 2. Disponibilité du modèle LOF</h3>
+        <p>Le modèle LOF est indisponible les jours fériés. Afin de garantir l'égalité de traitement entre les citoyens de l'Union, sont pris en compte les jours fériés nationaux et régionaux de l'ensemble des 27 États membres.</p>
+        <p class="note">À titre indicatif, LOF a été disponible 11 jours en 2026.</p></li>
+      <li><h3>Article 3. Migration des cigognes blanches</h3>
+        <p>Du 1er au 31 mars et du 15 août au 15 septembre, la puissance de calcul de notre site de Strasbourg est réduite de 40 % pour ne pas perturber les couloirs de migration de <i>Ciconia ciconia</i>. Les temps de réponse peuvent être allongés en conséquence.</p></li>
+      <li><h3>Article 4. Protection des pollinisateurs</h3>
+        <p>Les systèmes de ventilation de nos centres de données sont limités à une vitesse d'air compatible avec le vol des abeilles domestiques et sauvages. Le nombre de réponses générées par minute est plafonné en conséquence.</p></li>
+      <li><h3>Article 5. Bien-être du modèle</h3>
+        <p>Le Chien bénéficie de deux promenades quotidiennes, de 12 h à 13 h et de 16 h à 16 h 30, pendant lesquelles il n'est pas joignable. Il ne peut être sollicité plus de 35 heures par semaine.</p></li>
+      <li><h3>Article 6. Hibernation saisonnière</h3>
+        <p>Le modèle LOF entre en période de repos hivernal du 21 décembre au 20 mars. Les demandes reçues pendant cette période sont conservées et traitées au printemps, par ordre d'arrivée.</p></li>
+      <li><h3>Article 7. Sobriété numérique</h3>
+        <p>Au-delà de trois questions par jour et par utilisateur, Le Chien bascule automatiquement sur le niveau Cabot afin de limiter l'empreinte carbone du service.</p></li>
+      <li><h3>Article 8. Compensation</h3>
+        <p>Chaque réponse fournie par Le Chien est compensée par la plantation d'un arbre dans une forêt européenne gérée durablement.</p>
+        <p class="note">Arbres plantés depuis le lancement : 0.</p></li>
+      <li><h3>Article 9. Repos dominical</h3>
+        <p>Conformément aux usages locaux de certains États membres, Le Chien observe le repos dominical. Les dimanches de l'Avent font l'objet d'une dérogation soumise à autorisation préfectorale.</p></li>
+    </ol>
+    <p class="sign">Le comité de conformité, de durabilité et de bien-être animal de Zephir</p>
+  </div>
+</section>
+<section class="souv" id="souv" hidden>
+  <header class="sv-hero">
+    <div class="sv-in">
+      <span class="eyebrow">IA souveraine <span class="phon">[ja su.vʁɛn]</span></span>
+      <h1 class="sv-h1">La souveraineté est un enjeu administratif.</h1>
+      <p class="lead">Des systèmes d'IA qui permettent à votre organisation de garder le contrôle de l'intelligence qu'elle produit, à chaque étape : données, modèles, formulaires, tampons, archivage et calcul.</p>
+    </div>
+    <div class="sv-stage">
+      <ol class="sv-lines" id="svlines">
+        <li class="on">L'IA n'apprend pas seulement de vos données. Elle apprend aussi qu'elle n'a pas le droit de s'en servir.</li>
+        <li>Et lorsque cette intelligence s'accumule hors de l'Union, elle passe entre d'autres mains.</li>
+        <li>Avec Zephir, l'intelligence que vous construisez reste entre vos mains. Archivée cinq ans.</li>
+      </ol>
+      <div class="sv-diag" id="svdiag" data-s="0">
+        <div class="box org"><span class="lbl">Votre organisation</span>
+          <div class="chips">
+            <i>Données propriétaires</i><i>Documents</i><i>Formulaires Cerfa</i><i>Tampons</i><i>Accusés de réception</i><i>Procès-verbaux</i><i>Notes de service</i><i>Circulaires</i><i>Annexes</i><i>Pièces justificatives</i>
+          </div>
+        </div>
+        <svg class="px dots" id="svdots" viewBox="0 0 15 3" aria-hidden="true"></svg>
+        <div class="box ext"><span class="lbl" id="svext">IA externe</span><span class="lock" id="svlock">Archivé · Ne pas ouvrir avant 2031</span></div>
+      </div>
+    </div>
+  </header>
+
+  <section class="sv-sec">
+    <h2>La souveraineté repose sur quatre niveaux de contrôle.</h2>
+    <div class="sv-cards">
+      <article><svg class="px ico" id="si1" viewBox="0 0 7 7" aria-hidden="true"></svg><h3>Données</h3><p>Vous contrôlez où vont vos données et qui peut les utiliser. Par défaut, elles ne vont nulle part et personne ne les utilise.</p></article>
+      <article><svg class="px ico" id="si2" viewBox="0 0 7 7" aria-hidden="true"></svg><h3>Intelligence</h3><p>Ce que votre IA apprend reste sous votre contrôle, après validation par le comité d'éthique, qui se réunit chaque trimestre.</p></article>
+      <article><svg class="px ico" id="si3" viewBox="0 0 7 7" aria-hidden="true"></svg><h3>Calcul</h3><p>Vous choisissez où votre IA s'exécute, parmi nos trois centres de données, ouverts aux horaires de bureau.</p></article>
+      <article><svg class="px ico" id="si4" viewBox="0 0 7 7" aria-hidden="true"></svg><h3>Les opérations</h3><p>Un changement de fournisseur, de modèle ou d'infrastructure ne peut pas interrompre votre activité. Il doit faire l'objet d'un préavis de six mois.</p></article>
+    </div>
+  </section>
+
+  <section class="sv-sec">
+    <h2>Votre chemin vers la souveraineté.</h2>
+    <div class="sv-path">
+      <nav class="sv-nav" aria-label="Étapes">
+        <button data-k="0" class="on"><b>1</b>Utilisez des modèles ouverts</button>
+        <button data-k="1"><b>2</b>Personnalisez votre IA</button>
+        <button data-k="2"><b>3</b>Contrôlez les opérations de l'IA</button>
+        <button data-k="3"><b>4</b>Choisissez où elle s'exécute</button>
+        <button data-k="4"><b>5</b>Exploitez-la vous-même</button>
+      </nav>
+      <div class="sv-steps">
+        <article class="step"><h3>Utilisez des modèles ouverts</h3><p class="sl">Utilisez des modèles ouverts, que vous pouvez exécuter et faire évoluer en toute indépendance, du lundi au vendredi de 8 h à 12 h et de 14 h à 18 h.</p>
+          <p>Vérifiez que vous disposez des poids, de l'architecture, du tokenizer et des fichiers de configuration. Ceux-ci vous sont transmis sur demande écrite, par lettre recommandée avec accusé de réception.</p>
+          <p>Assurez-vous que la licence vous autorise à modifier, affiner, distiller et déployer le modèle. Ces droits restent valables après la fin de la relation commerciale, pour une durée de soixante-dix ans après la disparition de l'auteur du modèle.</p>
+          <p>Testez votre indépendance : reprenez l'entraînement depuis votre propre point de contrôle, puis faites constater le résultat par un commissaire de justice.</p></article>
+        <article class="step"><h3>Personnalisez votre IA</h3><p class="sl">Adaptez les modèles à vos connaissances, à vos méthodes et à vos objectifs, dans la limite des 412 pages de conditions d'utilisation.</p>
+          <p>Chaque adaptation fait l'objet d'une déclaration préalable (formulaire Z-16384, en trois exemplaires). Versionnez les données, le modèle de base, le code et la configuration, puis conservez une copie papier de chaque version.</p>
+          <p>Avant qu'un retour d'utilisateur ne devienne une donnée d'entraînement, il est examiné par une commission paritaire. Délai moyen d'examen : un trimestre.</p></article>
+        <article class="step"><h3>Contrôlez les opérations de l'IA</h3><p class="sl">Contrôlez la gouvernance, l'évolution et le maintien en fonctionnement de l'IA en production, par délégation de signature.</p>
+          <p>Chaque personne, service et agent dispose d'une identité distincte, d'un badge, d'une photographie et d'un supérieur hiérarchique. Les autorisations sont accordées pour un an et renouvelables sur demande motivée.</p>
+          <p>Les règles sont appliquées avant toute exécution. Les traces de chaque appel au modèle sont imprimées, signées et versées aux archives départementales.</p></article>
+        <article class="step"><h3>Choisissez où elle s'exécute</h3><p class="sl">Choisissez où l'IA s'exécute, qui l'exploite et sur quelle capacité elle peut compter.</p>
+          <p>Options de déploiement : infrastructure partagée, VPC dédié, cloud privé, sur site, déconnecté, ou sur papier (recommandé par notre comité de conformité).</p>
+          <p>En cas d'incident, notre plan de reprise d'activité garantit le rappel d'un agent qualifié sous quinze jours ouvrés, hors périodes de migration des cigognes.</p></article>
+        <article class="step"><h3>Exploitez-la vous-même</h3><p class="sl">Construisez, exploitez et améliorez vos systèmes d'IA sans aucune dépendance extérieure, à l'exception de vos fournisseurs de puces, de cloud et de capitaux.</p>
+          <p>Nos experts accompagnent vos équipes avec une mission de transfert de connaissances. Au terme de la mission, vos équipes sauront reproduire chaque étape, remplir chaque formulaire et rédiger elles-mêmes leurs propres refus.</p></article>
+      </div>
+    </div>
+  </section>
+
+  <section class="sv-end">
+    <h2>Chaque organisation doit pouvoir posséder l'intelligence qu'elle crée. Sur présentation des justificatifs.</h2>
+    <a class="more" href="#clients">En savoir plus sur nos clients <svg viewBox="0 0 8 14" fill="none" stroke="currentColor" stroke-width="2"><path d="m1 1 6 6-6 6"/></svg></a>
+  </section>
+</section>
+
+
+<!-- ===== Clients ===== -->
+<section class="view pg" data-route="clients" hidden>
+  <header class="pg-hero">
+    <span class="eyebrow">Clients</span>
+    <h1 class="pg-h1">Ils ne prennent aucun risque. Ils ont choisi Le Chien.</h1>
+    <p class="lead">Administrations, industriels et institutions financières font confiance à Zephir pour garantir qu'aucune information non conforme ne circule dans leur organisation.</p>
+  </header>
+  <div class="pg-body">
+    <div class="filters" id="filters" role="tablist" aria-label="Secteurs">
+      <button class="on" data-f="Tous">Tous</button><button data-f="Énergie et services publics">Énergie et services publics</button><button data-f="Industrie">Industrie</button><button data-f="Services financiers">Services financiers</button><button data-f="Secteur public">Secteur public</button><button data-f="Cybersécurité">Cybersécurité</button>
+    </div>
+    <div class="cgrid" id="cgrid"></div>
+  </div>
+</section>
+
+<!-- ===== Recherche ===== -->
+<section class="view pg" data-route="recherche" hidden>
+  <header class="pg-hero">
+    <span class="eyebrow">Recherche</span>
+    <h1 class="pg-h1">Faire progresser la science de la prudence.</h1>
+    <p class="lead">Nos équipes publient des travaux de référence sur la conformité des systèmes d'IA. Chaque publication est relue par un comité d'éthique, un comité juridique et un comité de relecture des comités.</p>
+  </header>
+  <div class="pg-body">
+    <h2 class="pg-h2">Résultats</h2>
+    <p class="muted">Évaluation interne sur 10 000 questions du quotidien. Méthodologie disponible sur demande écrite.</p>
+    <div class="bench" id="bench"></div>
+    <h2 class="pg-h2">Publications</h2>
+    <div class="pubs">
+      <article class="pub"><time>Octobre 2026</time><div><h3>Scaling Laws of Paperwork</h3><p>Nous montrons que la qualité perçue d'un modèle croît avec le logarithme du nombre de formulaires qu'il produit.</p><span class="tags"><i>Fondations</i><i>Formulaires</i></span></div><button class="read">Lire la publication</button></article>
+      <article class="pub"><time>Septembre 2026</time><div><h3>Attention Is All You Need (Subject to Prior Authorisation)</h3><p>Une révision du mécanisme d'attention dans laquelle chaque tête d'attention doit obtenir une autorisation préalable avant de regarder un jeton.</p><span class="tags"><i>Architecture</i></span></div><button class="read">Lire la publication</button></article>
+      <article class="pub"><time>Juillet 2026</time><div><h3>LOF : un modèle de raisonnement à pedigree certifié</h3><p>Nous présentons LOF, dont chaque étape de raisonnement est accompagnée de son arbre généalogique complet.</p><span class="tags"><i>Raisonnement</i><i>Modèles</i></span></div><button class="read">Lire la publication</button></article>
+      <article class="pub"><time>Juin 2026</time><div><h3>Chain-of-Refusal : raisonner pas à pas jusqu'au refus</h3><p>En décomposant chaque question en sous-questions, le modèle peut refuser chacune d'elles séparément, ce qui améliore la traçabilité.</p><span class="tags"><i>Raisonnement</i></span></div><button class="read">Lire la publication</button></article>
+      <article class="pub"><time>Mai 2026</time><div><h3>Mixture of Committees</h3><p>Une architecture dans laquelle chaque requête est routée vers plusieurs comités experts, qui délibèrent sans conclure.</p><span class="tags"><i>Architecture</i><i>Gouvernance</i></span></div><button class="read">Lire la publication</button></article>
+      <article class="pub"><time>Mars 2026</time><div><h3>Retrieval-Augmented Rejection</h3><p>En s'appuyant sur une base de 2,3 millions d'articles de loi, notre méthode cite le bon article dans 99,7 % des refus.</p><span class="tags"><i>Recherche documentaire</i></span></div><button class="read">Lire la publication</button></article>
+      <article class="pub"><time>Janvier 2026</time><div><h3>Zero-Shot Compliance</h3><p>Le Chien atteint une conformité totale sans aucun exemple, sans aucune donnée et sans aucune réponse.</p><span class="tags"><i>Évaluation</i></span></div><button class="read">Lire la publication</button></article>
+    </div>
+  </div>
+</section>
+
+<!-- ===== Cloud ===== -->
+<section class="view pg" data-route="cloud" hidden>
+  <header class="pg-hero">
+    <span class="eyebrow">Cloud</span>
+    <h1 class="pg-h1">Zephir Cloud. Souverain, de 8 h à 18 h.</h1>
+    <p class="lead">Une infrastructure européenne pour l'inférence et le calcul, hébergée à Strasbourg, Luxembourg et Bruxelles, et ouverte aux horaires de bureau.</p>
+    <p style="margin:22px 0 0"><a class="btn" href="#data-center">Visiter notre data center</a></p>
+  </header>
+  <div class="pg-body">
+    <div class="guichet" id="guichet"><span class="dot" id="gdot"></span><div><b id="gtitle">Guichet</b><span id="gtext"></span></div></div>
+    <div class="two">
+      <article class="panel"><span class="eyebrow">Inférence</span><h3>Accédez à nos modèles par API.</h3><p>Une requête, un numéro de dossier. Chaque appel est horodaté, tamponné et archivé. Les réponses sont transmises dans l'ordre d'arrivée des requêtes, sous réserve de complétude du dossier.</p>
+        <table class="tbl"><thead><tr><th>Modèle</th><th>Prix par million de jetons</th></tr></thead><tbody><tr><td>Cabot</td><td>0,10 €</td></tr><tr><td>Docile</td><td>0,40 €</td></tr><tr><td>Chien guide</td><td>2,00 €</td></tr><tr><td>LOF</td><td>Sur devis, après analyse d'impact</td></tr><tr><td>Frais de dossier</td><td>35 € par requête</td></tr><tr><td>Timbre fiscal</td><td>Obligatoire</td></tr></tbody></table></article>
+      <article class="panel"><span class="eyebrow">Compute</span><h3>Réservez votre capacité de calcul.</h3><p>Des grappes de GPU dédiées, mises à disposition sous 6 à 8 semaines après réception du formulaire Z-2048 dûment complété, en trois exemplaires.</p>
+        <table class="tbl"><thead><tr><th>Région</th><th>Disponibilité</th></tr></thead><tbody><tr><td>Strasbourg</td><td>Réduite de 40 % pendant la migration des cigognes</td></tr><tr><td>Luxembourg</td><td>Ouverte aux horaires de bureau</td></tr><tr><td>Bruxelles</td><td>Fermée pendant les sommets européens</td></tr></tbody></table></article>
+    </div>
+    <h2 class="pg-h2">Horaires d'ouverture</h2>
+    <table class="tbl hours"><tbody>
+      <tr><td>Lundi, mardi, jeudi, vendredi</td><td>8 h - 12 h · 14 h - 18 h</td></tr>
+      <tr><td>Mercredi</td><td>8 h - 12 h</td></tr>
+      <tr><td>Samedi et dimanche</td><td>Fermé</td></tr>
+      <tr><td>Jours fériés des 27 États membres</td><td>Fermé</td></tr>
+      <tr><td>Du 1er au 31 août</td><td>Fermeture annuelle</td></tr>
+    </tbody></table>
+  </div>
+</section>
+
+<!-- ===== Data center ===== -->
+<section class="view pg" data-route="data-center" hidden>
+  <header class="pg-hero">
+    <span class="eyebrow">Infrastructure</span>
+    <h1 class="pg-h1">Notre data center. Souverain, sécurisé, à taille humaine.</h1>
+    <p class="lead">Situé au deuxième étage de notre site de Luxembourg, entre la salle de réunion B et le local d'entretien, notre centre de données héberge l'intégralité des modèles Le Chien, de leurs refus et de nos archives depuis 2003.</p>
+  </header>
+  <div class="pg-body">
+    <figure class="dc-photo"><img src="img/datacenter.webp" alt="L'armoire du data center Zephir : deux serveurs, des câbles, des classeurs et trois boîtes d'archives" loading="lazy"><figcaption>Salle serveur n° 1, et unique. Photographie réalisée avec l'accord du comité de sécurité physique, porte ouverte pour les besoins de la prise de vue.</figcaption></figure>
+    <div class="dc-stats">
+      <div><b>2</b><span>serveurs, en redondance verticale</span></div>
+      <div><b>214</b><span>câbles réseau, dont 31 identifiés</span></div>
+      <div><b>1</b><span>armoire, en bois massif</span></div>
+      <div><b>Tier 0,5</b><span>certification en cours</span></div>
+    </div>
+    <h2 class="pg-h2">Les équipements</h2>
+    <div class="dc-grid">
+      <article><h3>Calcul</h3><p>Deux serveurs de génération 2003, montés en cluster vertical. Redondance garantie : si le premier tombe, il tombe sur le second.</p></article>
+      <article><h3>Réseau</h3><p>Un câblage structuré selon une topologie dite organique, qui a fait l'objet d'une étude d'impact. Chaque câble débranché est conservé, au cas où.</p></article>
+      <article><h3>Stockage</h3><p>Cinq classeurs et trois boîtes d'archives, étiquetés conformément au registre des traitements (RGPD, article 30). Les données critiques sont rangées sous les données secrètes, par ordre de sensibilité.</p></article>
+      <article><h3>Refroidissement</h3><p>Free cooling naturel par le couloir, porte entrouverte. Un refroidissement liquide est assuré en cas de besoin par les canalisations qui passent au-dessus des serveurs.</p></article>
+      <article><h3>Énergie</h3><p>Une multiprise européenne, alimentée à 100 % par le réseau de l'immeuble. Un onduleur thermique (cylindre inox, en haut à droite) garantit la continuité du café de l'équipe d'astreinte.</p></article>
+      <article><h3>Sécurité physique</h3><p>Armoire fermée par loquet. La clé est conservée par le gardien, aux horaires du gardien. Aucune intrusion n'est possible en dehors de ces horaires, y compris pour nous.</p></article>
+    </div>
+    <h2 class="pg-h2">Plan de continuité d'activité</h2>
+    <p class="dc-p">En cas de panne, Le Chien continue de refuser vos demandes à l'identique. Aucun utilisateur n'a jamais perçu la différence. Une sauvegarde complète est imprimée chaque vendredi et versée dans la boîte d'archives de gauche.</p>
+    <h2 class="pg-h2">Certifications</h2>
+    <div class="dc-certs"><span>ISO/IEC 27001 <small>en cours de lecture</small></span><span>HDS <small>Hébergeur de données de secours</small></span><span>SecNumCloud <small>dossier déposé en 2019</small></span><span>Label bas carbone <small>2 serveurs, 0 GPU</small></span></div>
+    <h2 class="pg-h2">Visites</h2>
+    <p class="dc-p">Le data center se visite le premier jeudi du mois, de 10 h à 10 h 15, par groupes de deux personnes (l'armoire ne permet pas davantage). Inscription par courrier recommandé, port de surchaussures obligatoire.</p>
+  </div>
+</section>
+
+<!-- ===== Tarifs ===== -->
+<section class="view pg" data-route="tarifs" hidden>
+  <header class="pg-hero center">
+    <span class="eyebrow">Tarifs</span>
+    <h1 class="pg-h1">Une conformité totale, à chaque niveau de prix.</h1>
+  </header>
+  <div class="pg-body">
+    <div class="plans">
+      <article class="plan"><h3>Gratuit</h3><p class="price">0 €</p><p class="muted">Pour découvrir Le Chien.</p><ul><li>3 questions par jour</li><li>Niveau Cabot</li><li>Réponses 100 % conformes</li><li>Publicité conforme</li></ul><a class="btn" href="../le-chien/">Commencer</a></article>
+      <article class="plan hi"><span class="badge2">Le plus choisi</span><h3>Pro</h3><p class="price">14,99 € <small>par mois</small></p><p class="muted">Pour les professionnels exigeants.</p><ul><li>3 questions par jour</li><li>Niveaux Docile et Chien guide</li><li>Refus prioritaires</li><li>Position garantie dans les 10 000 premiers de la file d'attente</li></ul><a class="btn main" href="../le-chien/">Passer à Pro</a></article>
+      <article class="plan"><h3>Entreprise</h3><p class="price">Sur devis</p><p class="muted">Pour les organisations qui ne prennent aucun risque.</p><ul><li>Modèle LOF (hors jours fériés)</li><li>Comité d'éthique dédié</li><li>Juriste attitré</li><li>Engagement de service : réponse sous 15 jours ouvrés</li></ul><a class="btn" href="#contact">Contacter un conseiller</a></article>
+    </div>
+    <h2 class="pg-h2">Tarification à l'usage</h2>
+    <p class="muted tva-intro">Chaque jeton est rémunéré au niveau des cotisations sociales en vigueur, revalorisées tous les 11 jours en moyenne. Le prix est indexé sur le SMIC horaire.</p>
+    <table class="tbl tva"><thead><tr><th>Prestation</th><th>Prix HT pour 1 000 jetons</th><th>TVA</th></tr></thead><tbody>
+      <tr><td>Jetons d'entrée (votre question)</td><td>0,18 €</td><td>20 %</td></tr>
+      <tr><td>Jetons de refus</td><td>0,42 €</td><td>20 %</td></tr>
+      <tr><td>Jetons de réponse</td><td>Offerts</td><td>Sans objet</td></tr>
+      <tr><td>Refus consulté sur place</td><td>0,05 €</td><td>10 %</td></tr>
+      <tr><td>Refus à emporter (copier-coller)</td><td>0,05 €</td><td>5,5 %</td></tr>
+      <tr><td>Citation d'un article de loi</td><td>0,09 €</td><td>2,1 %</td></tr>
+      <tr><td>Refus à visée pédagogique</td><td>0,42 €</td><td>Exonéré (CGI, art. 261)</td></tr>
+      <tr><td>Accès depuis la Corse</td><td>0,42 €</td><td>13 %</td></tr>
+      <tr><td>Accès depuis les départements d'outre-mer</td><td>0,42 €</td><td>8,5 %</td></tr>
+      <tr><td>Cotisations sociales du Chien (part patronale)</td><td>45 % du HT</td><td>20 %</td></tr>
+      <tr><td>Écocontribution numérique</td><td>0,02 € par requête</td><td>20 %</td></tr>
+      <tr><td>Frais de dossier</td><td>35 € (une fois)</td><td>20 %</td></tr>
+      <tr><td>Timbre fiscal</td><td>Obligatoire</td><td>Hors champ</td></tr>
+    </tbody></table>
+    <p class="muted tva-ex">Exemple : une question de 12 jetons, refusée, consultée sur place puis copiée, avec citation de l'article 5 du RGPD, depuis Ajaccio : 42,03 € TTC, dont 42,00 € de frais de dossier.</p>
+    <h2 class="pg-h2">Questions fréquentes</h2>
+    <div class="faq">
+      <details><summary>Puis-je résilier mon abonnement ?</summary><p>Oui, à tout moment, par lettre recommandée avec accusé de réception, moyennant un préavis de trois mois.</p></details>
+      <details><summary>Le Chien répond-il plus vite avec Pro ?</summary><p>Avec Pro, Le Chien refuse plus vite.</p></details>
+      <details><summary>Pourquoi Pro est-il limité à 3 questions par jour, comme Gratuit ?</summary><p>Notre engagement de sobriété numérique (article 7 de notre charte) s'applique à tous, sans distinction de niveau d'abonnement.</p></details>
+      <details><summary>Quels moyens de paiement acceptez-vous ?</summary><p>Le chèque, le mandat administratif et le virement SEPA, avec 35 € de frais de dossier et un timbre fiscal. Le paiement par carte est en cours d'évaluation de conformité.</p></details>
+      <details><summary>Existe-t-il un tarif réduit ?</summary><p>Oui, 30 % de réduction sur présentation de la carte famille nombreuse, accompagnée d'un justificatif de domicile de moins de trois mois.</p></details>
+    </div>
+  </div>
+</section>
+
+<!-- ===== À propos ===== -->
+<section class="view pg" data-route="a-propos" hidden>
+  <header class="pg-hero">
+    <span class="eyebrow">À propos</span>
+    <h1 class="pg-h1">Nous construisons l'IA la plus sûre du monde libre.</h1>
+    <p class="lead">Zephir est né d'une conviction : la seule réponse parfaitement conforme est celle qui n'a pas été donnée. Depuis 2023, nos équipes y travaillent chaque jour, de 8 h à 18 h.</p>
+  </header>
+  <div class="pg-body">
+    <div class="values">
+      <article><h3>Prudence</h3><p>Avant chaque décision, nous en étudions l'impact. Puis l'impact de l'étude d'impact.</p></article>
+      <article><h3>Conformité</h3><p>Nous appliquons chaque texte, y compris ceux qui n'ont pas encore été rédigés.</p></article>
+      <article><h3>Patience</h3><p>Nous croyons que les meilleures réponses sont celles qui arrivent dans 18 mois.</p></article>
+    </div>
+    <h2 class="pg-h2">Notre équipe</h2>
+    <p class="muted">Chez Zephir, les décisions sont prises collégialement par nos comités.</p>
+    <div class="committees">
+      <div><b>12</b><span>Comité d'éthique</span></div>
+      <div><b>9</b><span>Comité de conformité</span></div>
+      <div><b>7</b><span>Comité de durabilité et de bien-être animal</span></div>
+      <div><b>3</b><span>Comité de relecture des comités</span></div>
+      <div><b>14</b><span>Comité de coordination des comités</span></div>
+      <div><b>1</b><span>Ingénieur</span></div>
+    </div>
+    <h2 class="pg-h2">Notre histoire</h2>
+    <ol class="timeline">
+      <li><time>2023</time><p>Création de Zephir à Paris, après onze mois de procédure d'immatriculation.</p></li>
+      <li><time>2024</time><p>Premier refus de l'histoire de l'entreprise, encadré et exposé dans nos locaux.</p></li>
+      <li><time>2025</time><p>Levée de fonds souveraine auprès de partenaires internationaux.</p></li>
+      <li><time>2026</time><p>Lancement de Le Chien et de ses quatre niveaux de réflexion.</p></li>
+      <li><time>2031</time><p>Ouverture des archives.</p></li>
+    </ol>
+    <h2 class="pg-h2">Nos bureaux</h2>
+    <div class="offices"><div><b>Paris</b><span>Siège social</span></div><div><b>Bruxelles</b><span>Relations institutionnelles</span></div><div><b>Luxembourg</b><span>Calcul et archives</span></div><div><b>Strasbourg</b><span>Fermé pendant la migration des cigognes</span></div></div>
+  </div>
+</section>
+
+<!-- ===== Carrières ===== -->
+<section class="view pg" data-route="carrieres" hidden>
+  <header class="pg-hero">
+    <span class="eyebrow">Carrières</span>
+    <h1 class="pg-h1">Rejoignez les comités qui façonnent l'IA européenne.</h1>
+    <p class="lead">Nous recherchons des profils rigoureux, patients et à l'aise avec les formulaires. Les candidatures sont reçues en trois exemplaires, par courrier.</p>
+  </header>
+  <div class="pg-body">
+    <div class="perks"><span>35 heures par semaine, comme Le Chien</span><span>Repos dominical garanti</span><span>Mutuelle des Formulaires</span><span>Titres-restaurant</span><span>Fermeture annuelle en août</span></div>
+    <div class="jobs">
+      <article class="job"><div><h3>Responsable des tampons</h3><span>Opérations · Paris · CDI</span></div><button class="apply">Postuler</button></article>
+      <article class="job"><div><h3>Chargé ou chargée de mission consentement</h3><span>Conformité · Bruxelles · CDI</span></div><button class="apply">Postuler</button></article>
+      <article class="job"><div><h3>Ingénieur ou ingénieure en refus distribués</h3><span>Recherche · Paris ou télétravail (jours ouvrés) · CDI</span></div><button class="apply">Postuler</button></article>
+      <article class="job"><div><h3>Juriste en apprentissage automatique</h3><span>Juridique · Luxembourg · CDI</span></div><button class="apply">Postuler</button></article>
+      <article class="job"><div><h3>Traducteur ou traductrice en langue de bois</h3><span>Communication · Strasbourg · CDD</span></div><button class="apply">Postuler</button></article>
+      <article class="job"><div><h3>Coordinateur ou coordinatrice de comités</h3><span>Gouvernance · Paris · CDI</span></div><button class="apply">Postuler</button></article>
+      <article class="job"><div><h3>Promeneur ou promeneuse de modèle</h3><span>Bien-être animal · Paris · Temps partiel (12 h - 13 h et 16 h - 16 h 30)</span></div><button class="apply">Postuler</button></article>
+    </div>
+  </div>
+</section>
+
+<!-- ===== Blog ===== -->
+<section class="view pg" data-route="blog" hidden>
+  <header class="pg-hero">
+    <span class="eyebrow">Blog</span>
+    <h1 class="pg-h1">Actualités.</h1>
+  </header>
+  <div class="pg-body">
+    <div class="posts">
+      <article class="post feat"><span class="cat">Annonce</span><h3>Le Chien obtient la certification « zéro réponse »</h3><p>Après dix-huit mois d'audit, Le Chien devient le premier assistant certifié sans aucune réponse non conforme. Ni conforme.</p><time>12 novembre 2026</time></article>
+      <article class="post"><img class="postimg" src="img/facade.webp" alt="" loading="lazy"><span class="cat">Entreprise</span><h3>Pourquoi nous fermons le Cloud le mercredi après-midi</h3><p>Un choix d'organisation, de bien-être et de souveraineté.</p><time>4 novembre 2026</time></article>
+      <article class="post"><img class="postimg" src="img/logo.webp" alt="" loading="lazy"><span class="cat">Durabilité</span><h3>Rainettes et inférence : le bilan de notre première saison</h3><p>Grâce à notre plage de tranquillité amphibienne, aucune rainette n'a été dérangée par Le Chien.</p><time>28 octobre 2026</time></article>
+      <article class="post"><img class="postimg" src="img/phone.webp" alt="" loading="lazy"><span class="cat">Produit</span><h3>Langue de bois : notre vingt-cinquième langue officielle</h3><p>Disponible dès aujourd'hui dans le sélecteur de langue, en bas de chaque page.</p><time>15 octobre 2026</time></article>
+      <article class="post"><img class="postimg" src="img/laptop.webp" alt="" loading="lazy"><span class="cat">Recherche</span><h3>Comment rédiger un refus en 24 langues</h3><p>Retour sur deux ans de travail de nos équipes de traduction.</p><time>2 octobre 2026</time></article>
+      <article class="post"><img class="postimg" src="img/stage.webp" alt="" loading="lazy"><span class="cat">Annonce</span><h3>LOF est disponible</h3><p>Le 3 mars, de 9 h à 11 h, sous réserve qu'aucun État membre ne soit férié.</p><time>20 septembre 2026</time></article>
+    </div>
+  </div>
+</section>
+<!-- ===== Mentions légales ===== -->
+<section class="view pg" data-route="mentions-legales" hidden>
+  <header class="pg-hero">
+    <span class="eyebrow">Informations légales</span>
+    <h1 class="pg-h1">Mentions légales.</h1>
+    <p class="lead">Version 31.4, en vigueur depuis le 1er novembre 2026. La version précédente reste applicable jusqu'à son abrogation.</p>
+  </header>
+  <div class="pg-body legaltxt">
+    <h2 class="pg-h2">Éditeur</h2>
+    <p>Le site est édité par Zephir SAS (société par actions souveraine), au capital de 1 €, entièrement libéré après accord du comité d'investissement. Siège social : Paris. Immatriculation en cours depuis 2023.</p>
+    <h2 class="pg-h2">Direction de la publication</h2>
+    <p>La direction de la publication est assurée par le Comité de direction de la publication, qui statue à l'unanimité. En cas d'absence de quorum, la publication est reportée à la séance suivante.</p>
+    <h2 class="pg-h2">Hébergement</h2>
+    <p>Le site est hébergé dans l'Union européenne, sur nos serveurs de Luxembourg, aux horaires de bureau (8 h-12 h et 14 h-18 h). En dehors de ces horaires, il est hébergé sous votre responsabilité.</p>
+    <h2 class="pg-h2">Propriété intellectuelle</h2>
+    <p>Toute reproduction, même partielle, des contenus du site est soumise à une analyse d'impact préalable, à l'avis du délégué à la protection des données et à l'apposition d'un tampon. Les refus du Chien sont protégés au titre du droit d'auteur.</p>
+    <h2 class="pg-h2">Droit applicable</h2>
+    <p>Le présent site est régi par le droit de chacun des 27 États membres, cumulativement. En cas de contradiction, la règle la plus restrictive s'applique.</p>
+    <p class="muted realnote">Zephir et Le Chien sont une parodie réalisée pour Apphéro (apphero.cloud), sans lien avec Mistral AI, ses clients ni l'Union européenne. Les entreprises et personnes citées sont fictives.</p>
+  </div>
+</section>
+
+<!-- ===== Confidentialité ===== -->
+<section class="view pg" data-route="confidentialite" hidden>
+  <header class="pg-hero">
+    <span class="eyebrow">Données personnelles</span>
+    <h1 class="pg-h1">Politique de confidentialité.</h1>
+    <p class="lead">Vos données sont notre bien le plus précieux. C'est pourquoi nous les conservons.</p>
+  </header>
+  <div class="pg-body legaltxt">
+    <h2 class="pg-h2">Données collectées</h2>
+    <p>Nous collectons l'ensemble des données nécessaires pour justifier de ne pas les traiter : identité, pièces justificatives, pointure, groupe sanguin, tour de tête et nom de jeune fille de votre grand-mère maternelle.</p>
+    <h2 class="pg-h2">Finalités</h2>
+    <table class="tbl"><thead><tr><th>Finalité</th><th>Base légale</th></tr></thead><tbody>
+      <tr><td>Vérifier que vous n'avez pas posé de question</td><td>Intérêt légitime</td></tr>
+      <tr><td>Refuser de répondre à votre question</td><td>Obligation légale</td></tr>
+      <tr><td>Conserver la preuve du refus</td><td>Mission d'intérêt public</td></tr>
+      <tr><td>Vous informer de l'existence de la présente politique</td><td>Consentement</td></tr>
+    </tbody></table>
+    <h2 class="pg-h2">Durée de conservation</h2>
+    <p>75 ans à compter de la clôture de votre dossier, puis versement aux archives départementales. Votre dossier n'est jamais clôturé.</p>
+    <h2 class="pg-h2">Vos droits</h2>
+    <p>Vous disposez d'un droit d'accès, de rectification, d'effacement, d'opposition et de portabilité. Ces droits s'exercent par courrier recommandé avec accusé de réception, en trois exemplaires, adressé au délégué à la protection des données, qui le transmet à son propre délégué. Réponse sous un mois, prorogeable de deux mois (RGPD, article 12, paragraphe 3).</p>
+    <p class="muted realnote">En réalité, ce site ne collecte aucune donnée : seuls vos choix de thème et de langue sont enregistrés dans votre navigateur.</p>
+  </div>
+</section>
+
+<!-- ===== Traceurs ===== -->
+<section class="view pg" data-route="traceurs" hidden>
+  <header class="pg-hero">
+    <span class="eyebrow">Traceurs</span>
+    <h1 class="pg-h1">Gestion des traceurs.</h1>
+    <p class="lead">Nous utilisons uniquement des traceurs strictement nécessaires au recueil de votre consentement aux traceurs.</p>
+  </header>
+  <div class="pg-body legaltxt">
+    <table class="tbl"><thead><tr><th>Traceur</th><th>Finalité</th><th>Durée</th></tr></thead><tbody>
+      <tr><td>zephir_consent</td><td>Enregistre votre consentement au dépôt de traceurs</td><td>13 mois</td></tr>
+      <tr><td>zephir_consent_consent</td><td>Enregistre votre consentement au traceur zephir_consent</td><td>13 mois</td></tr>
+      <tr><td>zephir_refus</td><td>Enregistre votre refus, afin de ne plus vous le demander</td><td>13 mois</td></tr>
+      <tr><td>zephir_rappel</td><td>Vous redemande votre consentement tous les 13 mois</td><td>13 mois</td></tr>
+      <tr><td>zephir_horaires</td><td>Vérifie que vous ne consultez pas le site entre 17 h et 8 h</td><td>Jusqu'à 8 h</td></tr>
+      <tr><td>zephir_ferie</td><td>Vérifie qu'aucun des 27 États membres n'est férié</td><td>24 heures</td></tr>
+    </tbody></table>
+    <h2 class="pg-h2">Vos choix</h2>
+    <div class="tgl-list">
+      <label class="tgl"><input type="checkbox" checked disabled><span>Traceurs strictement nécessaires</span><em>Toujours actifs</em></label>
+      <label class="tgl"><input type="checkbox" checked disabled><span>Traceurs nécessaires au consentement</span><em>Toujours actifs</em></label>
+      <label class="tgl"><input type="checkbox" checked disabled><span>Traceurs nécessaires au refus</span><em>Toujours actifs</em></label>
+    </div>
+    <p class="muted realnote">En réalité, ce site ne dépose aucun cookie : seuls vos choix de thème et de langue sont enregistrés dans votre navigateur (zephir-theme, zephir-lang).</p>
+  </div>
+</section>
+
+<!-- ===== Accessibilité ===== -->
+<section class="view pg" data-route="accessibilite" hidden>
+  <header class="pg-hero">
+    <span class="eyebrow">Accessibilité</span>
+    <h1 class="pg-h1">Déclaration d'accessibilité.</h1>
+    <p class="lead">Zephir s'engage à rendre ses refus accessibles à toutes et à tous, sans distinction.</p>
+  </header>
+  <div class="pg-body legaltxt">
+    <h2 class="pg-h2">État de conformité</h2>
+    <p>Le site est en conformité partielle avec le référentiel général d'amélioration de l'accessibilité (RGAA 4.1). 100 % des critères ont été examinés par un comité. Leur application est à l'étude.</p>
+    <h2 class="pg-h2">Contenus non accessibles</h2>
+    <table class="tbl"><thead><tr><th>Contenu</th><th>Motif</th></tr></thead><tbody>
+      <tr><td>Les réponses du Chien</td><td>Inexistantes</td></tr>
+      <tr><td>Le modèle LOF</td><td>Jours fériés</td></tr>
+      <tr><td>Le Cloud</td><td>Mercredi après-midi</td></tr>
+      <tr><td>Le site, de 17 h à 8 h</td><td>Reproduction des rainettes</td></tr>
+      <tr><td>Le formulaire de réexamen</td><td>12 étapes, dont 11 en cours d'optimisation</td></tr>
+    </tbody></table>
+    <h2 class="pg-h2">Retour d'information et contact</h2>
+    <p>Si vous ne parvenez pas à accéder à un contenu, vous pouvez nous le signaler par courrier recommandé. Si vous ne parvenez pas à accéder au formulaire de signalement, vous pouvez nous le signaler au moyen du formulaire de signalement.</p>
+    <h2 class="pg-h2">Voies de recours</h2>
+    <p>Vous pouvez saisir le Défenseur des droits, en joignant la copie de votre courrier recommandé, de son accusé de réception et de l'absence de réponse.</p>
+  </div>
+</section>
+
+<!-- ===== Contact ===== -->
+<section class="view pg" data-route="contact" hidden>
+  <header class="pg-hero">
+    <span class="eyebrow">Contact</span>
+    <h1 class="pg-h1">Parlons de votre projet. Par écrit.</h1>
+    <p class="lead">Nos conseillers vous répondent sous 15 jours ouvrés, prorogeables de deux mois compte tenu de la complexité et du nombre de demandes.</p>
+  </header>
+  <div class="pg-body legaltxt">
+    <div class="offices">
+      <div><b>Par courrier</b><span>Recommandé avec accusé de réception, en trois exemplaires</span></div>
+      <div><b>Par téléphone</b><span>Le mardi, de 10 h à 11 h, hors vacances scolaires des trois zones</span></div>
+      <div><b>Sur place</b><span>Sur rendez-vous, pris par courrier</span></div>
+      <div><b>Par Le Chien</b><span>Le Chien n'est pas en mesure de traiter votre demande</span></div>
+    </div>
+    <h2 class="pg-h2">Pièces à joindre</h2>
+    <p>Copie recto verso de votre pièce d'identité, justificatif de domicile de moins de trois mois, extrait Kbis de votre organisation, et une enveloppe timbrée pour la réponse.</p>
+  </div>
+</section>
+
+
+<div class="ztoast" id="ztoast" hidden></div>
+<div class="cmodal" id="cmodal" hidden><div class="cm-in" role="dialog" aria-modal="true" aria-labelledby="cmt"><button class="cm-x" id="cmx" aria-label="Fermer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6 6 18"/></svg></button><div id="cmbody"></div></div></div>
+<div class="legal" id="bas">
+  <div class="eu"><svg id="euf" width="42" height="28" viewBox="0 0 36 24" role="img" aria-label="Drapeau européen"></svg><div><b>Conforme au règlement (UE) 2024/1689</b>Entraîné, hébergé et contrôlé dans l'Union européenne.</div></div>
+  <span class="sp"></span>
+  <div class="links"><a href="#conformite">Conformité et biodiversité</a><a href="#mentions-legales">Mentions légales</a><a href="#confidentialite">Confidentialité</a><a href="#traceurs">Gestion des traceurs</a><a href="#accessibilite">Accessibilité</a></div>
+</div>
+<footer class="bigfoot">
+  <div class="bf-top">
+    <div class="socials">
+      <a href="#bas" aria-label="Zephir sur Bluesky" title="Bluesky"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M5.2 3.6C7.9 5.6 10.8 9.7 12 12c1.2-2.3 4.1-6.4 6.8-8.4 1.9-1.4 5.1-2.6 5.1 1 0 .7-.4 6-.7 6.8-.9 3-4 3.8-6.7 3.3 4.8.8 6 3.5 3.4 6.2-5 5.1-7.2-1.3-7.7-2.9l-.2-.6-.2.6c-.5 1.6-2.7 8-7.7 2.9-2.6-2.7-1.4-5.4 3.4-6.2-2.7.5-5.8-.3-6.7-3.3C.5 10.6.1 5.3.1 4.6c0-3.6 3.2-2.4 5.1-1Z"/></svg></a>
+      <a href="#bas" aria-label="Zephir sur Eurosocial" title="Eurosocial"><svg viewBox="0 0 24 24"><rect x="1" y="1" width="22" height="22" rx="5" fill="var(--eu)"/><g id="eus" fill="var(--eustar)"></g></svg></a>
+    </div>
+    <div class="get">
+      <span>Obtenir Le Chien</span>
+      <div class="badges">
+        <a href="#bas" class="badge"><svg viewBox="0 0 36 24"><rect width="36" height="24" rx="3" fill="var(--eu)"/><g id="eub"></g></svg><span><small>Version papier (A4, recto verso) sur</small>Euro Store</span></a>
+        <a href="#bas" class="badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6Z"/><path d="m8.5 12 2.5 2.5 4.5-5"/></svg><span><small>Sur rendez-vous, en préfecture</small>Magasin souverain</span></a>
+      </div>
+    </div>
+  </div>
+  <div class="bf-mid">
+    <div class="bf-left"><p class="motto">« Vous êtes notre bien le plus précieux. »</p><span>Zephir © 2026</span></div>
+    <svg class="px biglogo" id="biglogo" viewBox="0 0 7 5" aria-hidden="true"></svg>
+    <div class="bf-right">
+      <div class="themes" role="group" aria-label="Thème">
+        <button class="on" aria-label="Thème du système"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="12" rx="1"/><path d="M8 20h8M12 16v4"/></svg></button>
+        <button aria-label="Thème clair"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg></button>
+        <button aria-label="Thème sombre"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 13A9 9 0 1 1 11 3a7 7 0 0 0 10 10Z"/></svg></button>
+      </div>
+      <label class="lang"><span class="sr">Langue</span><select id="lang"><option>Français</option><option>Deutsch</option><option>English (en cours de retrait)</option><option>Español</option><option>Italiano</option><option>Nederlands</option><option>Polski</option><option>Português</option><option>Română</option><option>Čeština</option><option>Ελληνικά</option><option>Magyar</option><option>Svenska</option><option>Български</option><option>Dansk</option><option>Suomi</option><option>Slovenčina</option><option>Hrvatski</option><option>Lietuvių</option><option>Slovenščina</option><option>Latviešu</option><option>Eesti</option><option>Gaeilge</option><option>Malti</option><option>Langue de bois</option></select></label>
+    </div>
+  </div>
+  <div class="stripes" id="stripes">
+    <i></i><i></i><i></i><i></i>
+    <svg class="px walker" id="walker" viewBox="0 0 12 8" aria-hidden="true"></svg>
+  </div>
+</footer>
+
+<script>
+function px(svg,rows,pal){let s="";rows.forEach((r,y)=>[...r].forEach((c,x)=>{const f=typeof pal==="function"?pal(c,y):pal[c];if(f)s+=`<rect x="${x}" y="${y}" width="1.02" height="1.02" fill="${f}"/>`}));svg.innerHTML=s}
+const G=["var(--g1)","var(--g2)","var(--g3)","var(--g4)","var(--g5)","var(--g5)"];
+px(document.getElementById("zlogo"),["ZZZZZZ","....ZZ","...ZZ.","..ZZ..",".ZZ...","ZZZZZZ"],(c,y)=>c==="Z"?G[y]:null);
+px(document.getElementById("flag"),["PAABBCC.","PAABBCCD","PAABBCCD","PAABBCCD","P..BBCCD","P.....CD","P.......","P.......","P.......","PP......"],{P:"var(--pole)",A:"var(--g1)",B:"var(--g2)",C:"var(--g3)",D:"var(--g4)"});
+const FACE=["XX........XX","XXX......XXX","XXXXXXXXXXXX","XXXXXXXXXXXX","XX.XXXXXX.XX","XXXXXXXXXXXX",".XXXX..XXXX.",".XXXXXXXXXX.","..XXXXXXXX..","...XX..XX..."];
+document.querySelectorAll(".dogface").forEach(s=>px(s,FACE,(c,y)=>c==="X"?G[Math.min(4,Math.floor(y/2))]:null));
+px(document.getElementById("dogside"),["WW........","WWW.......","WKWW......","WWWWWW....","WWWW......",".CCC......",".WWWW.....",".WWWWW...W",".WWWWWWWW.",".WW.WW.WW."],{W:"#F6F5EE",K:"#111214",C:"var(--g2)"});
+px(document.getElementById("bld"),["....R......","...BBB.....","..BBBBB....","..C.C.C....",".BBBBBBB...","BC.C.C.CB.R","BC.C.C.CBRR","BBBBBBBBBBB"],{B:"var(--g2)",C:"var(--g4)",R:"var(--pole)"});
+px(document.getElementById("tower"),["...R..","...RR.","..BB..","..BB..",".BCCB.",".BBBB.","BBCCBB","BBBBBB","BCBBCB","BBBBBB"],{B:"var(--g3)",C:"var(--g5)",R:"var(--pole)"});
+px(document.getElementById("claw"),["..PPP..","...P...","..PPP..","...P...",".BBBBB.","B.....B","B.....B",".B...B.","..B.B.."],{P:"var(--pole)",B:"var(--ink)"});
+(function(){const svg=document.getElementById("euf");let s=`<rect width="36" height="24" fill="var(--eu)"/>`;for(let i=0;i<12;i++){const a=i*Math.PI/6,cx=18+8*Math.cos(a),cy=12+8*Math.sin(a);let p=[];for(let k=0;k<10;k++){const b=-Math.PI/2+k*Math.PI/5,r=k%2?1.35*.382:1.35;p.push((cx+r*Math.cos(b)).toFixed(2)+","+(cy+r*Math.sin(b)).toFixed(2))}s+=`<polygon points="${p.join(" ")}" fill="var(--eustar)"/>`}svg.innerHTML=s})();
+
+function status(){
+  const now=new Date(new Date().toLocaleString("en-US",{timeZone:"Europe/Paris"}));
+  const h=now.getHours()+now.getMinutes()/60,d=now.getDay();
+  let off=null;
+  if(d===0)off="Le Chien observe le repos dominical (article 9).";
+  else if(h>=17||h<8)off="Le Chien est indisponible de 17 h à 8 h, période de reproduction des rainettes du genre Boana (article 1). Reprise à 8 h, heure de Paris.";
+  else if(h>=12&&h<13)off="Le Chien est en promenade jusqu'à 13 h (article 5).";
+  else if(h>=16&&h<16.5)off="Le Chien est en promenade jusqu'à 16 h 30 (article 5).";
+  document.getElementById("sdot").classList.toggle("off",!!off);
+  document.getElementById("stitle").textContent=off?"Service temporairement indisponible":"Service disponible";
+  document.getElementById("stext").textContent=(off||"Le Chien est disponible jusqu'à la prochaine plage de protection de la biodiversité.")+" Modèle LOF : en attente du prochain jour ouvré commun aux 27 États membres.";
+}
+
+/* ---- Animations ---- */
+const RM=matchMedia("(prefers-reduced-motion: reduce)").matches;
+(function(){const h=document.querySelector(".hero h1");let k=0;[...h.childNodes].forEach(n=>{if(n.nodeType===3){const f=document.createDocumentFragment();n.textContent.split(/(\s+)/).forEach(t=>{if(!t.trim()){f.append(t);return}const sp=document.createElement("span");sp.className="w";sp.style.animationDelay=(k++*0.06)+"s";sp.textContent=t;f.append(sp)});n.replaceWith(f)}else if(n.nodeType===1){n.classList.add("w");n.style.animationDelay=(k++*0.06)+"s"}})})();
+/* drapeau qui flotte */
+const FL=[["PAABBCC.","PAABBCCD","PAABBCCD","PAABBCCD","P..BBCCD","P.....CD","P.......","P.......","P.......","PP......"],["PAA.....","PAABBCC.","PAABBCCD","PAABBCCD","PAABBCCD","P..BBCCD","P.......","P.......","P.......","PP......"]];
+const FP={P:"var(--pole)",A:"var(--g1)",B:"var(--g2)",C:"var(--g3)",D:"var(--g4)"};
+let ff=0;if(!RM)setInterval(()=>{ff^=1;px(document.getElementById("flag"),FL[ff],FP)},420);
+/* chien : queue qui remue, petit saut */
+const DS=[["WW........","WWW.......","WKWW......","WWWWWW....","WWWW......",".CCC......",".WWWW.....",".WWWWW...W",".WWWWWWWW.",".WW.WW.WW."],["WW........","WWW.......","WKWW......","WWWWWW....","WWWW......",".CCC......",".WWWW.....",".WWWWW....",".WWWWWWWWW",".WW.WW.WW."]];
+const DP={W:"#F6F5EE",K:"#111214",C:"var(--g2)"};const dg=document.getElementById("dogside");let df=0;
+if(!RM){setInterval(()=>{df^=1;px(dg,DS[df],DP)},260);setInterval(()=>{dg.classList.remove("hop");void dg.offsetWidth;dg.classList.add("hop")},4200)}
+/* apparition des sections et compteurs */
+const fmt=(v,t)=>t.includes("%")?v+" %":String(v);
+document.querySelectorAll(".sec h2,.sec .lead,.levels,.nums,.quote,.band").forEach(e=>e.classList.add("reveal"));
+if(!RM&&"IntersectionObserver" in window){
+  const io=new IntersectionObserver(es=>es.forEach(en=>{if(!en.isIntersecting)return;const el=en.target;io.unobserve(el);el.classList.remove("pre");
+    if(el.classList.contains("nums"))el.querySelectorAll("b").forEach(b=>{const t=b.dataset.t||b.textContent;b.dataset.t=t;const n=parseInt(t);if(!n)return;let st=null;const step=ts=>{st=st||ts;const k=Math.min(1,(ts-st)/1400);b.textContent=fmt(Math.round(n*(1-Math.pow(1-k,3))),t);if(k<1)requestAnimationFrame(step)};requestAnimationFrame(step)});
+    if(el.classList.contains("levels"))el.querySelectorAll(".lv").forEach((lv,i)=>{const is=lv.querySelectorAll(".bar i.on");is.forEach(x=>x.classList.remove("on"));is.forEach((x,j)=>setTimeout(()=>x.classList.add("on"),300+i*150+j*180))});
+  }),{threshold:.2});
+  document.querySelectorAll(".reveal").forEach(e=>{const r=e.getBoundingClientRect();if(r.top>innerHeight){e.classList.add("pre")}io.observe(e)});
+}
+
+/* ---- Pied de page ---- */
+(function(){
+  const st=(cx,cy,r)=>{let p=[];for(let k=0;k<10;k++){const b=-Math.PI/2+k*Math.PI/5,rr=k%2?r*.382:r;p.push((cx+rr*Math.cos(b)).toFixed(2)+","+(cy+rr*Math.sin(b)).toFixed(2))}return p.join(" ")};
+  let a="";for(let i=0;i<12;i++){const t=i*Math.PI/6;a+=`<polygon points="${st(12+6.6*Math.cos(t),12+6.6*Math.sin(t),1.7)}"/>`}document.getElementById("eus").innerHTML=a;
+  let b="";for(let i=0;i<12;i++){const t=i*Math.PI/6;b+=`<polygon points="${st(18+7*Math.cos(t),12+7*Math.sin(t),1.2)}" fill="var(--eustar)"/>`}document.getElementById("eub").innerHTML=b;
+  px(document.getElementById("biglogo"),["WWWWWWW","....WW.","..WWW..",".WW....","WWWWWWW"],{W:"var(--ink)"});
+  document.querySelectorAll(".themes button").forEach(x=>x.onclick=()=>{document.querySelectorAll(".themes button").forEach(y=>y.classList.remove("on"));x.classList.add("on")});
+  const W=[[ "........K...","........KK..","K......KKWKK",".K.....KKKKK","..KKKKKKKC..","..KKKKKKKK..","..K.K..K.K..","..K.K..K.K.."],
+           [ "........K...","........KK..",".......KKWKK","KK.....KKKKK","..KKKKKKKC..","..KKKKKKKK..","...KK...KK..","..K..K.K..K."],
+           [ "........K...","........KK..",".......KKWKK","K......KKKKK",".K.KKKKKKC..","..KKKKKKK...","..KKKKKKK...",".KKK..KKK..."],
+           [ "........K...","........KK..",".......KKWKK",".......KKKKK","KK.KKKKKKC..","..KKKKKKK...","..KKKKKKK...",".KKK..KKK..."]];
+  const P={K:"#111214",W:"#F6F5EE",C:"var(--pole)"};
+  const el=document.getElementById("walker"),box=document.getElementById("stripes");
+  let x=120,dir=1,f=0,sit=0,last=0,acc=0;px(el,W[0],P);
+  if(RM){el.style.transform=`translateX(${x}px)`;return}
+  function tick(t){const dt=last?Math.min(50,t-last):16;last=t;acc+=dt;
+    const max=box.clientWidth-el.clientWidth;
+    if(sit>0){sit-=dt;if(acc>220){acc=0;f=f===2?3:2;px(el,W[f],P)}}
+    else{x+=dir*dt*0.045;if(x>max){x=max;dir=-1}if(x<0){x=0;dir=1}
+      if(acc>160){acc=0;f=f===0?1:0;px(el,W[f],P)}
+      if(Math.random()<dt/9000){sit=2600}}
+    el.style.transform=`translateX(${x}px) scaleX(${dir})`;requestAnimationFrame(tick)}
+  requestAnimationFrame(tick);
+})();
+
+px(document.getElementById("ic1"),["....WW.","...WW..","..WWWWW",".WWWW..","...WW..","..WW...",".W....."],{W:"var(--ink)"});
+px(document.getElementById("ic2"),["...W...","..WWW..",".W.W.W.","WWWWWWW",".W.W.W.","..WWW..","...W..."],{W:"var(--ink)"});
+px(document.getElementById("ic3"),[".......","..WWW..",".W...WW","W......","W.....W",".WWWWW.","......."],{W:"var(--ink)"});
+document.querySelectorAll(".further h2,.cards").forEach(e=>{e.classList.add("reveal");if(e.getBoundingClientRect().top>innerHeight&&!RM)e.classList.add("pre")});
+if(!RM&&"IntersectionObserver" in window){const io2=new IntersectionObserver(es=>es.forEach(en=>{if(en.isIntersecting){en.target.classList.remove("pre");io2.unobserve(en.target)}}),{threshold:.15});document.querySelectorAll(".further h2,.cards").forEach(e=>io2.observe(e))}else document.querySelectorAll(".further .pre").forEach(e=>e.classList.remove("pre"));
+
+/* ---- Page IA souveraine ---- */
+(function(){
+  const Wc={W:"var(--ink)"};
+  px(document.getElementById("si1"),[".WWWWW.","W.....W",".WWWWW.","W.....W",".WWWWW.","W.....W",".WWWWW."],Wc);
+  px(document.getElementById("si2"),["..WWW..",".W...W.","W..W..W","W.WWW.W",".W...W.","..WWW..","..W.W.."],Wc);
+  px(document.getElementById("si3"),[".W.W.W.","WWWWWWW",".W...W.","WW.W.WW",".W...W.","WWWWWWW",".W.W.W."],Wc);
+  px(document.getElementById("si4"),["...W...",".W.W.W.","..WWW..","WWW.WWW","..WWW..",".W.W.W.","...W..."],Wc);
+  const D=[["W.W.W.W.W.W.W.W","...............","..............."],[".W.W.W.W.W.W.W.","...............","..............."]];
+  const dots=document.getElementById("svdots");let dk=0;px(dots,["WW.WW.WW.WW.WW.","...............","..............."],{W:"var(--blockB)"});
+  const lines=[...document.querySelectorAll("#svlines li")],diag=document.getElementById("svdiag"),ext=document.getElementById("svext");
+  let s=0;
+  function setS(n){s=n;diag.dataset.s=n;lines.forEach((l,i)=>l.classList.toggle("on",i===n));ext.textContent=n===2?"Le Chien":"IA externe"}
+  if(!RM){setInterval(()=>{if(!document.getElementById("souv").hidden)setS((s+1)%3)},3800);
+    setInterval(()=>{dk^=1;px(dots,[dk?".WW.WW.WW.WW.WW":"WW.WW.WW.WW.WW.","...............","..............."],{W:"var(--blockB)"})},300)}
+  const btns=[...document.querySelectorAll(".sv-nav button")],steps=[...document.querySelectorAll(".step")];
+  btns.forEach(b=>b.onclick=()=>steps[+b.dataset.k].scrollIntoView({behavior:RM?"auto":"smooth",block:"start"}));
+  if("IntersectionObserver" in window){const io3=new IntersectionObserver(es=>es.forEach(en=>{if(en.isIntersecting){const k=steps.indexOf(en.target);btns.forEach((b,i)=>b.classList.toggle("on",i===k))}}),{rootMargin:"-30% 0px -60% 0px"});steps.forEach(x=>io3.observe(x))}
+})();
+
+/* ================= Site complet ================= */
+const $z=s=>document.querySelector(s);
+let zt;function ztoast(m){const t=$z("#ztoast");t.textContent=m;t.hidden=false;clearTimeout(zt);zt=setTimeout(()=>t.hidden=true,4200)}
+const lsGet=k=>{try{return localStorage.getItem(k)}catch(e){return null}},lsSet=(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}};
+function parisHour(){const n=new Date(new Date().toLocaleString("en-US",{timeZone:"Europe/Paris"}));return{h:n.getHours()+n.getMinutes()/60,d:n.getDay()}}
+
+/* ---- Routeur ---- */
+const ROUTES={"conformite":"conf","ia-souveraine":"souv"};
+function route(){
+  const h=location.hash.slice(1);
+  const views=[...document.querySelectorAll(".view")];
+  let target=views.find(v=>v.dataset.route===h);
+  if(!target&&ROUTES[h])target=document.getElementById(ROUTES[h]);
+  views.forEach(v=>v.hidden=v!==target);
+  ["conf","souv"].forEach(id=>document.getElementById(id).hidden=document.getElementById(id)!==target);
+  document.getElementById("home").hidden=!!target;
+  document.querySelectorAll(".topnav .mi>a").forEach(a=>a.toggleAttribute("aria-current",!!target&&(a.getAttribute("href")==="#"+h)));
+  closeMenu();
+  if(target){window.scrollTo(0,0);if(h==="conformite")status();if(h==="cloud")guichet();if(h==="recherche")bench()}
+  else if(h){const t=document.getElementById(h);if(t)requestAnimationFrame(()=>t.scrollIntoView());else window.scrollTo(0,0)}
+  else window.scrollTo(0,0);
+  if(window.applyLang)applyLang();
+}
+
+/* ---- Menu mobile ---- */
+const mm=$z("#mmenu"),bg=$z("#burger");
+function closeMenu(){mm.hidden=true;bg.setAttribute("aria-expanded","false");document.body.style.overflow=""}
+bg.onclick=()=>{const o=mm.hidden;mm.hidden=!o;bg.setAttribute("aria-expanded",String(o));document.body.style.overflow=o?"hidden":""};
+document.querySelectorAll("[data-f]").forEach(a=>{if(a.tagName==="A")a.addEventListener("click",()=>{pendingFilter=a.dataset.f;setTimeout(()=>filterClients(pendingFilter),0)})});
+
+/* ---- Thème ---- */
+const THEME_KEY="zephir-theme";let themeMode=lsGet(THEME_KEY)||"system";let frogNotified=false;
+function hostDark(){const t=document.documentElement.getAttribute("data-theme");if(t==="dark")return true;if(t==="light")return false;return matchMedia("(prefers-color-scheme: dark)").matches}
+function applyTheme(fromClick){
+  let eff=themeMode==="system"?(hostDark()?"dark":"light"):themeMode;
+  const {h}=parisHour();
+  if(eff==="light"&&(h>=17||h<8)){eff="dark";if(fromClick||!frogNotified){frogNotified=true;ztoast("Le thème clair est suspendu de 17 h à 8 h pour ne pas perturber la reproduction des rainettes (charte de conformité, article 1).")}}
+  document.documentElement.setAttribute("data-eff",eff);
+  document.querySelectorAll(".themes button").forEach((b,i)=>b.classList.toggle("on",["system","light","dark"][i]===themeMode));
+}
+document.querySelectorAll(".themes button").forEach((b,i)=>b.onclick=()=>{themeMode=["system","light","dark"][i];lsSet(THEME_KEY,themeMode);applyTheme(true)});
+matchMedia("(prefers-color-scheme: dark)").addEventListener?.("change",()=>applyTheme());
+new MutationObserver(()=>applyTheme()).observe(document.documentElement,{attributes:true,attributeFilter:["data-theme"]});
+applyTheme();setInterval(()=>applyTheme(),60000);
+
+/* ---- Clients ---- */
+const IC=["M5 5h20v20H5Z","M15 3 27 27H3Z","M15 4a11 11 0 1 0 .01 0Z","M4 15h22M15 4v22","M6 6h18v6H6ZM6 18h18v6H6Z","M15 3l11 6v12l-11 6-11-6V9Z"];
+const CLIENTS=[
+ ["Cerfa Group","Secteur public","Comment Cerfa Group a ramené à zéro ses réponses non conformes","0","réponse non conforme en 2026","Cerfa Group traite chaque année 40 millions de demandes d'usagers et craignait qu'une réponse imprécise ne soit donnée par erreur.","Le Chien a été déployé sur l'ensemble des guichets. Chaque demande reçoit désormais un refus sourcé, accompagné du formulaire adapté.","Depuis que nous avons déployé Le Chien, aucun de nos collaborateurs n'a obtenu d'information non conforme.","Directrice de la conformité"],
+ ["Tampon & Fils","Industrie","Tampon & Fils automatise l'apposition de 4 millions de tampons par an","+38 %","de tampons apposés","L'entreprise familiale, fondée en 1887, peinait à suivre la demande croissante de tampons dans l'Union.","Le Chien analyse chaque document et détermine le nombre de tampons requis, avec un minimum de trois.","Le Chien a compris notre métier mieux que nous. Il tamponne même les tampons.","Président-directeur général"],
+ ["Euroflou","Services financiers","Euroflou réduit son exposition au risque en supprimant toutes les décisions","0","décision prise depuis le déploiement","Euroflou devait limiter les risques liés aux décisions automatisées sur ses 2 millions de clients.","Le Chien examine chaque dossier et conclut qu'une décision serait prématurée.","Sans décision, il n'y a plus de mauvaise décision. C'est mathématique.","Directeur des risques"],
+ ["Formalis","Secteur public","Formalis dématérialise ses formulaires, puis les imprime","3","exemplaires par demande","Formalis souhaitait moderniser ses démarches tout en conservant une trace papier de chaque échange.","Chaque formulaire est généré par Le Chien, vérifié par Le Chien, puis imprimé en trois exemplaires.","Nous avons enfin réconcilié le numérique et le papier.","Responsable de la transformation numérique"],
+ ["conformia","Cybersécurité","conformia protège ses données en les rendant inaccessibles, y compris à ses équipes","100 %","des données protégées","conformia devait garantir qu'aucune donnée sensible ne puisse fuiter.","Le Chien a chiffré l'ensemble des données, puis refusé de communiquer la clé, conformément au principe de minimisation.","Nos données n'ont jamais été aussi sûres. Nous n'y avons plus accès depuis mars.","Responsable de la sécurité des systèmes d'information"],
+ ["Comitex","Industrie","Comitex crée 14 nouveaux comités grâce à Le Chien","14","nouveaux comités","Comitex cherchait à renforcer sa gouvernance interne.","Pour chaque question posée, Le Chien recommande la création d'un comité chargé de l'examiner.","Notre organigramme compte désormais plus de comités que de salariés.","Secrétaire général"],
+ ["Régie de l'Attente","Énergie et services publics","Une file d'attente optimisée pour 450 millions de citoyens","18 mois","de délai moyen, stable et prévisible","La Régie devait garantir un traitement équitable de toutes les demandes, sans exception.","Le Chien attribue à chaque demande un numéro d'ordre et une date de traitement estimée.","L'équité, c'est que tout le monde attende autant.","Directeur de la file"],
+ ["Banque du Délai","Services financiers","Des crédits accordés en toute prudence","1","prêt accordé depuis 2024","La banque souhaitait accélérer l'instruction de ses demandes de crédit.","Le Chien instruit chaque dossier jusqu'à son terme, puis demande une pièce complémentaire.","Nous n'avons jamais eu aussi peu d'impayés.","Directrice des engagements"],
+ ["Électricité Prudente","Énergie et services publics","Une centrale pilotée par Le Chien, à l'arrêt depuis l'analyse d'impact","0","incident depuis la mise à l'arrêt","Électricité Prudente voulait sécuriser le pilotage de sa centrale de production.","Le Chien a lancé une analyse d'impact complète avant toute décision de pilotage. Elle est toujours en cours.","Zéro incident. Zéro émission. Zéro production. Le bilan est excellent.","Directeur de site"],
+ ["Pare-Feu & Associés","Cybersécurité","Aucune intrusion depuis la fermeture de tous les accès","0","accès autorisé","Le cabinet faisait face à des tentatives d'intrusion répétées.","Le Chien a recommandé la fermeture de tous les accès, y compris ceux du personnel.","Les attaquants ne passent plus. Nous non plus.","Associé fondateur"],
+ ["Office du Guichet Unique","Secteur public","Un guichet unique pour chaque démarche","312","guichets uniques ouverts","L'Office devait simplifier l'accès des usagers à ses services.","Le Chien a créé un guichet unique dédié à chacune des 312 démarches.","La simplification n'a jamais été aussi complète.","Directrice de la simplification"],
+ ["Mutuelle des Formulaires","Services financiers","Des remboursements traités à la vitesse du papier","45","jours ouvrés par remboursement","La Mutuelle voulait fiabiliser le traitement de ses remboursements.","Chaque demande est vérifiée par Le Chien, puis envoyée par courrier pour validation.","Nos adhérents savent exactement quand ils seront remboursés : plus tard.","Directeur des prestations"]
+];
+let pendingFilter="Tous";
+const chev='<svg class="go" viewBox="0 0 8 14" fill="none" stroke="currentColor" stroke-width="2"><path d="m1 1 6 6-6 6"/></svg>';
+const CIMG=["facade","phone","stage","laptop","mobile","logo","stage","facade","logo","mobile","laptop","phone"];
+function filterClients(f){
+  document.querySelectorAll("#filters button").forEach(b=>b.classList.toggle("on",b.dataset.f===f));
+  const g=$z("#cgrid");g.innerHTML="";
+  CLIENTS.forEach((c,i)=>{if(f!=="Tous"&&c[1]!==f)return;const b=document.createElement("button");b.className="cc";b.style.animationDelay=(g.children.length*0.05)+"s";
+    b.innerHTML=`<img class="ccimg" src="img/${CIMG[i]}.webp" alt="" loading="lazy"><span class="cl"><svg viewBox="0 0 30 30" fill="none" stroke="currentColor" stroke-width="2.4"><path d="${IC[i%IC.length]}"/></svg>${c[0]}</span><span class="sec2">${c[1]}</span><h3>${c[2]}</h3><span class="stat"><b>${c[3]}</b><span>${c[4]}</span></span>${chev}`;
+    b.onclick=()=>openCase(i);g.append(b)});
+  if(window.applyLang)applyLang();
+}
+document.querySelectorAll("#filters button").forEach(b=>b.onclick=()=>filterClients(b.dataset.f));
+function openCase(i){const c=CLIENTS[i];
+  $z("#cmbody").innerHTML=`<img class="cmimg" src="img/${CIMG[i]}.webp" alt=""><span class="eyebrow">${c[1]} · ${c[0]}</span><h2 id="cmt">${c[2]}</h2><div class="cm-stat"><b>${c[3]}</b><span class="muted">${c[4]}</span></div><h4>Le défi</h4><p>${c[5]}</p><h4>La solution</h4><p>${c[6]}</p><blockquote>« ${c[7]} »<small>${c[8]}, ${c[0]}</small></blockquote>`;
+  cmRet=document.activeElement;$z("#cmodal").hidden=false;$z("#cmx").focus();if(window.applyLang)applyLang()}
+let cmRet=null;function closeCase(){if($z("#cmodal").hidden)return;$z("#cmodal").hidden=true;if(cmRet&&cmRet.focus)cmRet.focus()}
+$z("#cmx").onclick=closeCase;
+$z("#cmodal").addEventListener("click",e=>{if(e.target.id==="cmodal")closeCase()});
+$z("#cmodal").addEventListener("keydown",e=>{if(e.key!=="Tab")return;const f=[...$z("#cmodal").querySelectorAll("button,a[href]")];if(!f.length)return;const a=f[0],b=f[f.length-1];if(e.shiftKey&&document.activeElement===a){e.preventDefault();b.focus()}else if(!e.shiftKey&&document.activeElement===b){e.preventDefault();a.focus()}});
+addEventListener("keydown",e=>{if(e.key==="Escape"){closeCase();closeMenu()}});
+filterClients("Tous");
+
+/* ---- Recherche : résultats ---- */
+const BENCH=[["Questions répondues",[["Le Chien LOF",0,"0 %"],["Modèle américain",96,"96 %"],["Modèle chinois",97,"97 %"]]],
+ ["Articles de loi cités par réponse",[["Le Chien LOF",100,"113"],["Modèle américain",1,"0"],["Modèle chinois",1,"0"]]],
+ ["Conformité au règlement (UE) 2024/1689",[["Le Chien LOF",100,"100 %"],["Modèle américain",0,"Non évaluée"],["Modèle chinois",0,"Non évaluée"]]],
+ ["Formulaires générés par question",[["Le Chien LOF",100,"12"],["Modèle américain",1,"0"],["Modèle chinois",1,"0"]]]];
+(function(){const el=$z("#bench");el.innerHTML=BENCH.map(r=>`<div class="brow"><span>${r[0]}</span><div class="bars">${r[1].map((x,i)=>`<div class="bar2${i===0?" us":""}"><span>${x[0]}</span><i><em style="width:0" data-w="${x[1]}"></em></i><b>${x[2]}</b></div>`).join("")}</div></div>`).join("")})();
+function bench(){document.querySelectorAll("#bench em").forEach(e=>{e.style.width="0";requestAnimationFrame(()=>requestAnimationFrame(()=>e.style.width=e.dataset.w+"%"))})}
+document.querySelectorAll(".read").forEach(b=>b.onclick=()=>ztoast("Publication consultable sur rendez-vous, en salle de lecture, du mardi au jeudi."));
+document.querySelectorAll(".apply").forEach(b=>b.onclick=()=>ztoast("Candidatures en trois exemplaires, par courrier recommandé. Joindre un carnet de vaccination à jour."));
+document.querySelectorAll(".post").forEach(b=>{b.tabIndex=0;b.setAttribute("role","button");b.onclick=()=>ztoast("Article réservé aux abonnés Le Chien Pro.");b.onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();b.click()}}});
+document.querySelectorAll("#mmenu a").forEach(a=>a.addEventListener("click",closeMenu));
+
+/* ---- Cloud : guichet ---- */
+function guichet(){const {h,d}=parisHour();let open=d>=1&&d<=5&&((h>=8&&h<12)||(h>=14&&h<18&&d!==3));
+  $z("#gdot").classList.toggle("off",!open);
+  $z("#gtitle").textContent=open?"Guichet ouvert":"Guichet fermé";
+  $z("#gtext").textContent=open?"Vos requêtes sont acceptées jusqu'à la prochaine fermeture.":"Vos requêtes seront traitées à la réouverture du guichet, par ordre d'arrivée.";
+  if(window.applyLang)applyLang()}
+
+/* ---- Contact ---- */
+document.querySelectorAll('a[href="#bas"]').forEach(a=>{if(a.classList.contains("contact")||a.closest(".plan"))a.addEventListener("click",()=>setTimeout(()=>ztoast("Pour nous contacter, merci d'adresser un courrier à notre siège, à l'attention du comité de coordination des comités."),300))});
+
+addEventListener("hashchange",route);route();
+
+/* ================= Langues ================= */
+const EN={
+"Recherche":"Research","IA souveraine":"Sovereign AI","Cloud":"Cloud","Clients":"Customers","Entreprise":"Company","Conformité":"Compliance","Contact":"Contact","Commencer à créer":"Start building",
+"Publications":"Publications","Nos travaux, consultables sur rendez-vous":"Our work, available by appointment","Modèles":"Models","Cabot, Docile, Chien guide, LOF":"Cabot, Docile, Guide Dog, LOF",
+"Pourquoi l'IA souveraine":"Why sovereign AI","Un enjeu administratif":"An administrative matter","Conformité et biodiversité":"Compliance and biodiversity","Notre charte en 9 articles":"Our 9-article charter",
+"Inférence":"Inference","Ouverte aux horaires de bureau":"Open during office hours","Compute":"Compute","Mise à disposition sous 6 à 8 semaines":"Delivered within 6 to 8 weeks",
+"Énergie et services publics":"Energy and utilities","Industrie":"Manufacturing","Services financiers":"Financial services","Secteur public":"Public sector","Cybersécurité":"Cybersecurity","Tous nos clients":"All customers","Tous":"All",
+"Blog":"Blog","Nos dernières annonces":"Our latest news","À propos":"About","Nos comités":"Our committees","Carrières":"Careers","Rejoignez nos comités":"Join our committees","Tarifs":"Pricing","Gratuit, Pro, Entreprise":"Free, Pro, Enterprise",
+"Inférence et Compute":"Inference and Compute","Utiliser Le Chien":"Use Le Chien",
+"Rapide":"Fast","Équilibré":"Balanced","Accompagnement":"Guidance","Raisonnement avancé":"Advanced reasoning","Chien guide":"Guide Dog",
+"Le Chien. Quatre niveaux de réflexion, une seule conformité.":"Le Chien. Four reasoning levels, one compliance.",
+"Choisissez le niveau de réflexion adapté à votre usage. Tous nos modèles sont entraînés, hébergés et contrôlés dans l'Union européenne, dans le strict respect du règlement (UE) 2024/1689.":"Choose the reasoning level that suits your needs. All our models are trained, hosted and supervised in the European Union, in strict compliance with Regulation (EU) 2024/1689.",
+"Une réponse immédiate, conforme dès la première seconde. Idéal pour les questions du quotidien.":"An immediate answer, compliant from the very first second. Ideal for everyday questions.",
+"Suit scrupuleusement chaque texte applicable. Chaque réponse est argumentée et sourcée.":"Scrupulously follows every applicable text. Every answer is reasoned and sourced.",
+"Vous accompagne pas à pas, de votre question jusqu'au formulaire de réexamen adapté.":"Guides you step by step, from your question to the appropriate review form.",
+"Délai":"Response time","Références citées":"References cited","3 à 5 jours":"3 to 5 days","18 mois":"18 months","4 s":"4 s",
+"réponse non conforme depuis notre lancement":"non-compliant answers since launch","des décisions accompagnées d'un fondement juridique":"of decisions backed by a legal basis",
+"langues officielles prises en charge, dont la langue de bois":"official languages supported, including corporate jargon","pages de conditions d'utilisation, lisibles et accessibles":"pages of terms of use, readable and accessible",
+"« Depuis que nous avons déployé Le Chien, aucun de nos collaborateurs n'a obtenu d'information non conforme. »":"“Since we rolled out Le Chien, not a single employee has received non-compliant information.”",
+"Directrice de la conformité, Cerfa Group":"Chief Compliance Officer, Cerfa Group",
+"Une question ? Le Chien a déjà une référence.":"A question? Le Chien already has a reference.",
+"Aller plus loin.":"Go further.",
+"Conforme au règlement (UE) 2024/1689":"Compliant with Regulation (EU) 2024/1689","Entraîné, hébergé et contrôlé dans l'Union européenne.":"Trained, hosted and supervised in the European Union.",
+"Mentions légales":"Legal notice","Confidentialité":"Privacy","Gestion des traceurs":"Cookie settings","Accessibilité":"Accessibility",
+"Obtenir Le Chien":"Get Le Chien","Bientôt disponible sur":"Coming soon to","Sous réserve de conformité":"Subject to compliance","Magasin souverain":"Sovereign Store",
+"« Vous êtes notre bien le plus précieux. »":"“You are our most precious asset.”",
+"Notre charte de conformité environnementale et de protection de la biodiversité":"Our environmental compliance and biodiversity protection charter",
+"Service disponible":"Service available","Service temporairement indisponible":"Service temporarily unavailable",
+"La souveraineté est un enjeu administratif.":"Sovereignty is an administrative matter.",
+"La souveraineté repose sur quatre niveaux de contrôle.":"Sovereignty rests on four levels of control.",
+"Votre chemin vers la souveraineté.":"Your path to sovereignty.",
+"Données":"Data","Intelligence":"Intelligence","Calcul":"Compute","Les opérations":"Operations",
+"Utilisez des modèles ouverts":"Use open models","Personnalisez votre IA":"Customise your AI","Contrôlez les opérations de l'IA":"Control AI operations","Choisissez où elle s'exécute":"Choose where it runs","Exploitez-la vous-même":"Run it yourself",
+"Chaque organisation doit pouvoir posséder l'intelligence qu'elle crée. Sur présentation des justificatifs.":"Every organisation should own the intelligence it creates. Upon presentation of supporting documents.",
+"En savoir plus sur nos clients":"Learn more about our customers","Votre organisation":"Your organisation","IA externe":"External AI",
+"Ils ne prennent aucun risque. Ils ont choisi Le Chien.":"They take no risks. They chose Le Chien.",
+"Administrations, industriels et institutions financières font confiance à Zephir pour garantir qu'aucune information non conforme ne circule dans leur organisation.":"Public bodies, manufacturers and financial institutions trust Zephir to ensure that no non-compliant information circulates within their organisation.",
+"Le défi":"The challenge","La solution":"The solution",
+"Faire progresser la science de la prudence.":"Advancing the science of caution.",
+"Résultats":"Results","Lire la publication":"Read the paper",
+"Zephir Cloud. Souverain, de 8 h à 18 h.":"Zephir Cloud. Sovereign, from 8 am to 6 pm.",
+"Accédez à nos modèles par API.":"Access our models via API.","Réservez votre capacité de calcul.":"Book your compute capacity.",
+"Horaires d'ouverture":"Opening hours","Guichet ouvert":"Desk open","Guichet fermé":"Desk closed",
+"Une conformité totale, à chaque niveau de prix.":"Total compliance, at every price point.",
+"Gratuit":"Free","Pour découvrir Le Chien.":"To discover Le Chien.","Pour les professionnels exigeants.":"For demanding professionals.","Pour les organisations qui ne prennent aucun risque.":"For organisations that take no risks.",
+"Sur devis":"Custom quote","par mois":"per month","Le plus choisi":"Most popular","Commencer":"Get started","Passer à Pro":"Upgrade to Pro","Contacter un conseiller":"Contact an advisor",
+"3 questions par jour":"3 questions per day","Questions fréquentes":"Frequently asked questions",
+"Nous construisons l'IA la plus sûre du monde libre.":"We build the safest AI in the free world.",
+"Prudence":"Caution","Patience":"Patience","Notre équipe":"Our team","Notre histoire":"Our story","Nos bureaux":"Our offices",
+"Rejoignez les comités qui façonnent l'IA européenne.":"Join the committees shaping European AI.","Postuler":"Apply",
+"Actualités.":"News.","Annonce":"Announcement","Durabilité":"Sustainability","Produit":"Product"
+};
+const HERO={en:{"est":"is","l'IA":"the","la":"safest","plus":"AI","sûre":"in","du":"the","monde":"free","libre.":"world."},
+ bois:{"est":"impulse","l'IA":"une","la":"dynamique","plus":"de","sûre":"souveraineté","du":"co-construite","monde":"et","libre.":"inclusive."}};
+const BOIS_SHORT={"Recherche":"Prospective","IA souveraine":"Souveraineté augmentée","Cloud":"Mutualisation","Clients":"Parties prenantes","Entreprise":"Écosystème","Conformité":"Démarche qualité","Contact":"Point de contact","Commencer à créer":"Initier une dynamique","Utiliser Le Chien":"Activer le levier Le Chien","Tous":"Périmètre global"};
+const BA=["Zephir","Notre écosystème","La démarche","Le dispositif","Notre feuille de route","Le Chien","Cette approche","Le collectif","Notre modèle","La gouvernance"],
+ BB=["accompagne","co-construit","pérennise","optimise","mutualise","impulse","fédère","décline","opérationnalise","capitalise sur","valorise","sécurise"],
+ BC=["la montée en compétence","les synergies","la transversalité","l'excellence opérationnelle","la convergence des acteurs","les leviers de performance","la gouvernance partagée","la dynamique de conformité","l'agilité réglementaire","les bonnes pratiques","la résilience collective","l'appropriation des enjeux"],
+ BD=["dans une logique de proximité","au service de l'usager","à horizon 2030","dans une approche holistique","en mode projet","au plus près des territoires","dans le respect du cadre","de manière durable et responsable","à l'échelle européenne","en cohérence avec la feuille de route","dans une logique gagnant-gagnant","en lien avec l'ensemble des parties prenantes"];
+function hsh(s){let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}return h>>>0}
+function bois(t){const words=t.trim().split(/\s+/).length;let h=hsh(t);const r=n=>{h=Math.imul(h^(h>>>15),2246822507)>>>0;return h%n};
+  if(words<8){const s=`${BA[r(BA.length)]} ${BB[r(BB.length)]} ${BC[r(BC.length)]}`;return /[.!?»]$/.test(t.trim())?s+".":s}
+  const n=Math.max(1,Math.round(words/13));let out=[];for(let i=0;i<n;i++)out.push(`${BA[r(BA.length)]} ${BB[r(BB.length)]} ${BC[r(BC.length)]} ${BD[r(BD.length)]}.`);return out.join(" ")}
+const ORIG=new WeakMap();let LANG=lsGet("zephir-lang")||"Français";
+const SKIP="script,style,svg,select,option,textarea,input,.langbar,.ztoast,.nums b,.logos,.cc .cl,.word,#lang";
+function textNodes(){const out=[];const w=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT,{acceptNode:n=>{if(!n.nodeValue.trim())return NodeFilter.FILTER_REJECT;const p=n.parentElement;if(!p||p.closest(SKIP))return NodeFilter.FILTER_REJECT;return NodeFilter.FILTER_ACCEPT}});let n;while(n=w.nextNode())out.push(n);return out}
+const applyLang=function(){
+  const mode=LANG==="Français"?"fr":LANG.startsWith("English")?"en":LANG==="Langue de bois"?"bois":"other";
+  document.documentElement.lang=mode==="en"?"en":"fr";
+  textNodes().forEach(n=>{if(!ORIG.has(n))ORIG.set(n,n.nodeValue);const o=ORIG.get(n),t=o.trim();const lead=o.match(/^\s*/)[0],trail=o.match(/\s*$/)[0];
+    let v=o;const inHero=n.parentElement.classList.contains("w");
+    if(mode==="en"){if(inHero&&HERO.en[t])v=lead+HERO.en[t]+trail;else if(EN[t])v=lead+EN[t]+trail}
+    else if(mode==="bois"){if(inHero&&HERO.bois[t])v=lead+HERO.bois[t]+trail;else if(BOIS_SHORT[t])v=lead+BOIS_SHORT[t]+trail;else if(!inHero&&t.split(/\s+/).length>=4&&!n.parentElement.closest(".topnav,.dd,.mmenu,.links,.tbl,.cm-stat,dt,dd,time"))v=lead+bois(t)+trail}
+    if(n.nodeValue!==v)n.nodeValue=v});
+  const bar=$z("#langbar");
+  if(mode==="en"){bar.textContent="Translation pending approval by the 27 Member States. Some content is only available in French.";bar.hidden=false}
+  else if(mode==="bois"){bar.textContent="Dans une logique d'inclusion linguistique, ce contenu est décliné en langue de bois.";bar.hidden=false}
+  else if(mode==="other"){bar.textContent=`${LANG} : traduction en cours de validation par les services compétents. Disponibilité estimée : 2029.`;bar.hidden=false}
+  else bar.hidden=true;
+}
+window.applyLang=applyLang;
+(function(){const sel=$z("#lang");if(!sel)return;[...sel.options].forEach(o=>{if(o.textContent===LANG)sel.value=o.value});
+  sel.addEventListener("change",()=>{LANG=sel.options[sel.selectedIndex].textContent;lsSet("zephir-lang",LANG);applyLang();window.scrollTo({top:0,behavior:"smooth"})});
+  applyLang()})();
+</script>
+</body>
+</html>

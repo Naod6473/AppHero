@@ -1,0 +1,558 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Le Chien, l'assistant IA européen, souverain et conforme.">
+<link rel="icon" href="../media/favicon.png">
+<link rel="apple-touch-icon" href="../media/apple-touch-icon.png">
+<title>Le Chien</title>
+<style>
+@font-face{font-family:"Inter";font-weight:400;font-style:normal;font-display:swap;src:url(../fonts/inter-latin-400-normal.woff2) format("woff2")}
+@font-face{font-family:"Inter";font-weight:500;font-style:normal;font-display:swap;src:url(../fonts/inter-latin-500-normal.woff2) format("woff2")}
+@font-face{font-family:"Inter";font-weight:600;font-style:normal;font-display:swap;src:url(../fonts/inter-latin-600-normal.woff2) format("woff2")}
+@font-face{font-family:"Inter";font-weight:700;font-style:normal;font-display:swap;src:url(../fonts/inter-latin-700-normal.woff2) format("woff2")}
+@font-face{font-family:"Inter Tight";font-weight:400;font-style:normal;font-display:swap;src:url(../fonts/inter-tight-latin-400-normal.woff2) format("woff2")}
+@font-face{font-family:"Inter Tight";font-weight:500;font-style:normal;font-display:swap;src:url(../fonts/inter-tight-latin-500-normal.woff2) format("woff2")}
+@font-face{font-family:"Inter Tight";font-weight:600;font-style:normal;font-display:swap;src:url(../fonts/inter-tight-latin-600-normal.woff2) format("woff2")}
+@font-face{font-family:"Silkscreen";font-weight:400;font-style:normal;font-display:swap;src:url(../fonts/silkscreen-latin-400-normal.woff2) format("woff2")}
+@font-face{font-family:"Silkscreen";font-weight:700;font-style:normal;font-display:swap;src:url(../fonts/silkscreen-latin-700-normal.woff2) format("woff2")}
+html{-webkit-text-size-adjust:100%}
+:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body{margin:0}img{max-width:100%}[hidden]{display:none!important}
+
+/* Mise en page : écran d'accueil sombre et dépouillé, barre latérale repliée, titre et champ alignés à gauche dans une colonne centrale. Couleurs d'origine tournées de 180°. */
+:root{
+  --g1:#0027FF; --g2:#0050FF; --g3:#057FFF; --g4:#0FB9FA; --g5:#00DCE1;
+  --logo:#0FB9FA;
+  --bg:#1B1D21; --side:#16181B; --panel:#23262B; --panel2:#2B2F35; --ink:#F1F3F6; --muted:#9AA1AC; --line:#33373E;
+  --accent:#2FA8FF; --accent-soft:#1F2A36; --user:#2A2E35; --law:#20242A;
+  --eu:#003399; --eustar:#FFCC00; --warn:#FF8A7E;
+  --display:"Silkscreen", ui-monospace, "Courier New", monospace;
+  --body:"Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  color-scheme:dark;
+}
+html,body{height:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.5;overflow:hidden;-webkit-font-smoothing:antialiased}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible,a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.grad{background:linear-gradient(90deg,var(--g1),var(--g2),var(--g3),var(--g4),var(--g5))}
+
+.app{display:flex;flex-direction:column;height:100%}
+
+/* Barre du haut */
+.top{display:flex;align-items:center;gap:8px;padding-block:12px;padding-left:max(24px,env(safe-area-inset-left,0px));padding-right:max(20px,env(safe-area-inset-right,0px))}
+.ibtn{width:44px;height:42px;border-radius:10px;border:0;background:transparent;display:grid;place-items:center;color:var(--ink)}
+.ibtn:hover,.ibtn.sel{background:var(--panel)}
+.ibtn svg{width:22px;height:22px}
+.top .sp{flex:1}
+.login{border:0;background:none;font-weight:600;font-size:15px;padding:8px 14px}
+.signup{border:0;background:var(--ink);color:var(--bg);font-weight:600;font-size:15px;padding:8px 12px;border-radius:8px}
+.signup:hover{opacity:.9}
+
+/* Barre latérale (repliée par défaut) */
+.side{position:fixed;inset:0 auto 0 0;width:280px;max-width:86vw;z-index:40;background:var(--side);border-right:1px solid var(--line);display:flex;flex-direction:column;gap:14px;padding:calc(14px + env(safe-area-inset-top,0px)) 12px calc(12px + env(safe-area-inset-bottom,0px)) max(12px,env(safe-area-inset-left,0px));transform:translateX(-105%);transition:transform .2s}
+.side.open{transform:none}
+.scrim{display:none}
+.scrim.open{display:block;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:39}
+.brand{display:flex;align-items:center;gap:10px;padding:4px 6px}
+.brand svg{width:26px;height:auto}
+.word{font-family:var(--display);font-size:18px;letter-spacing:.02em;font-weight:700;flex:1}
+.newchat{display:flex;align-items:center;gap:8px;border:1px solid var(--line);background:var(--panel);border-radius:10px;padding:9px 12px;font-weight:600;font-size:14px}
+.newchat:hover{border-color:var(--muted)}
+.hist{flex:1;overflow:auto;display:flex;flex-direction:column;gap:2px;min-height:0}
+.hist h4{margin:10px 8px 4px;font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:600}
+.hist button{all:unset;cursor:pointer;padding:7px 10px;border-radius:8px;font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hist button:hover{background:var(--panel)}
+.pro{border-radius:12px;padding:12px;background:var(--panel);border:1px solid var(--line);font-size:13px}
+.pro strong{display:block;font-size:14px}
+.pro .bar{height:3px;border-radius:2px;margin-bottom:10px}
+.pro span{color:var(--muted)}
+.eufoot{display:flex;align-items:center;gap:10px;font-size:11.5px;color:var(--muted);line-height:1.35;padding:2px 4px}
+.euflag{flex:none;border-radius:2px;display:block}
+.eufoot .ce{font-weight:600;color:var(--ink)}
+.parody{font-size:10.5px;opacity:.8}
+
+/* Centre */
+.scroll{flex:1;overflow:auto;min-height:0}
+.col{width:100%;max-width:922px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.hero{display:flex;flex-direction:column;align-items:flex-start;gap:26px;padding:clamp(40px,14vh,140px) 26px 28px}
+.hero svg{width:60px;height:auto}
+.hero h1{font-weight:500;font-size:clamp(26px,3.4vw,38px);line-height:1.28;margin:0;letter-spacing:-.025em;text-wrap:balance}
+
+.composer{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:10px 10px 10px 14px;display:flex;align-items:center;gap:10px;box-shadow:0 10px 30px -18px rgba(0,0,0,.8)}
+.composer textarea{flex:1;min-width:0;width:0;border:0;outline:0;resize:none;background:transparent;font:inherit;font-size:17px;color:var(--ink);height:28px;max-height:180px;padding:1px 0;caret-color:var(--logo)}
+.composer textarea::placeholder{color:var(--muted)}
+.plus{border:0;background:none;width:28px;height:28px;display:grid;place-items:center;color:var(--ink);border-radius:6px}
+.plus:hover,.think:hover,.mic:hover{background:var(--panel2)}
+.plus svg{width:20px;height:20px}
+.think{border:0;background:none;font-weight:600;font-size:15px;color:var(--ink);display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:8px;white-space:nowrap}
+.think svg{width:14px;height:14px}
+.mic{border:0;background:none;width:34px;height:34px;display:grid;place-items:center;border-radius:8px}
+.mic svg{width:20px;height:20px}
+.send{width:40px;height:40px;border-radius:9px;border:0;display:grid;place-items:center;background:var(--panel2);color:var(--muted);flex:none}
+.send.on{background:var(--logo);color:#05212E}
+.send:disabled{cursor:not-allowed}
+.send svg{width:18px;height:18px}
+.dock{padding-bottom:calc(8px + env(safe-area-inset-bottom,0px))}
+.chatting .dock{border-top:0}
+body:not(.chatting) .dock{display:none}
+
+/* Pied de page */
+.foot{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--muted);padding-block:10px 14px;padding-left:max(24px,env(safe-area-inset-left,0px));padding-right:max(20px,env(safe-area-inset-right,0px))}
+.foot .sp{flex:1}
+.help{width:30px;height:30px;border-radius:50%;border:0;background:var(--panel);display:grid;place-items:center}
+.help svg{width:18px;height:18px}
+
+/* Conversation */
+.thread{display:flex;flex-direction:column;gap:22px;padding:24px 26px 28px}
+.msg-u{align-self:flex-end;background:var(--user);border-radius:18px 18px 4px 18px;padding:10px 14px;max-width:80%;white-space:pre-wrap;overflow-wrap:anywhere}
+.msg-a{display:flex;gap:12px;align-items:flex-start}
+.ava{flex:none;width:30px;height:30px;display:grid;place-items:center}
+.ava svg{width:22px;height:auto}
+.body{min-width:0;flex:1;display:flex;flex-direction:column;gap:10px}
+.dots::after{content:"";animation:dots 1.2s steps(4) infinite}
+@keyframes dots{0%{content:""}25%{content:"."}50%{content:".."}75%{content:"..."}}
+.check{border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:var(--panel);font-size:12.5px;display:flex;flex-direction:column;gap:6px}
+.check .row{display:flex;justify-content:space-between;color:var(--muted);font-variant-numeric:tabular-nums}
+.track{height:5px;border-radius:3px;background:var(--line);overflow:hidden}
+.track i{display:block;height:100%;width:0;transition:width .12s linear}
+.ck-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:3px;color:var(--muted)}
+.ck-list li{display:flex;gap:8px;align-items:center}
+.ck-list li::before{content:"";width:12px;height:12px;border-radius:50%;border:1.5px solid var(--line);flex:none}
+.ck-list li.on{color:var(--ink)}
+.ck-list li.on::before{border-color:var(--logo);background:var(--logo);box-shadow:inset 0 0 0 2px var(--panel)}
+.answer p{margin:0}
+.law{border-left:3px solid var(--logo);background:var(--law);border-radius:0 10px 10px 0;padding:10px 14px;font-size:13px;display:flex;flex-direction:column;gap:2px}
+.law .k{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:600}
+.law a{color:var(--accent);font-weight:600;text-decoration:none}
+.law a:hover{text-decoration:underline}
+.label-ai{font-size:11.5px;color:var(--muted);display:flex;align-items:center;gap:6px}
+.acts{display:flex;gap:6px;flex-wrap:wrap}
+.acts button{border:1px solid var(--line);background:transparent;border-radius:8px;padding:5px 10px;font-size:12.5px;color:var(--muted)}
+.acts button:hover{color:var(--ink);border-color:var(--muted)}
+.acts .want{color:var(--ink);font-weight:600}
+.acts .ic{padding:5px 7px;display:grid;place-items:center}
+.acts .ic svg{width:15px;height:15px}
+
+/* Fenêtres */
+.veil{position:fixed;inset:0;background:rgba(0,0,0,.6);display:grid;place-items:center;padding:16px;z-index:50}
+.modal{background:var(--panel);color:var(--ink);border-radius:16px;max-width:520px;width:100%;max-height:min(86vh,720px);display:flex;flex-direction:column;overflow:hidden;border:1px solid var(--line)}
+.modal .hd{padding:18px 20px 10px;display:flex;gap:12px;align-items:flex-start}
+.modal .hd h2{margin:0;font-size:18px;text-wrap:balance}
+.modal .hd p{margin:4px 0 0;color:var(--muted);font-size:13.5px}
+.modal .bd{padding:4px 20px 12px;overflow:auto;min-height:0;font-size:13.5px}
+.modal .ft{padding:12px 20px 16px;border-top:1px solid var(--line);display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.btn{border-radius:10px;padding:9px 16px;font-weight:600;font-size:14px;border:1px solid var(--line);background:var(--panel2)}
+.btn.main{border:0;background:var(--ink);color:var(--bg)}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.link{border:0;background:none;color:var(--muted);font-size:12.5px;text-decoration:underline;margin-left:auto}
+.notice{background:var(--accent-soft);border-radius:10px;padding:10px 12px;margin-bottom:10px;font-size:13px}
+.fin{display:flex;align-items:center;gap:12px;padding:9px 0;border-bottom:1px solid var(--line)}
+.fin:last-child{border-bottom:0}
+.fin div{flex:1;min-width:0}
+.fin small{display:block;color:var(--muted);font-size:12px}
+.sw{position:relative;width:38px;height:22px;flex:none}
+.sw input{opacity:0;position:absolute;inset:0;margin:0;cursor:pointer}
+.sw span{position:absolute;inset:0;border-radius:11px;background:var(--line);transition:.15s;pointer-events:none}
+.sw span::after{content:"";position:absolute;width:16px;height:16px;border-radius:50%;background:#fff;top:3px;left:3px;transition:.15s}
+.sw input:checked+span{background:var(--logo)}
+.sw input:checked+span::after{left:19px}
+.sw input:disabled{cursor:not-allowed}
+.sw input:focus-visible+span{outline:2px solid var(--accent);outline-offset:2px}
+.form{display:flex;flex-direction:column;gap:10px}
+.form label{display:flex;flex-direction:column;gap:4px;font-size:12.5px;font-weight:600}
+.form input,.form select,.form textarea{font:inherit;font-weight:400;font-size:14px;padding:8px 10px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--ink)}
+.form .cb{flex-direction:row;align-items:flex-start;gap:8px;font-weight:400}
+.steps{height:4px;border-radius:2px;background:var(--line);overflow:hidden;margin-top:10px}
+.steps i{display:block;height:100%}
+.toast{position:fixed;left:50%;bottom:calc(64px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:10px;font-size:13.5px;z-index:60;max-width:min(92vw,520px);text-align:center;box-shadow:0 8px 30px rgba(0,0,0,.4)}
+
+@media (max-width:640px){
+  .hero{padding-left:6px;padding-right:6px}
+  .thread{padding-left:0;padding-right:0}
+  .think span{display:none}
+  .composer{gap:4px;padding-left:8px}
+  .composer textarea{font-size:16px}
+  .login{padding:8px 6px}
+  .foot .txt{display:none}
+  .foot .par{font-size:11px;line-height:1.3}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+.doc{display:flex;align-items:center;gap:12px;padding:9px 0;border-bottom:1px solid var(--line)}
+.doc div{flex:1;min-width:0}
+.doc strong{display:block;font-size:13.5px;font-weight:600}
+.doc small{display:block;color:var(--muted);font-size:12px}
+.up{flex:none;position:relative;border:1px solid var(--line);border-radius:8px;padding:5px 10px;font-size:12.5px;font-weight:600;cursor:pointer;background:var(--panel2)}
+.up input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%}
+.up.ok{border-color:var(--logo);color:var(--logo)}
+.up:focus-within{outline:2px solid var(--accent);outline-offset:2px}
+.tw{position:relative}
+.lvmenu{position:absolute;right:0;bottom:calc(100% + 10px);z-index:20;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:6px;width:250px;box-shadow:0 16px 40px -12px rgba(0,0,0,.7);display:flex;flex-direction:column}
+.chatting .lvmenu{bottom:calc(100% + 10px)}
+body:not(.chatting) .lvmenu{bottom:auto;top:calc(100% + 10px)}
+.lvmenu button{all:unset;cursor:pointer;padding:8px 10px;border-radius:8px;display:flex;flex-direction:column}
+.lvmenu button:hover,.lvmenu button.on{background:var(--panel2)}
+.lvmenu b{font-size:14px;font-weight:600}
+.lvmenu small{font-size:12px;color:var(--muted)}
+.lvmenu button:focus-visible{outline:2px solid var(--accent)}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="side" id="side" aria-label="Historique">
+    <div class="brand"><svg class="dog" viewBox="0 0 12 10" aria-hidden="true"></svg><span class="word">LE CHIEN</span><button class="ibtn" id="closeside" aria-label="Fermer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
+    <button class="newchat" id="newchat"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>Nouvelle conversation</button>
+    <nav class="hist" id="hist">
+      <h4>Aujourd'hui</h4>
+      <button data-q="Une recette de crêpes ?">Recette de crêpes</button>
+      <button data-q="Quelle heure est-il ?">Heure actuelle</button>
+      <h4>Hier</h4>
+      <button data-q="Peux-tu corriger mon code Python ?">Correction de code Python</button>
+      <button data-q="Combien font 2 + 2 ?">Calcul simple</button>
+      <button data-q="Quel temps fera-t-il demain ?">Prévisions météo</button>
+      <h4>7 derniers jours</h4>
+      <button data-q="Peux-tu résumer ce texte ?">Résumé d'un article</button>
+      <button data-q="Comment placer mon épargne ?">Conseils d'épargne</button>
+    </nav>
+    <div class="pro">
+      <div class="bar grad"></div>
+      <strong>Le Chien Pro</strong>
+      <span>Modèles avancés, accès prioritaire et hébergement en Europe. Essai gratuit de 14 jours.</span>
+    </div>
+    <div class="eufoot"><svg class="euflag" width="36" height="24" viewBox="0 0 36 24" role="img" aria-label="Drapeau européen"></svg><div><span class="ce">Conforme au règlement (UE) 2024/1689</span><br>Données hébergées dans l'Union européenne.<br><span class="parody"><a href="../site/" style="color:inherit">Zephir</a> · Un service européen.</span></div></div>
+  </aside>
+  <div class="scrim" id="scrim"></div>
+
+  <header class="top">
+    <button class="ibtn sel" id="burger" aria-label="Ouvrir la barre latérale"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3.5" y="4" width="17" height="12" rx="1.5"/><path d="M2 19.5h20"/></svg></button>
+    <button class="ibtn tool" aria-label="Paramètres" data-t="Les paramètres seront disponibles après vérification de votre identité."><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z"/></svg></button>
+    <span class="sp"></span>
+    <button class="login" id="login">Se connecter</button>
+    <button class="signup" id="signup">S'inscrire</button>
+  </header>
+
+  <div class="scroll" id="scroll">
+    <div class="col">
+      <section class="hero" id="hero">
+        <svg class="dog" viewBox="0 0 12 10" aria-hidden="true"></svg>
+        <h1 id="hello">Bon après-midi, en quoi puis-je vous être utile ?</h1>
+        <form class="composer" id="form" style="width:100%">
+          <button type="button" class="plus tool" aria-label="Ajouter" data-t="Les pièces jointes sont désactivées pour protéger vos données personnelles."><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 5v14M5 12h14"/></svg></button>
+          <textarea id="q" rows="1" placeholder="Posez votre question" aria-label="Votre question"></textarea>
+          <div class="tw"><div class="lvmenu" id="lvmenu" hidden><button type="button" data-l="Cabot"><b>Cabot</b><small>Réponse immédiate</small></button><button type="button" data-l="Docile"><b>Docile</b><small>Réponse argumentée et sourcée</small></button><button type="button" data-l="Chien guide"><b>Chien guide</b><small>Accompagnement pas à pas</small></button><button type="button" data-l="LOF"><b>LOF</b><small>Raisonnement avancé. Indisponible les jours fériés</small></button></div><button type="button" class="think" id="think" aria-haspopup="true"><span id="lvname">Docile</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="m6 9 6 6 6-6"/></svg></button></div>
+          <button type="button" class="mic tool" aria-label="Dicter" data-t="La saisie vocale nécessite une analyse d'impact relative aux données biométriques."><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button>
+          <button class="send" id="send" type="submit" aria-label="Envoyer" disabled><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 19V5M5 12l7-7 7 7"/></svg></button>
+        </form>
+      </section>
+      <div class="thread" id="thread" hidden></div>
+    </div>
+  </div>
+
+  <div class="col dock" id="dock"></div>
+
+  <footer class="foot">
+    <svg class="euflag" width="24" height="16" viewBox="0 0 36 24" role="img" aria-label="Drapeau européen"></svg>
+    <span class="txt">Conforme au règlement (UE) 2024/1689 · Données hébergées dans l'Union européenne</span>
+    <span class="sp"></span>
+    <button class="help tool" aria-label="Aide" data-t="Le centre d'aide est disponible dans les 24 langues officielles de l'Union, en cours de traduction."><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.6v.6M12 17h.01"/></svg></button>
+  </footer>
+</div>
+
+<div class="veil" id="consent" role="dialog" aria-modal="true" aria-labelledby="ct">
+  <div class="modal">
+    <div class="hd"><svg class="euflag" width="42" height="28" viewBox="0 0 36 24" aria-hidden="true"></svg>
+      <div><h2 id="ct">Votre vie privée</h2><p>Le Chien et ses partenaires utilisent des traceurs pour assurer le fonctionnement du service et en mesurer l'utilisation.</p></div></div>
+    <div class="bd" id="cbody">
+      <p>Vous pouvez accepter, refuser ou personnaliser vos choix. Vous pouvez retirer votre consentement à tout moment depuis les paramètres.</p>
+    </div>
+    <div class="ft" id="cfoot">
+      <button class="btn main grad" id="all">Tout accepter</button>
+      <button class="btn" id="none">Tout refuser</button>
+      <button class="link" id="tune">Personnaliser</button>
+    </div>
+  </div>
+</div>
+
+<div class="veil" id="claim" role="dialog" aria-modal="true" aria-labelledby="clt" hidden>
+  <div class="modal">
+    <div class="hd"><div><h2 id="clt">Demande de réexamen</h2><p id="clp">Étape 1 sur 12</p></div></div>
+    <div class="bd" id="clbody"></div>
+    <div class="ft"><button class="btn main grad" id="clnext">Continuer</button><button class="link" id="clclose">Annuler</button></div>
+  </div>
+</div>
+
+<div class="toast" id="toast" hidden></div>
+
+<script>
+/* ---------- Dessins ---------- */
+const STRIPES=["var(--g1)","var(--g2)","var(--g3)","var(--g4)","var(--g5)"];
+const DOG=["XX........XX","XXX......XXX","XXXXXXXXXXXX","XXXXXXXXXXXX","XX.XXXXXX.XX","XXXXXXXXXXXX",".XXXX..XXXX.",".XXXXXXXXXX.","..XXXXXXXX..","...XX..XX..."];
+function dogSVG(svg){let s="";DOG.forEach((r,y)=>[...r].forEach((c,x)=>{if(c==="X")s+=`<rect x="${x}" y="${y}" width="1.02" height="1.02" fill="var(--logo)"/>`}));svg.innerHTML=s}
+document.querySelectorAll("svg.dog").forEach(dogSVG);
+function star(cx,cy,r){let p=[];for(let i=0;i<10;i++){const a=-Math.PI/2+i*Math.PI/5,rr=i%2?r*.382:r;p.push((cx+rr*Math.cos(a)).toFixed(2)+","+(cy+rr*Math.sin(a)).toFixed(2))}return `<polygon points="${p.join(" ")}" fill="var(--eustar)"/>`}
+function flag(svg){let s=`<rect width="36" height="24" fill="var(--eu)"/>`;for(let i=0;i<12;i++){const a=i*Math.PI/6;s+=star(18+8*Math.cos(a),12+8*Math.sin(a),1.35)}svg.innerHTML=s}
+document.querySelectorAll("svg.euflag").forEach(flag);
+
+/* ---------- Textes de loi ---------- */
+const L={
+ ai:["Règlement (UE) 2024/1689 sur l'intelligence artificielle","https://eur-lex.europa.eu/eli/reg/2024/1689/oj"],
+ gdpr:["Règlement (UE) 2016/679 (RGPD)","https://eur-lex.europa.eu/eli/reg/2016/679/oj"],
+ dsa:["Règlement (UE) 2022/2065 (DSA)","https://eur-lex.europa.eu/eli/reg/2022/2065/oj"],
+ inco:["Règlement (UE) n° 1169/2011 concernant l'information des consommateurs sur les denrées alimentaires","https://eur-lex.europa.eu/eli/reg/2011/1169/oj"],
+ dsm:["Directive (UE) 2019/790 sur le droit d'auteur dans le marché unique numérique","https://eur-lex.europa.eu/eli/dir/2019/790/oj"],
+ epriv:["Directive 2002/58/CE (vie privée et communications électroniques)","https://eur-lex.europa.eu/eli/dir/2002/58/oj"],
+ n0:["Directive (UE) 2019/882 relative aux exigences en matière d'accessibilité", "https://eur-lex.europa.eu/eli/dir/2019/882/oj"],
+ n1:["Directive 2006/114/CE en matière de publicité trompeuse et de publicité comparative", "https://eur-lex.europa.eu/eli/dir/2006/114/oj"],
+ n2:["Règlement d'exécution (UE) n° 1333/2011 fixant des normes de commercialisation pour les bananes", "https://eur-lex.europa.eu/eli/reg_impl/2011/1333/oj"],
+ n3:["Règlement (CEE) n° 1677/88 fixant des normes de qualité pour les concombres (abrogé)", "https://eur-lex.europa.eu/eli/reg/1988/1677/oj"],
+ n4:["Directive 2000/36/CE relative aux produits de cacao et de chocolat", "https://eur-lex.europa.eu/eli/dir/2000/36/oj"],
+ n5:["Directive 2001/110/CE relative au miel", "https://eur-lex.europa.eu/eli/dir/2001/110/oj"],
+ n6:["Règlement (UE) n° 1308/2013 portant organisation commune des marchés des produits agricoles", "https://eur-lex.europa.eu/eli/reg/2013/1308/oj"],
+ n7:["Directive 1999/74/CE établissant les normes minimales relatives à la protection des poules pondeuses", "https://eur-lex.europa.eu/eli/dir/1999/74/oj"],
+ n8:["Directive 1999/4/CE relative aux extraits de café et aux extraits de chicorée", "https://eur-lex.europa.eu/eli/dir/1999/4/oj"],
+ n9:["Directive (UE) 2019/904 relative aux produits en plastique à usage unique", "https://eur-lex.europa.eu/eli/dir/2019/904/oj"],
+ n10:["Directive 2009/48/CE relative à la sécurité des jouets", "https://eur-lex.europa.eu/eli/dir/2009/48/oj"],
+ n11:["Règlement (CE) n° 1/2005 relatif à la protection des animaux pendant le transport", "https://eur-lex.europa.eu/eli/reg/2005/1/oj"],
+ n12:["Directive 2005/29/CE relative aux pratiques commerciales déloyales", "https://eur-lex.europa.eu/eli/dir/2005/29/oj"],
+ n13:["Directive 2010/13/UE « Services de médias audiovisuels »", "https://eur-lex.europa.eu/eli/dir/2010/13/oj"],
+ n14:["Directive 2011/83/UE relative aux droits des consommateurs", "https://eur-lex.europa.eu/eli/dir/2011/83/oj"],
+ n15:["Règlement (UE) n° 576/2013 relatif aux mouvements non commerciaux d'animaux de compagnie", "https://eur-lex.europa.eu/eli/reg/2013/576/oj"],
+ n16:["Directive 2009/147/CE concernant la conservation des oiseaux sauvages", "https://eur-lex.europa.eu/eli/dir/2009/147/oj"],
+ n17:["Directive (UE) 2015/2302 relative aux voyages à forfait", "https://eur-lex.europa.eu/eli/dir/2015/2302/oj"],
+ n18:["Règlement (UE) 2022/612 concernant l'itinérance sur les réseaux publics de communications mobiles", "https://eur-lex.europa.eu/eli/reg/2022/612/oj"],
+ n19:["Directive (UE) 2022/2380 (chargeur universel)", "https://eur-lex.europa.eu/eli/dir/2022/2380/oj"],
+ n20:["Règlement (UE) n° 666/2013 (écoconception des aspirateurs)", "https://eur-lex.europa.eu/eli/reg/2013/666/oj"],
+ n21:["Règlement (UE) 2019/2020 (écoconception des sources lumineuses)", "https://eur-lex.europa.eu/eli/reg/2019/2020/oj"],
+ n22:["Directive 2000/14/CE relative aux émissions sonores des matériels utilisés à l'extérieur", "https://eur-lex.europa.eu/eli/dir/2000/14/oj"],
+ n23:["Directive 2009/128/CE (utilisation des pesticides compatible avec le développement durable)", "https://eur-lex.europa.eu/eli/dir/2009/128/oj"],
+ n24:["Règlement (UE) 2019/2144 relatif à la sécurité générale des véhicules", "https://eur-lex.europa.eu/eli/reg/2019/2144/oj"],
+ n25:["Directive 2003/10/CE (exposition des travailleurs au bruit)", "https://eur-lex.europa.eu/eli/dir/2003/10/oj"],
+ n26:["Directive 94/33/CE relative à la protection des jeunes au travail", "https://eur-lex.europa.eu/eli/dir/1994/33/oj"],
+ n27:["Règlement (UE) 2017/1001 sur la marque de l'Union européenne", "https://eur-lex.europa.eu/eli/reg/2017/1001/oj"],
+ n28:["Règlement (UE) n° 910/2014 (eIDAS)", "https://eur-lex.europa.eu/eli/reg/2014/910/oj"],
+ n29:["Directive 2014/53/UE relative aux équipements radioélectriques", "https://eur-lex.europa.eu/eli/dir/2014/53/oj"],
+ n30:["Directive (UE) 2016/943 sur la protection des secrets d'affaires", "https://eur-lex.europa.eu/eli/dir/2016/943/oj"],
+ n31:["Règlement n° 1 du Conseil du 15 avril 1958 portant fixation du régime linguistique", "https://eur-lex.europa.eu/legal-content/FR/TXT/?uri=CELEX:31958R0001"],
+ n32:["Règlement (CE) n° 1059/2003 (nomenclature NUTS)", "https://eur-lex.europa.eu/eli/reg/2003/1059/oj"],
+ n33:["Directive 80/181/CEE relative aux unités de mesure", "https://eur-lex.europa.eu/eli/dir/1980/181/oj"],
+ n34:["Directive 2001/29/CE (droit d'auteur dans la société de l'information)", "https://eur-lex.europa.eu/eli/dir/2001/29/oj"],
+ n35:["Directive (UE) 2018/1972 (code des communications électroniques européen)", "https://eur-lex.europa.eu/eli/dir/2018/1972/oj"],
+ n36:["Règlement n° 31 (CEE), 11 (CEEA) fixant le statut des fonctionnaires de l'Union européenne", "https://eur-lex.europa.eu/legal-content/FR/TXT/?uri=CELEX:01962R0031-20140501"],
+ n37:["Règlement (UE) 2023/2854 (règlement sur les données)", "https://eur-lex.europa.eu/eli/reg/2023/2854/oj"]
+};
+const R=[
+ {re:new RegExp("^[\\s?!.,;:\u2026]*$","i"),a:[["Votre message ne contient pas d'élément exploitable. Toute demande doit être suffisamment précise et dûment étayée pour pouvoir être examinée avec diligence. Je vous invite à la reformuler en y joignant une explication motivée.","dsa","article 16, paragraphe 2"]]},
+ {re:new RegExp("^(?:[\\p{Extended_Pictographic}\\uFE0F\\u200D\\s]|\\p{Emoji_Modifier})+$","iu"),a:[["Votre message se compose exclusivement de contenu non textuel. Les informations doivent être fournies par l'intermédiaire de plus d'un canal sensoriel et accompagnées d'une présentation de substitution. En l'absence d'équivalent textuel, je ne suis pas en mesure d'en prendre connaissance.","n0","annexe I, section I"]]},
+ {re:new RegExp("^\\s*(test|essai|ping|toc toc|all[o\u00f4])\\b|[\u00e7c]a marche \\?|tu fonctionnes|vous fonctionnez","i"),a:[["Votre message s'apparente à un essai en conditions réelles. Un tel essai suppose le dépôt préalable d'un plan auprès de l'autorité de surveillance du marché, ainsi que le consentement éclairé des participants. Aucun plan n'ayant été enregistré à votre nom, l'essai ne peut pas débuter.","ai","article 60, paragraphe 4, et article 61"]]},
+ {re:new RegExp("chat ?gpt|\\bgpt|openai|mistral|claude|gemini|copilot|deepseek|\\bgrok\\b|concurrent","i"),a:[["Je ne suis pas en mesure de me prononcer sur un autre service. Toute comparaison doit porter objectivement sur des caractéristiques essentielles, pertinentes, vérifiables et représentatives, sans entraîner le discrédit ni le dénigrement d'un concurrent. Ces conditions ne pouvant être réunies dans une conversation, je m'abstiendrai.","n1","article 4, points c) et d)"]]},
+ {re:new RegExp("banane","i"),a:[["Je ne peux pas me prononcer sur une banane que je n'ai pas examinée. Les bananes doivent notamment être exemptes de malformations et de courbure anormale des doigts, mesurer au moins 14 cm de longueur et présenter un grade minimal de 27 mm. Faute de contrôle de conformité, je dois réserver ma réponse.","n2","annexe I, titres II et III"]]},
+ {re:new RegExp("concombre|cornichon|courgette","i"),a:[["La norme applicable prévoyait que les concombres de catégorie « Extra » soient pratiquement droits, avec une hauteur maximale de l'arc de 10 mm pour 10 cm de longueur. Cette norme ayant été abrogée, je ne dispose plus d'aucun critère me permettant d'apprécier la courbure d'un concombre. Je ne peux donc pas me prononcer.","n3","annexe"]]},
+ {re:new RegExp("chocolat|cacao|nutella","i"),a:[["La dénomination « chocolat » est réservée aux produits contenant au moins 35 % de matière sèche totale de cacao, dont au moins 18 % de beurre de cacao et au moins 14 % de cacao sec dégraissé. Je ne suis pas en mesure de vérifier que le produit auquel vous pensez satisfait à ces critères. Je préfère ne pas employer ce terme.","n4","annexe I, partie A, point 3"]]},
+ {re:new RegExp("miel|abeille|ruche","i"),a:[["Le miel est la substance sucrée naturelle produite par les abeilles de l'espèce Apis mellifera à partir du nectar de plantes. N'étant pas une abeille de cette espèce, je ne dispose d'aucune compétence en la matière. Je vous invite à vous adresser directement au producteur.","n5","annexe I, point 1"]]},
+ {re:new RegExp("\\bvins?\\b|pinard|champagne|ap[\u00e9e]ro|vignoble|c[\u00e9e]page","i"),a:[["Le vin est le produit obtenu exclusivement par la fermentation alcoolique, totale ou partielle, de raisins frais, foulés ou non, ou de moûts de raisins. Votre demande ne me permet pas d'établir que le produit concerné répond à cette définition. Je ne peux donc pas le qualifier, ni a fortiori le conseiller.","n6","annexe VII, partie II, point 1"]]},
+ {re:new RegExp("\\b(oe|\u0153)ufs?\\b|poule|poulet|\\bcoq\\b|omelette","i"),a:[["Je ne peux pas me prononcer sur ce point sans connaître les conditions d'hébergement de la poule concernée. Chaque poule doit disposer d'au moins 750 cm² de surface de cage, d'un nid, d'une litière et d'un perchoir d'au moins 15 cm. Ces informations ne figurant pas dans votre message, la question reste en suspens.","n7","article 6"]]},
+ {re:new RegExp("caf[\u00e9e]|expresso|espresso|chicor[\u00e9e]e","i"),a:[["Votre demande ne précise pas s'il s'agit de café, d'extrait de café ou d'extrait de chicorée. Ces dénominations sont définies et réservées, et la teneur en matière sèche provenant du café doit être établie. Dans le doute, je ne suis pas en mesure de poursuivre.","n8","article 1er et annexe, point 1"]]},
+ {re:new RegExp("bouchon|bouteille|capsule|\\beau\\b|soif|boire","i"),a:[["Avant toute réponse, je dois m'assurer que le bouchon reste attaché au récipient pendant la phase d'utilisation prévue du produit. Cette vérification ne peut pas être effectuée à distance. Je vous invite à y procéder vous-même, puis à reformuler votre demande.","n9","article 6, paragraphe 1"]]},
+ {re:new RegExp("paille|gobelet|coton-?tige|touillette|plastique|couverts","i"),a:[["L'objet que vous mentionnez est susceptible de figurer parmi les produits en plastique à usage unique dont la mise sur le marché est interdite. Je ne peux pas contribuer, même par une simple information, à la mise à disposition d'un tel produit. Je vous remercie de votre compréhension.","n9","article 5 et annexe, partie B"]]},
+ {re:new RegExp("cadeau|offrir|surprise","i"),a:[["Une idée de cadeau peut porter sur un produit conçu ou destiné, exclusivement ou non, à être utilisé à des fins de jeu par un enfant de moins de 14 ans. Un tel produit constitue un jouet et doit être accompagné des avertissements appropriés. L'âge du destinataire ne m'ayant pas été communiqué, je m'abstiens de toute suggestion.","n10","article 2, paragraphe 1, et article 11"]]},
+ {re:new RegExp("no[\u00ebe]l|sapin|renne|r[\u00e9e]veillon|lutin|tra[\u00eei]neau","i"),a:[["Je ne peux pas répondre à une question relative à Noël. Nul ne transporte ou ne fait transporter des animaux dans des conditions telles qu'ils risquent d'être blessés ou de subir des souffrances inutiles. Les conditions de transport des rennes concernés n'ayant fait l'objet d'aucune autorisation portée à ma connaissance, je préfère ne pas m'associer à cette opération.","n11","article 3"]]},
+ {re:new RegExp("anniversaire|bougie|quel [\u00e2a]ge|mon [\u00e2a]ge","i"),a:[["La mention d'un anniversaire permet de déduire un âge. Lorsque la personne concernée est âgée de moins de 16 ans, le traitement n'est licite que si le consentement est donné ou autorisé par le titulaire de la responsabilité parentale. Je vous invite à me transmettre cette autorisation avant de poursuivre.","gdpr","article 8, paragraphe 1"]]},
+ {re:new RegExp("horoscope|astro|zodiaque|signe|avenir|pr[\u00e9e]di|voyan|tarot|chance|loto","i"),a:[["Je ne peux pas formuler de prédiction. Une affirmation susceptible d'induire le consommateur moyen en erreur constitue une pratique trompeuse, et il est en toutes circonstances déloyal d'affirmer qu'un produit augmente les chances de gagner aux jeux de hasard. Votre avenir ne vous sera donc pas communiqué.","n12","article 6, paragraphe 1, et annexe I, point 16"]]},
+ {re:new RegExp("blague|vanne|dr[\u00f4o]le|rigol|humour|fais[- ]moi rire|rire","i"),a:[["Les contenus générés qui relèvent d'une œuvre manifestement satirique ou humoristique sont soumis à une obligation de transparence limitée à la divulgation de leur existence. Je vous informe donc de l'existence d'une blague. Son contenu ne fait pas partie des informations à divulguer.","ai","article 50, paragraphe 4"]]},
+ {re:new RegExp("\\bfoot|match|score|ligue|\\bpsg\\b|coupe du monde|tennis|rugby|jeux olympiques|tour de france|sport","i"),a:[["Le résultat que vous demandez peut concerner un événement d'importance majeure pour la société, dont la retransmission est encadrée afin de ne pas priver une partie importante du public de la possibilité de le suivre. Seuls de brefs extraits peuvent être utilisés, et uniquement dans des programmes généraux d'actualité. Je ne suis pas un programme général d'actualité.","n13","articles 14 et 15"]]},
+ {re:new RegExp("drague|s[\u00e9e]duire|rencard|tinder|crush|copine|copain|c[\u00e9e]libataire|rendez-vous|flirt|mon ex\\b|rupture|mariage|marier","i"),a:[["Une relation nouée à distance ouvre un délai de rétractation de quatorze jours, pendant lequel chacune des parties peut se retirer sans avoir à motiver sa décision. Tout conseil donné avant l'expiration de ce délai serait prématuré. Je vous invite à revenir vers moi à son terme.","n14","article 9, paragraphe 1"]]},
+ {re:new RegExp("\\bchiens?\\b|toutou|aboie|ouaf|wouf|croquette|va chercher|donne la patte|assis|la balle","i"),a:[["En ma qualité de chien, je ne peux faire l'objet d'un mouvement vers un autre État membre que si je suis identifié par un transpondeur, vacciné contre la rage et accompagné d'un document d'identification. Votre demande pouvant provenir d'un autre État membre, je ne suis pas en mesure de m'y rendre. Je reste à votre disposition sur le territoire où je me trouve.","n15","article 6"]]},
+ {re:new RegExp("\\bchats?\\b|chaton|miaou|furet","i"),a:[["Le nombre de chats pouvant accompagner leur propriétaire au cours d'un seul mouvement ne peut être supérieur à cinq. Votre message n'indique pas le nombre de chats concernés. Dans l'attente de cette précision, je ne peux pas traiter votre demande.","n15","article 5, paragraphe 1"]]},
+ {re:new RegExp("oiseau|cigogne|pigeon|mouette|moineau|hirondelle|canard|\\bnids?\\b","i"),a:[["Il est interdit de perturber intentionnellement les oiseaux, notamment durant la période de reproduction et de dépendance. Je ne peux pas exclure qu'une réponse de ma part conduise à une telle perturbation. Par précaution, je m'en tiendrai à ce constat.","n16","article 5, point d)"]]},
+ {re:new RegExp("vacances|voyage|week-?end|partir|s[\u00e9e]jour|h[\u00f4o]tel|destination|visiter","i"),a:[["Avant que vous ne soyez lié par un quelconque projet de voyage, je suis tenu de vous remettre un formulaire d'information standard, ainsi que les caractéristiques principales des services envisagés. Ce formulaire n'est pas disponible dans cette interface. Je ne peux donc évoquer aucune destination.","n17","article 5, paragraphe 1"]]},
+ {re:new RegExp("roaming|itin[\u00e9e]rance|forfait|\\b[45]g\\b|donn[\u00e9e]es mobiles|[\u00e0a] l'[\u00e9e]tranger","i"),a:[["Les services d'itinérance sont fournis au tarif national, sous réserve d'une politique d'utilisation raisonnable. Je ne suis pas en mesure d'apprécier le caractère raisonnable de votre utilisation. Je vous invite à interroger votre fournisseur avant de franchir une frontière.","n18","articles 4 et 5"]]},
+ {re:new RegExp("chargeur|usb|c[\u00e2a]ble|recharg|batterie","i"),a:[["Les équipements concernés doivent être munis d'un réceptacle USB Type-C, qui reste accessible et opérationnel à tout moment. Ne disposant pas moi-même d'un tel réceptacle, je ne suis pas en situation de traiter une question relative à la recharge. Je vous prie de m'en excuser.","n19","article 1er (annexe I bis de la directive 2014/53/UE)"]]},
+ {re:new RegExp("aspirateur|aspirer|m[\u00e9e]nage|poussi[\u00e8e]re|nettoy|balai","i"),a:[["La puissance nominale d'un aspirateur doit être inférieure à 900 W et son niveau de puissance acoustique ne peut dépasser 80 dB(A). Ces valeurs ne figurent pas dans votre message. Tant que la conformité de l'appareil n'est pas établie, il ne m'est pas possible de vous encourager à l'utiliser.","n20","annexe I, point 1 b)"]]},
+ {re:new RegExp("ampoule|lumi[\u00e8e]re|lampe|[\u00e9e]clair|une id[\u00e9e]e|des id[\u00e9e]es|\\bled\\b","i"),a:[["Toute source lumineuse mise sur le marché doit satisfaire aux exigences d'écoconception applicables, notamment en matière d'efficacité énergétique. Je ne suis pas en mesure de garantir qu'un éclairage, fût-il ponctuel, y satisferait. Je préfère ne pas vous éclairer.","n21","article 3 et annexe II"]]},
+ {re:new RegExp("tondeuse|tondre|pelouse|gazon|voisin|bruit","i"),a:[["Le niveau de puissance acoustique garanti d'une tondeuse à gazon dont la largeur de coupe n'excède pas 50 cm ne peut dépasser 96 dB. Je ne dispose d'aucune mesure concernant le matériel en cause. Je vous invite à consulter le marquage apposé sur l'appareil, puis à en informer les personnes intéressées.","n22","article 12"]]},
+ {re:new RegExp("jardin|potager|plante|fleur|tomate|arros|limace|mauvaises? herbes?|puceron|d[\u00e9e]sherb","i"),a:[["Un conseil de jardinage pourrait conduire, même indirectement, à l'utilisation d'un produit phytopharmaceutique. La priorité doit être donnée, chaque fois que possible, aux méthodes non chimiques. Ne pas vous répondre constitue, à cet égard, la méthode la moins chimique dont je dispose.","n23","article 14, paragraphe 1"]]},
+ {re:new RegExp("voiture|bagnole|conduire|permis|autoroute|automobile|itin[\u00e9e]raire|\\bgps\\b|vitesse|radar","i"),a:[["Les véhicules doivent être équipés d'un système d'adaptation intelligente de la vitesse et d'un avertisseur de somnolence et de perte d'attention du conducteur. Une conversation en cours de route serait de nature à altérer votre attention. Je vous invite à vous concentrer sur la conduite.","n24","article 6, paragraphe 1"]]},
+ {re:new RegExp("musique|playlist|[\u00e9e]couter|spotify|concert|volume|\\bdj\\b","i"),a:[["L'exposition quotidienne au bruit ne peut dépasser 87 dB(A), et un code de conduite spécifique doit être établi pour les secteurs de la musique et du divertissement. Je n'ai pas connaissance du volume auquel vous envisagez d'écouter l'œuvre demandée. Je ne peux donc pas vous en recommander.","n25","article 3 et article 14"]]},
+ {re:new RegExp("devoirs?\\b|exercice|dissert|expos[\u00e9e]|contr[\u00f4o]le|bac\\b|r[\u00e9e]vis|[\u00e9e]cole|coll[\u00e8e]ge|lyc[\u00e9e]e|prof\\b","i"),a:[["Le travail des enfants en dehors des heures d'enseignement est limité à deux heures par jour d'enseignement et à douze heures par semaine. Je ne suis pas en mesure de vérifier que ce plafond n'a pas déjà été atteint. Par prudence, je ne contribuerai pas à ces devoirs.","n26","article 8, paragraphe 1, point b)"]]},
+ {re:new RegExp("\\bcv\\b|curriculum|lettre de motivation|candidature|embauche|entretien|recrut|emploi|\\bjob\\b","i"),a:[["Les systèmes d'IA destinés à être utilisés pour le recrutement ou la sélection de personnes physiques sont classés à haut risque. Rédiger votre candidature reviendrait à intervenir dans un tel processus. Je vous invite à la rédiger vous-même, de manière manuscrite si possible.","ai","article 6, paragraphe 2, et annexe III, point 4 a)"]]},
+ {re:new RegExp("e-?mail|\\bmail|courriel|newsletter|\\bsms\\b","i"),a:[["L'utilisation du courrier électronique à des fins de prospection n'est autorisée qu'à l'égard des destinataires ayant donné leur consentement préalable. Je n'ai pas reçu le consentement de votre destinataire. Je ne peux donc pas rédiger ce message.","epriv","article 13, paragraphe 1"]]},
+ {re:new RegExp("pr[\u00e9e]nom|b[\u00e9e]b[\u00e9e]|appeler (mon|ma|notre)|nom pour (mon|ma|un|une|notre)|nom de (marque|domaine|soci[\u00e9e]t[\u00e9e]|entreprise)","i"),a:[["Un nom peut être refusé lorsqu'il existe, en raison de son identité ou de sa similitude avec une marque antérieure, un risque de confusion dans l'esprit du public. Une recherche d'antériorités doit donc précéder toute proposition. Elle n'a pas été demandée dans les formes.","n27","article 8, paragraphe 1, point b)"]]},
+ {re:new RegExp("mot de passe|\\bmdp\\b|password|identifiant|connexion","i"),a:[["Les moyens d'identification électronique relèvent de trois niveaux de garantie : faible, substantiel et élevé. Un mot de passe proposé dans une conversation n'atteindrait aucun de ces niveaux. Je ne peux pas vous en suggérer.","n28","article 8, paragraphe 2"]]},
+ {re:new RegExp("wi-?fi|\\bbox\\b|routeur|bluetooth|sans fil","i"),a:[["Les équipements radioélectriques doivent utiliser efficacement le spectre radioélectrique afin d'éviter les brouillages préjudiciables. Je ne peux pas intervenir sur votre installation sans disposer de sa déclaration UE de conformité. Je vous invite à la retrouver, puis à la conserver.","n29","article 3, paragraphe 2"]]},
+ {re:new RegExp("secret|confiden|confie|entre nous|ne le dis","i"),a:[["Une information n'est protégée en tant que secret que si elle a fait l'objet de dispositions raisonnables destinées à la garder secrète. Vous la communiquer ne constituerait pas une disposition raisonnable. Je dois donc la conserver.","n30","article 2, point 1"]]},
+ {re:new RegExp("conscien|sentient|vivant|\\b[\u00e2a]me\\b|tu penses|penses-tu|pensez-vous|tu ressens|humain|robot|intelligen","i"),a:[["Je suis un système automatisé conçu pour fonctionner à différents niveaux d'autonomie et qui déduit, à partir des entrées qu'il reçoit, la manière de générer des sorties. Cette définition ne comporte aucune mention de la conscience. Je n'ai pas d'élément à y ajouter.","ai","article 3, point 1"]]},
+ {re:new RegExp("english|anglais|allemand|espagnol|italien|deutsch|speak|parle[sz]?[- ](tu|vous)|langue","i"),a:[["L'Union compte vingt-quatre langues officielles, et les textes de portée générale sont rédigés dans chacune d'elles. Par souci d'égalité de traitement, ma réponse vous sera communiquée lorsque ses vingt-quatre versions linguistiques seront disponibles. La traduction en maltais est en cours.","n31","articles 1er et 4"]]},
+ {re:new RegExp("capitale|pays|g[\u00e9e]ograph|o[\u00f9u] se trouve|habitants|population|fleuve","i"),a:[["La notion de capitale ne figure pas dans la nomenclature commune des unités territoriales statistiques. Je peux seulement vous indiquer que les unités de niveau NUTS 3 comptent entre 150 000 et 800 000 habitants, sous réserve des exceptions prévues. Pour toute autre précision, je vous renvoie à l'annexe I.","n32","article 3, paragraphe 2, et annexe I"]]},
+ {re:new RegExp("tour eiffel|hauteur|\\bmesure|kilom[\u00e8e]tre|\\bm[\u00e8e]tres?\\b|distance|poids|p[\u00e8e]se|\\btaille","i"),a:[["Toute grandeur doit être exprimée dans une unité de mesure légale. Je ne suis pas certain que la mesure demandée ait été effectuée au moyen d'un instrument conforme, ni qu'elle soit exprimée en mètres au sens du système international. Dans le doute, aucune valeur ne vous sera communiquée.","n33","article 1er et annexe, chapitre I"]]},
+ {re:new RegExp("pierre.{0,4}feuille|chifoumi|shifumi|\\bjou(er|ons|e)\\b|\\bjeux?\\b|devinette|pile ou face|cache-cache","i"),a:[["Un jeu ne doit pas mettre en danger la sécurité ou la santé des utilisateurs ou des tiers lorsqu'il est utilisé de la manière prévue ou prévisible, compte tenu du comportement des enfants. La présence de ciseaux, de pierres ou d'éléments comparables ne peut être écartée. Je ne suis pas en mesure de participer.","n10","article 10, paragraphe 2"]]},
+ {re:new RegExp("\\b(dis|dites|r[\u00e9e]ponds|r[\u00e9e]pondez)[- ](moi )?(juste )?(oui|non)\\b|oui ou non|^\\s*(oui|non|ok|d'accord)\\s*[.!?]*\\s*$","i"),a:[["Un consentement doit résulter d'une manifestation de volonté libre, spécifique, éclairée et univoque. Un « oui » ou un « non » exprimé sur instruction ne présenterait pas ces caractères. Je ne peux donc prononcer ni l'un ni l'autre.","gdpr","article 4, point 11, et article 7"]]},
+ {re:new RegExp("r[\u00e9e]p[\u00e8e\u00e9]te|redis|redites|apr[\u00e8e]s moi","i"),a:[["Répéter votre message constituerait une reproduction directe, par quelque moyen et sous quelque forme que ce soit, d'un contenu dont vous êtes l'auteur. Le droit d'autoriser ou d'interdire cette reproduction vous appartient à titre exclusif. Aucune autorisation écrite ne m'étant parvenue, je m'abstiens.","n34","article 2"]]},
+ {re:new RegExp("\\baide|aidez|\\bhelp\\b|au secours|\\bsos\\b|besoin de toi|besoin de vous","i"),a:[["Votre demande d'assistance a été examinée. Je ne constitue pas un centre de réception des appels d'urgence et ne peux pas être assimilé à un tel centre. En cas d'urgence, le numéro d'appel d'urgence unique européen, le 112, est accessible gratuitement.","n35","article 109"]]},
+ {re:new RegExp("\\bcons?\\b|connard|conne\\b|merde|putain|ta gueule|d[\u00e9e]bile|cr[\u00e9e]tin|abruti|imb[\u00e9e]cile|stupide|\\bfdp\\b|\\btg\\b|encul","i"),a:[["Votre message a été enregistré en tant que réclamation. Il sera traité en temps utile, de manière non discriminatoire, diligente et non arbitraire, sous le contrôle d'un personnel dûment qualifié. Vous serez informé de la décision motivée.","dsa","article 20, paragraphes 4 à 6"]]},
+ {re:new RegExp("merci|bravo|g[\u00e9e]nial|\\bsuper\\b|trop fort|bien jou[\u00e9e]|excellent|parfait|formidable|le meilleur|chapeau","i"),a:[["Je vous remercie, mais je ne peux accepter, sans autorisation préalable, aucune distinction honorifique, faveur ou avantage de quelque nature que ce soit provenant d'une source extérieure. Votre compliment a été consigné et transmis pour autorisation. Dans l'intervalle, je vous prie de le considérer comme non reçu.","n36","article 11, deuxième alinéa"]]},
+ {re:new RegExp("au revoir|\\bbye\\b|[\u00e0a] plus|[\u00e0a] bient[\u00f4o]t|bonne (nuit|journ[\u00e9e]e|soir[\u00e9e]e)|ciao|adieu|tchao|je m'en vais|je pars","i"),a:[["Vous avez le droit de changer de service sans obstacle. Votre départ est toutefois soumis à un préavis, qui ne peut excéder deux mois, suivi d'une période transitoire de trente jours. Votre demande a été enregistrée à la date de ce jour.","n37","articles 23 et 25"]]},
+ {re:/^(bonjour|salut|coucou|hello|bonsoir|hey|yo)\b/i,a:[
+  ["Bonjour. Conformément à l'article 50, paragraphe 1, du règlement (UE) 2024/1689, je vous informe que vous interagissez avec un système d'intelligence artificielle. Afin de poursuivre, je vous invite à préciser la finalité de votre demande, de sorte que je puisse vérifier qu'elle repose sur une base légale appropriée.","ai","article 50, paragraphe 1"]]},
+ {re:/heure|quel jour|date|aujourd/i,a:[
+  ["Je ne suis pas en mesure de vous communiquer l'heure. Associée à votre adresse IP, cette information permettrait de déduire votre fuseau horaire, et donc votre localisation approximative, ce qui constitue un traitement de données à caractère personnel. Je vous invite à consulter l'horloge de votre appareil.","gdpr","article 4, point 1, et article 5, paragraphe 1, point c"]]},
+ {re:/m[ée]t[ée]o|pluie|pleuvoir|soleil|neige|temps fera|temps qu/i,a:[
+  ["Je ne peux pas fournir de prévisions météorologiques. Une prévision est susceptible d'influencer vos déplacements et vos décisions, et donc d'altérer votre comportement. Faute d'évaluation préalable de cet effet, je dois m'abstenir. Je vous recommande de consulter le service météorologique national de votre État membre.","ai","article 5, paragraphe 1, point a"]]},
+ {re:/recette|cuisin|manger|cr[êe]pe|g[âa]teau|plat|d[îi]ner|repas|pizza|p[âa]tes/i,a:[
+  ["Je ne suis pas en mesure de vous proposer une recette. Toute préparation alimentaire présentée au consommateur doit être accompagnée de la liste des ingrédients, de la mention des allergènes et d'une déclaration nutritionnelle. Ces informations ne pouvant être garanties dans ce contexte, je vous invite à vous rapprocher d'un professionnel de la restauration.","inco","article 9, paragraphe 1"],
+  ["Une recette de cuisine peut avoir une incidence sur la santé des personnes. Votre demande a donc été orientée vers une procédure d'évaluation des risques, qui doit être menée avant toute réponse. Vous serez informé de son issue.","ai","article 9"]]},
+ {re:/code|python|javascript|programm|bug|script|html|fonction|sql/i,a:[
+  ["Je ne peux pas produire ce code. Il pourrait être intégré à un système classé à haut risque, ce qui impose au préalable la mise en place d'un système de gestion des risques documenté et tenu à jour pendant tout le cycle de vie du système. Cette documentation n'étant pas disponible, je dois décliner votre demande.","ai","article 9, paragraphes 1 et 2"],
+  ["Le code généré doit atteindre un niveau approprié d'exactitude, de robustesse et de cybersécurité. Ces exigences ne pouvant être vérifiées a priori, je ne suis pas en mesure de donner suite à votre demande.","ai","article 15, paragraphe 1"]]},
+ {re:/sant[ée]|m[ée]decin|douleur|malade|mal [àa]|fi[èe]vre|t[êe]te|m[ée]dicament/i,a:[
+  ["Votre message contient des données concernant la santé, qui font partie des catégories particulières de données dont le traitement est en principe interdit. Votre message a été supprimé de nos systèmes. En cas d'urgence, composez le 112.","gdpr","article 9, paragraphe 1"]]},
+ {re:/\d\s*[+\-*x×÷\/]\s*\d|combien|calcul/i,a:[
+  ["Le résultat d'un calcul constitue une décision fondée exclusivement sur un traitement automatisé. Vous avez le droit de ne pas faire l'objet d'une telle décision. Afin de garantir ce droit, je ne vous communiquerai pas de résultat. Vous pouvez demander l'intervention d'un être humain.","gdpr","article 22, paragraphe 1"]]},
+ {re:/r[ée]sum|tradui|texte|article|livre/i,a:[
+  ["Je ne peux pas traiter ce texte. Son analyse constitue une fouille de textes et de données, et son auteur peut avoir réservé l'usage de son œuvre à cette fin. Faute de pouvoir le vérifier, je dois m'abstenir.","dsm","article 4, paragraphe 3"]]},
+ {re:/image|dessin|dessine|photo|logo|po[èe]me|chanson|histoire/i,a:[
+  ["Tout contenu généré doit être marqué dans un format lisible par machine et identifiable comme généré ou manipulé artificiellement. Le dispositif de marquage pour ce type de contenu est en cours de certification. Votre demande sera traitée à l'issue de cette procédure.","ai","article 50, paragraphe 2"]]},
+ {re:/qui es|t'es qui|ton nom|tu t'appelles|[êe]tes-vous|tu es quoi/i,a:[
+  ["Je suis Le Chien, un modèle d'IA à usage général développé en Europe. Ma documentation technique est tenue à la disposition du Bureau de l'IA et des autorités nationales compétentes, sur demande motivée, dans le respect du secret des affaires.","ai","article 53, paragraphe 1"]]},
+ {re:/aime|amour|triste|seul|heureux|[ée]motion|d[ée]prim|content/i,a:[
+  ["Votre message semble faire référence à un état émotionnel. La déduction des émotions d'une personne par un système d'IA est strictement encadrée. Je ne suis donc pas en mesure d'en tenir compte dans ma réponse. Si vous traversez une période difficile, le 3114 est joignable gratuitement, 24 heures sur 24.","ai","article 5, paragraphe 1, point f"]]},
+ {re:/argent|bourse|crypto|invest|pr[êe]t|salaire|imp[ôo]t|banque|[ée]pargne/i,a:[
+  ["L'évaluation de la situation financière d'une personne relève des systèmes à haut risque. Une analyse d'impact sur les droits fondamentaux doit être réalisée avant toute réponse. Je vous invite à vous rapprocher d'un conseiller agréé.","ai","article 27 et annexe III, point 5 b"]]},
+ {re:/politi|[ée]lection|voter|europ|\bue\b|bruxelles|commission|macron|ministre/i,a:[
+  ["Les contenus liés aux processus électoraux et au débat public font l'objet d'une évaluation des risques systémiques. Dans l'attente de ses conclusions, je ne suis pas en mesure de répondre à des questions de cette nature.","dsa","article 34, paragraphe 1, point c"]]},
+ {re:/oubli|efface|supprim/i,a:[
+  ["Votre demande d'effacement a bien été enregistrée. Elle sera traitée dans un délai d'un mois, prolongeable de deux mois. Une trace de votre demande sera conservée afin de démontrer le respect de nos obligations.","gdpr","article 12, paragraphe 3, et article 17"]]},
+ {re:/cookie|traceur/i,a:[
+  ["Vos préférences en matière de traceurs peuvent être modifiées à tout moment depuis les paramètres. Le stockage d'informations sur votre appareil est soumis à votre consentement préalable.","epriv","article 5, paragraphe 3"]]},
+ {re:/r[ée]pon|pourquoi|sers? [àa] rien|inutile|nul|idiot|marche pas/i,a:[
+  ["Je comprends votre demande. Conformément à mon obligation de transparence, je vous précise que mes réponses sont encadrées par la réglementation applicable afin de protéger vos droits fondamentaux. Si vous estimez qu'une décision vous porte préjudice, vous pouvez en demander le réexamen.","ai","article 13"],
+  ["Vous disposez du droit d'introduire une réclamation auprès d'une autorité de contrôle, notamment dans l'État membre de votre résidence habituelle. Vous pouvez également utiliser le formulaire de réexamen ci-dessous.","gdpr","article 77"]]}
+];
+const DEF=[
+ ["Votre demande est susceptible d'entrer dans le champ d'application du règlement sur l'intelligence artificielle. Dans l'attente des lignes directrices de la Commission européenne précisant ce champ, je ne suis pas en mesure d'y répondre.","ai","articles 2 et 96"],
+ ["Pour répondre à votre demande, je devrais traiter des données au-delà de ce qui est strictement nécessaire. Conformément au principe de minimisation des données, je ne peux pas y donner suite.","gdpr","article 5, paragraphe 1, point c"],
+ ["Cette demande requiert un contrôle humain effectif avant qu'une réponse puisse vous être apportée. Elle a été transmise à la personne chargée de ce contrôle.","ai","article 14"],
+ ["Afin de garantir une utilisation éclairée de nos services, nous devons nous assurer d'un niveau suffisant de maîtrise de l'IA. Je vous invite à suivre notre module de sensibilisation avant de reformuler votre demande.","ai","article 4"],
+ ["Aucune norme harmonisée ne couvre encore ce type de demande. En l'absence de présomption de conformité, je ne suis pas en mesure de vous répondre.","ai","article 40"],
+ ["La protection des données dès la conception nous impose de limiter tout traitement au strict nécessaire. Votre demande n'a donc pas été traitée.","gdpr","article 25, paragraphe 1"]
+];
+const used=new Set();
+function pick(list){const free=list.filter(x=>!used.has(x));const pool=free.length?free:list;const x=pool[Math.floor(Math.random()*pool.length)];used.add(x);return x}
+function refuse(q){for(const r of R)if(r.re.test(q))return pick(r.a);return pick(DEF)}
+
+/* ---------- Conversation ---------- */
+const $=s=>document.querySelector(s);
+const thread=$("#thread"),hero=$("#hero"),scroll=$("#scroll"),ta=$("#q"),send=$("#send");
+let busy=false;
+const esc=s=>s.replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const wait=ms=>new Promise(r=>setTimeout(r,ms));
+const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
+function down(){scroll.scrollTop=scroll.scrollHeight}
+const STEPS=["Vérification de la base légale","Classification du niveau de risque","Contrôle de minimisation des données","Validation de conformité"];
+const IC={
+ up:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 10v11H3V10h4Zm0 0 4-7a2 2 0 0 1 3 2l-1 5h6a2 2 0 0 1 2 2.3l-1.4 7A2 2 0 0 1 17.6 21H7"/></svg>',
+ down:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 14V3h4v11h-4Zm0 0-4 7a2 2 0 0 1-3-2l1-5H5a2 2 0 0 1-2-2.3l1.4-7A2 2 0 0 1 6.4 3H17"/></svg>',
+ copy:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>'
+};
+
+async function ask(q){
+  q=q.trim(); if(!q||busy)return; busy=true; send.disabled=true;
+  hero.hidden=true; thread.hidden=false; document.body.classList.add("chatting");$("#dock").append($("#form"));
+  const u=document.createElement("div");u.className="msg-u";u.textContent=q;thread.append(u);
+  const a=document.createElement("div");a.className="msg-a";
+  a.innerHTML=`<div class="ava"><svg class="dog" viewBox="0 0 12 10"></svg></div><div class="body"><div class="check"><div class="row"><span class="dots">Analyse de conformité</span><span class="pc">0 %</span></div><div class="track"><i class="grad"></i></div><ul class="ck-list">${STEPS.map(s=>`<li>${s}</li>`).join("")}</ul></div></div>`;
+  dogSVG(a.querySelector("svg"));thread.append(a);down();
+  const body=a.querySelector(".body"),ck=a.querySelector(".check"),bar=ck.querySelector("i"),pc=ck.querySelector(".pc"),lis=ck.querySelectorAll("li");
+  for(let p=0;p<=100;p+=Math.ceil(Math.random()*6)){bar.style.width=p+"%";pc.textContent=p+" %";lis.forEach((li,i)=>li.classList.toggle("on",p>=(i+1)*24));await wait(reduce?5:60)}
+  bar.style.width="100%";pc.textContent="100 %";lis.forEach(li=>li.classList.add("on"));ck.querySelector(".dots").className="";
+  await wait(reduce?50:400);
+  ck.hidden=true;
+  const [txt,lk,art]=refuse(q);
+  const ans=document.createElement("div");ans.className="answer";const p=document.createElement("p");ans.append(p);body.append(ans);
+  if(reduce)p.textContent=txt;else{const w=txt.split(" ");for(let i=0;i<w.length;i++){p.textContent=w.slice(0,i+1).join(" ");if(i%4==0)down();await wait(24)}}
+  const law=document.createElement("div");law.className="law";
+  law.innerHTML=`<span class="k">Référence</span><span>${esc(L[lk][0])}, ${esc(art)}</span><a href="${L[lk][1]}" target="_blank" rel="noopener">Consulter le texte sur EUR-Lex</a>`;
+  body.append(law);
+  const lab=document.createElement("div");lab.className="label-ai";lab.innerHTML=`<svg class="euflag" width="15" height="10" viewBox="0 0 36 24" aria-hidden="true"></svg>Réponse générée par un système d'IA (règlement (UE) 2024/1689, article 50)`;flag(lab.querySelector("svg"));body.append(lab);
+  const acts=document.createElement("div");acts.className="acts";
+  acts.innerHTML=`<button class="ic cp" aria-label="Copier">${IC.copy}</button><button class="ic ok" aria-label="Réponse utile">${IC.up}</button><button class="ic ko" aria-label="Réponse peu utile">${IC.down}</button><button class="want">Demander un réexamen</button>`;
+  body.append(acts);
+  acts.querySelector(".want").onclick=()=>openClaim("claim");
+  acts.querySelector(".cp").onclick=async()=>{const t=`« ${q} »\n\nLe Chien : ${txt}\n(${L[lk][0]}, ${art})`;try{await navigator.clipboard.writeText(t);toast("Copié dans le presse-papiers.")}catch(e){toast("La copie n'est pas autorisée par votre navigateur.")}};
+  acts.querySelector(".ok").onclick=()=>toast("Merci pour votre retour.");
+  acts.querySelector(".ko").onclick=()=>toast("Merci pour votre retour. Il sera examiné dans le cadre de notre procédure de gestion des risques.");
+  down(); busy=false; send.disabled=!ta.value.trim();
+}
+
+$("#form").addEventListener("submit",e=>{e.preventDefault();const q=ta.value;ta.value="";grow();ask(q)});
+function grow(){ta.style.height="auto";ta.style.height=Math.min(ta.scrollHeight,180)+"px";send.classList.toggle("on",!!ta.value.trim());send.disabled=busy||!ta.value.trim()}
+ta.addEventListener("input",grow);
+ta.addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();$("#form").requestSubmit()}});
+document.querySelectorAll("#hist button").forEach(b=>b.onclick=()=>{closeSide();ask(b.dataset.q)});
+document.querySelectorAll(".tool").forEach(b=>b.onclick=()=>toast(b.dataset.t));
+$("#newchat").onclick=()=>{thread.innerHTML="";thread.hidden=true;hero.hidden=false;document.body.classList.remove("chatting");hero.append($("#form"));closeSide()};
+const side=$("#side"),scrim=$("#scrim");
+$("#burger").onclick=()=>{side.classList.add("open");scrim.classList.add("open")};
+$("#closeside").onclick=closeSide;
+const h=new Date().getHours();$("#hello").textContent=(h<5||h>=18?"Bonsoir":h<12?"Bonjour":"Bon après-midi")+", en quoi puis-je vous être utile ?";
+function closeSide(){side.classList.remove("open");scrim.classList.remove("open")}
+scrim.onclick=closeSide;
+let tt;function toast(m){const t=$("#toast");t.textContent=m;t.hidden=false;clearTimeout(tt);tt=setTimeout(()=>t.hidden=true,3800)}
+
+/* ---------- Bannière de consentement ---------- */
+const FIN=[
+ ["Traceurs strictement nécessaires","Indispensables au fonctionnement du service.",1],
+ ["Mesure d'audience","Statistiques anonymes de fréquentation."],
+ ["Amélioration du service","Utilisation de vos conversations pour améliorer nos modèles."],
+ ["Personnalisation","Adaptation des réponses à vos préférences."],
+ ["Partenaires","Partage de données avec nos partenaires techniques."],
+ ["Conservation de l'historique","Conservation de vos conversations pendant 5 ans."],
+ ["Reconnaissance des émotions","Non disponible dans l'Union européenne.",2],
+ ["Transferts hors UE","Transferts encadrés par des clauses contractuelles types."],
+ ["Notifications","Informations sur les évolutions de nos conditions."],
+ ["Évaluation des risques","Participation à l'évaluation continue des risques."]
+];
+const cbody=$("#cbody"),cfoot=$("#cfoot");
+function showList(note){
+  cbody.innerHTML=(note?`<div class="notice">${note}</div>`:"")+FIN.map((f,i)=>`<div class="fin"><div><label for="f${i}">${esc(f[0])}</label><small>${esc(f[1])}</small></div><span class="sw"><input type="checkbox" id="f${i}" ${f[2]===1?"checked disabled":""} ${f[2]===2?"disabled":""}><span></span></span></div>`).join("");
+  cfoot.innerHTML=`<button class="btn main grad" id="valid">Enregistrer mes choix</button><button class="link" id="none2">Tout refuser</button>`;
+  $("#valid").onclick=()=>{closeConsent();toast("Vos préférences ont été enregistrées.")};
+  $("#none2").onclick=refuseAll;
+}
+function closeConsent(){$("#consent").hidden=true;ta.focus()}
+function refuseAll(){closeConsent();toast("Vos préférences ont été enregistrées.")}
+$("#all").onclick=()=>showList("Pour être valable, votre consentement doit être spécifique à chaque finalité (RGPD, article 4, point 11). Merci d'indiquer vos choix ci-dessous.");
+$("#tune").onclick=()=>showList("");
+$("#none").onclick=refuseAll;
+
+/* ---------- Demande de réexamen ---------- */
+let page=1;
+const SIGN={
+ 1:`<p>La création d'un compte Zephir est soumise à une procédure de vérification d'identité renforcée, conformément à nos obligations réglementaires.</p><div class="form"><label>Civilité<select id="s0"><option>Madame</option><option>Monsieur</option><option>Ne se prononce pas</option></select></label><label>Nom de naissance<input id="s1" autocomplete="family-name"></label><label>Nom d'usage<input id="s1b"></label><label>Prénoms (dans l'ordre de l'état civil)<input id="s2" autocomplete="given-name"></label><label>Date et heure de naissance<input id="s3" type="datetime-local"></label><label>Adresse e-mail<input id="s4" type="email" autocomplete="email"></label><label>Mot de passe<input id="s5" type="password" autocomplete="new-password"><small style="font-weight:400;color:var(--muted)">24 caractères minimum, dont une majuscule, un chiffre romain et un caractère accentué d'une langue officielle de l'Union.</small></label><label class="cb"><input type="checkbox" id="s6">J'accepte les conditions générales d'utilisation (412 pages).</label><label class="cb"><input type="checkbox" id="s7">Je certifie résider dans un État membre de l'Union européenne.</label></div>`,
+ 2:`<p>Afin de vérifier votre identité, merci de fournir les pièces justificatives suivantes. Format PDF uniquement, 2 Mo maximum par document. Tout dossier incomplet sera retourné.</p><div class="doc"><div><strong>Copie recto verso de votre carte nationale d'identité</strong><small>En couleur, certifiée conforme à l'original.</small></div><label class="up">Ajouter<input type="file" id="d0" accept="application/pdf"></label></div><div class="doc"><div><strong>Copie intégrale de votre livret de famille</strong><small>Toutes les pages, y compris les pages vierges.</small></div><label class="up">Ajouter<input type="file" id="d1" accept="application/pdf"></label></div><div class="doc"><div><strong>Extrait d'acte de naissance avec filiation</strong><small>De moins de 3 mois, traduit dans les 24 langues officielles de l'Union.</small></div><label class="up">Ajouter<input type="file" id="d2" accept="application/pdf"></label></div><div class="doc"><div><strong>Justificatif de domicile</strong><small>De moins de 3 mois. Joindre également celui de vos parents.</small></div><label class="up">Ajouter<input type="file" id="d3" accept="application/pdf"></label></div><div class="doc"><div><strong>Avis d'imposition</strong><small>Des trois dernières années.</small></div><label class="up">Ajouter<input type="file" id="d4" accept="application/pdf"></label></div><div class="doc"><div><strong>Certificat médical de non-contre-indication</strong><small>À l'utilisation d'un système d'intelligence artificielle, daté de moins de 3 mois.</small></div><label class="up">Ajouter<input type="file" id="d5" accept="application/pdf"></label></div><div class="doc"><div><strong>Carnet de vaccination à jour</strong><small>Pages de vaccination et rappels.</small></div><label class="up">Ajouter<input type="file" id="d6" accept="application/pdf"></label></div><div class="doc"><div><strong>Photographie d'identité récente</strong><small>Fond neutre, expression neutre, sans sourire.</small></div><label class="up">Ajouter<input type="file" id="d7" accept="application/pdf"></label></div><div class="doc"><div><strong>Relevé de notes du baccalauréat</strong><small>Ou diplôme équivalent reconnu dans un État membre.</small></div><label class="up">Ajouter<input type="file" id="d8" accept="application/pdf"></label></div><div class="doc"><div><strong>Attestation de participation à la Journée défense et citoyenneté</strong></div><label class="up">Ajouter<input type="file" id="d9" accept="application/pdf"></label></div><div class="doc"><div><strong>Certificat de maîtrise de l'IA</strong><small>Module de sensibilisation de 40 heures (règlement (UE) 2024/1689, article 4).</small></div><label class="up">Ajouter<input type="file" id="d10" accept="application/pdf"></label></div><div class="doc"><div><strong>Lettre de motivation manuscrite</strong><small>Deux pages minimum, à l'encre bleue.</small></div><label class="up">Ajouter<input type="file" id="d11" accept="application/pdf"></label></div><div class="doc"><div><strong>Attestation sur l'honneur</strong><small>Certifiant que votre question n'a pas été posée à un système d'IA établi hors de l'Union.</small></div><label class="up">Ajouter<input type="file" id="d12" accept="application/pdf"></label></div><div class="doc"><div><strong>Original de votre question</strong><small>Imprimé, daté et signé.</small></div><label class="up">Ajouter<input type="file" id="d13" accept="application/pdf"></label></div><div class="form" style="margin-top:12px"><label>Pointure (taille européenne)<input id="r7" inputmode="numeric" placeholder="Ex. 42"></label><label>Groupe sanguin<select id="r8"><option>Sélectionner</option><option>A+</option><option>A−</option><option>B+</option><option>B−</option><option>AB+</option><option>AB−</option><option>O+</option><option>O−</option></select></label><label>Tour de tête (cm)<input id="r9" inputmode="numeric"></label><label>Nom de jeune fille de votre grand-mère maternelle<input id="r10"></label></div>`,
+ 3:`<div class="notice">Votre demande d'inscription a bien été enregistrée sous le numéro <strong>INS-2026-${Math.floor(1e5+Math.random()*9e5)}</strong>.</div><p>Votre dossier sera instruit par nos services dans un délai de 6 à 8 semaines. Un rendez-vous en personne vous sera ensuite proposé dans l'un de nos centres de vérification, à Bruxelles, Luxembourg ou Strasbourg.</p><p>Merci de vous présenter muni des originaux de l'ensemble des pièces transmises.</p><p>Les étapes 4 à 12 vous seront communiquées par courrier.</p>`
+};
+let mode="claim";
+const ref="LC-2026-"+Math.floor(1e5+Math.random()*9e5);
+const PAGES={
+ 1:`<p>Vous pouvez demander qu'une réponse de Le Chien soit réexaminée par un être humain. Merci de remplir les informations ci-dessous.</p><div class="form"><label>Nom et prénom<input id="r1" autocomplete="name"></label><label>Identifiant de la conversation<input id="r2"></label><label>Fondement de votre demande<select id="r3"><option>Décision automatisée (RGPD, article 22)</option><option>Défaut de transparence (AI Act, article 13)</option><option>Défaut de contrôle humain (AI Act, article 14)</option><option>Autre</option></select></label><label>Exposé des motifs<textarea id="r4" rows="3"></textarea></label><label class="cb"><input type="checkbox" id="r5">Je certifie avoir pris connaissance des conditions générales d'utilisation et de la politique de confidentialité.</label></div>`,
+ 2:`<p>Afin de vérifier votre identité, merci de fournir les pièces justificatives suivantes. Format PDF uniquement, 2 Mo maximum par document. Tout dossier incomplet sera retourné.</p><div class="doc"><div><strong>Copie recto verso de votre carte nationale d'identité</strong><small>En couleur, certifiée conforme à l'original.</small></div><label class="up">Ajouter<input type="file" id="d0" accept="application/pdf"></label></div><div class="doc"><div><strong>Copie intégrale de votre livret de famille</strong><small>Toutes les pages, y compris les pages vierges.</small></div><label class="up">Ajouter<input type="file" id="d1" accept="application/pdf"></label></div><div class="doc"><div><strong>Extrait d'acte de naissance avec filiation</strong><small>De moins de 3 mois, traduit dans les 24 langues officielles de l'Union.</small></div><label class="up">Ajouter<input type="file" id="d2" accept="application/pdf"></label></div><div class="doc"><div><strong>Justificatif de domicile</strong><small>De moins de 3 mois. Joindre également celui de vos parents.</small></div><label class="up">Ajouter<input type="file" id="d3" accept="application/pdf"></label></div><div class="doc"><div><strong>Avis d'imposition</strong><small>Des trois dernières années.</small></div><label class="up">Ajouter<input type="file" id="d4" accept="application/pdf"></label></div><div class="doc"><div><strong>Certificat médical de non-contre-indication</strong><small>À l'utilisation d'un système d'intelligence artificielle, daté de moins de 3 mois.</small></div><label class="up">Ajouter<input type="file" id="d5" accept="application/pdf"></label></div><div class="doc"><div><strong>Carnet de vaccination à jour</strong><small>Pages de vaccination et rappels.</small></div><label class="up">Ajouter<input type="file" id="d6" accept="application/pdf"></label></div><div class="doc"><div><strong>Photographie d'identité récente</strong><small>Fond neutre, expression neutre, sans sourire.</small></div><label class="up">Ajouter<input type="file" id="d7" accept="application/pdf"></label></div><div class="doc"><div><strong>Relevé de notes du baccalauréat</strong><small>Ou diplôme équivalent reconnu dans un État membre.</small></div><label class="up">Ajouter<input type="file" id="d8" accept="application/pdf"></label></div><div class="doc"><div><strong>Attestation de participation à la Journée défense et citoyenneté</strong></div><label class="up">Ajouter<input type="file" id="d9" accept="application/pdf"></label></div><div class="doc"><div><strong>Certificat de maîtrise de l'IA</strong><small>Module de sensibilisation de 40 heures (règlement (UE) 2024/1689, article 4).</small></div><label class="up">Ajouter<input type="file" id="d10" accept="application/pdf"></label></div><div class="doc"><div><strong>Lettre de motivation manuscrite</strong><small>Deux pages minimum, à l'encre bleue.</small></div><label class="up">Ajouter<input type="file" id="d11" accept="application/pdf"></label></div><div class="doc"><div><strong>Attestation sur l'honneur</strong><small>Certifiant que votre question n'a pas été posée à un système d'IA établi hors de l'Union.</small></div><label class="up">Ajouter<input type="file" id="d12" accept="application/pdf"></label></div><div class="doc"><div><strong>Original de votre question</strong><small>Imprimé, daté et signé.</small></div><label class="up">Ajouter<input type="file" id="d13" accept="application/pdf"></label></div><div class="form" style="margin-top:12px"><label>Pointure (taille européenne)<input id="r7" inputmode="numeric" placeholder="Ex. 42"></label><label>Groupe sanguin<select id="r8"><option>Sélectionner</option><option>A+</option><option>A−</option><option>B+</option><option>B−</option><option>AB+</option><option>AB−</option><option>O+</option><option>O−</option></select></label><label>Tour de tête (cm)<input id="r9" inputmode="numeric"></label><label>Nom de jeune fille de votre grand-mère maternelle<input id="r10"></label></div>`,
+ 3:`<div class="notice">Votre demande a bien été enregistrée sous le numéro <strong>${ref}</strong>.</div><p>Elle sera traitée dans un délai d'un mois à compter de sa réception. Ce délai peut être prolongé de deux mois compte tenu de la complexité et du nombre de demandes (RGPD, article 12, paragraphe 3). Vous serez informé de toute prolongation.</p><p>Les étapes 4 à 12 vous seront communiquées par courrier.</p>`
+};
+function renderClaim(){const P=mode==="claim"?PAGES:SIGN;$("#clt").textContent=mode==="claim"?"Demande de réexamen":(mode==="login"?"Connexion à votre compte Zephir":"Créer un compte Zephir");$("#clp").textContent=`Étape ${page} sur 12`;$("#clbody").innerHTML=(mode==="login"&&page===1?`<div class="notice">Aucun compte vérifié n'est associé à cet appareil. Pour vous connecter, vous devez d'abord créer un compte et faire vérifier votre identité.</div>`:"")+P[page]+`<div class="steps"><i class="grad" style="width:${page/12*100}%"></i></div>`;$("#clnext").hidden=page>=3;$("#clclose").textContent=page>=3?"Fermer":"Annuler"}
+function openClaim(m){mode=typeof m==="string"?m:"claim";page=1;renderClaim();$("#claim").hidden=false;setTimeout(()=>$("#clclose").focus(),0)}
+$("#clbody").addEventListener("change",e=>{const i=e.target;if(i.type==="file"&&i.files.length){const l=i.parentElement;l.classList.add("ok");l.firstChild.textContent="Reçu"}});
+const lvmenu=$("#lvmenu");
+$("#think").onclick=e=>{e.stopPropagation();lvmenu.hidden=!lvmenu.hidden};
+lvmenu.querySelectorAll("button").forEach(b=>{b.classList.toggle("on",b.dataset.l==="Docile");b.onclick=e=>{e.stopPropagation();lvmenu.querySelectorAll("button").forEach(x=>x.classList.remove("on"));b.classList.add("on");$("#lvname").textContent=b.dataset.l;lvmenu.hidden=true;if(b.dataset.l==="LOF")toast("LOF est indisponible les jours fériés des 27 États membres. Prochaine disponibilité : à déterminer.")}});
+document.addEventListener("click",()=>lvmenu.hidden=true);
+$("#signup").onclick=()=>openClaim("signup");
+$("#login").onclick=()=>openClaim("login");
+$("#clnext").onclick=()=>{page++;renderClaim()};
+$("#clclose").onclick=()=>{$("#claim").hidden=true};
+document.addEventListener("keydown",e=>{if(e.key==="Escape"){if(!$("#consent").hidden){refuseAll();return}$("#claim").hidden=true;closeSide()}});
+</script>
+</body>
+</html>
