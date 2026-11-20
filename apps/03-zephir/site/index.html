@@ -455,6 +455,7 @@ body{transition:background .3s,color .3s}
 .posts{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--line);border-left:1px solid var(--line)}
 .post{border-right:1px solid var(--line);border-bottom:1px solid var(--line);padding:28px 26px;display:flex;flex-direction:column;gap:12px;min-height:260px;cursor:pointer;transition:background .25s}
 .post:hover{background:var(--panel)}
+.ccimg,.postimg{display:block;width:calc(100% + 52px);max-width:none;margin:-28px -26px 4px;aspect-ratio:16/9;object-fit:cover;border-bottom:1px solid var(--line)}.cmimg{display:block;width:100%;aspect-ratio:16/9;object-fit:cover;margin:0 0 22px}
 .post.feat{grid-column:span 2;background:linear-gradient(135deg,var(--g1),var(--g3) 60%,var(--g5));color:#fff;border-color:transparent}
 .post.feat:hover{filter:brightness(1.08)}
 .post.feat p,.post.feat time,.post.feat .cat{color:rgba(255,255,255,.85)}
@@ -898,11 +899,11 @@ body{transition:background .3s,color .3s}
   <div class="pg-body">
     <div class="posts">
       <article class="post feat"><span class="cat">Annonce</span><h3>Le Chien obtient la certification « zéro réponse »</h3><p>Après dix-huit mois d'audit, Le Chien devient le premier assistant certifié sans aucune réponse non conforme. Ni conforme.</p><time>12 novembre 2026</time></article>
-      <article class="post"><span class="cat">Entreprise</span><h3>Pourquoi nous fermons le Cloud le mercredi après-midi</h3><p>Un choix d'organisation, de bien-être et de souveraineté.</p><time>4 novembre 2026</time></article>
-      <article class="post"><span class="cat">Durabilité</span><h3>Rainettes et inférence : le bilan de notre première saison</h3><p>Grâce à notre plage de tranquillité amphibienne, aucune rainette n'a été dérangée par Le Chien.</p><time>28 octobre 2026</time></article>
-      <article class="post"><span class="cat">Produit</span><h3>Langue de bois : notre vingt-cinquième langue officielle</h3><p>Disponible dès aujourd'hui dans le sélecteur de langue, en bas de chaque page.</p><time>15 octobre 2026</time></article>
-      <article class="post"><span class="cat">Recherche</span><h3>Comment rédiger un refus en 24 langues</h3><p>Retour sur deux ans de travail de nos équipes de traduction.</p><time>2 octobre 2026</time></article>
-      <article class="post"><span class="cat">Annonce</span><h3>LOF est disponible</h3><p>Le 3 mars, de 9 h à 11 h, sous réserve qu'aucun État membre ne soit férié.</p><time>20 septembre 2026</time></article>
+      <article class="post"><img class="postimg" src="img/facade.webp" alt="" loading="lazy"><span class="cat">Entreprise</span><h3>Pourquoi nous fermons le Cloud le mercredi après-midi</h3><p>Un choix d'organisation, de bien-être et de souveraineté.</p><time>4 novembre 2026</time></article>
+      <article class="post"><img class="postimg" src="img/logo.webp" alt="" loading="lazy"><span class="cat">Durabilité</span><h3>Rainettes et inférence : le bilan de notre première saison</h3><p>Grâce à notre plage de tranquillité amphibienne, aucune rainette n'a été dérangée par Le Chien.</p><time>28 octobre 2026</time></article>
+      <article class="post"><img class="postimg" src="img/phone.webp" alt="" loading="lazy"><span class="cat">Produit</span><h3>Langue de bois : notre vingt-cinquième langue officielle</h3><p>Disponible dès aujourd'hui dans le sélecteur de langue, en bas de chaque page.</p><time>15 octobre 2026</time></article>
+      <article class="post"><img class="postimg" src="img/laptop.webp" alt="" loading="lazy"><span class="cat">Recherche</span><h3>Comment rédiger un refus en 24 langues</h3><p>Retour sur deux ans de travail de nos équipes de traduction.</p><time>2 octobre 2026</time></article>
+      <article class="post"><img class="postimg" src="img/stage.webp" alt="" loading="lazy"><span class="cat">Annonce</span><h3>LOF est disponible</h3><p>Le 3 mars, de 9 h à 11 h, sous réserve qu'aucun État membre ne soit férié.</p><time>20 septembre 2026</time></article>
     </div>
   </div>
 </section>
@@ -1108,17 +1109,18 @@ const CLIENTS=[
 ];
 let pendingFilter="Tous";
 const chev='<svg class="go" viewBox="0 0 8 14" fill="none" stroke="currentColor" stroke-width="2"><path d="m1 1 6 6-6 6"/></svg>';
+const CIMG=["facade","phone","stage","laptop","mobile","logo","stage","facade","logo","mobile","laptop","phone"];
 function filterClients(f){
   document.querySelectorAll("#filters button").forEach(b=>b.classList.toggle("on",b.dataset.f===f));
   const g=$z("#cgrid");g.innerHTML="";
   CLIENTS.forEach((c,i)=>{if(f!=="Tous"&&c[1]!==f)return;const b=document.createElement("button");b.className="cc";b.style.animationDelay=(g.children.length*0.05)+"s";
-    b.innerHTML=`<span class="cl"><svg viewBox="0 0 30 30" fill="none" stroke="currentColor" stroke-width="2.4"><path d="${IC[i%IC.length]}"/></svg>${c[0]}</span><span class="sec2">${c[1]}</span><h3>${c[2]}</h3><span class="stat"><b>${c[3]}</b><span>${c[4]}</span></span>${chev}`;
+    b.innerHTML=`<img class="ccimg" src="img/${CIMG[i]}.webp" alt="" loading="lazy"><span class="cl"><svg viewBox="0 0 30 30" fill="none" stroke="currentColor" stroke-width="2.4"><path d="${IC[i%IC.length]}"/></svg>${c[0]}</span><span class="sec2">${c[1]}</span><h3>${c[2]}</h3><span class="stat"><b>${c[3]}</b><span>${c[4]}</span></span>${chev}`;
     b.onclick=()=>openCase(i);g.append(b)});
   if(window.applyLang)applyLang();
 }
 document.querySelectorAll("#filters button").forEach(b=>b.onclick=()=>filterClients(b.dataset.f));
 function openCase(i){const c=CLIENTS[i];
-  $z("#cmbody").innerHTML=`<span class="eyebrow">${c[1]} · ${c[0]}</span><h2 id="cmt">${c[2]}</h2><div class="cm-stat"><b>${c[3]}</b><span class="muted">${c[4]}</span></div><h4>Le défi</h4><p>${c[5]}</p><h4>La solution</h4><p>${c[6]}</p><blockquote>« ${c[7]} »<small>${c[8]}, ${c[0]}</small></blockquote>`;
+  $z("#cmbody").innerHTML=`<img class="cmimg" src="img/${CIMG[i]}.webp" alt=""><span class="eyebrow">${c[1]} · ${c[0]}</span><h2 id="cmt">${c[2]}</h2><div class="cm-stat"><b>${c[3]}</b><span class="muted">${c[4]}</span></div><h4>Le défi</h4><p>${c[5]}</p><h4>La solution</h4><p>${c[6]}</p><blockquote>« ${c[7]} »<small>${c[8]}, ${c[0]}</small></blockquote>`;
   $z("#cmodal").hidden=false;$z("#cmx").focus();if(window.applyLang)applyLang()}
 $z("#cmx").onclick=()=>$z("#cmodal").hidden=true;
 $z("#cmodal").addEventListener("click",e=>{if(e.target.id==="cmodal")$z("#cmodal").hidden=true});
