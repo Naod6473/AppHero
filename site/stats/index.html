@@ -34,6 +34,14 @@
     table { width: 100%; border-collapse: collapse; font-size: 14px; }
     th, td { text-align: left; padding: 5px 6px; border-bottom: 2px solid #15112b22; }
     td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .box.wide { grid-column: 1 / -1; }
+    .box .grid { margin: 16px 0; }
+    .kpis.mini { margin: 12px 0 0; }
+    .kpis.mini .kpi { box-shadow: 3px 3px 0 var(--ink); border-width: 3px; }
+    .kpis.mini .kpi strong { font-size: 26px; }
+    .scroll { overflow-x: auto; max-height: 520px; overflow-y: auto; }
+    .scroll table { min-width: 640px; }
+    .scroll th { position: sticky; top: 0; background: var(--paper); }
     @media (max-width: 640px) { .stats { padding: 12px 16px 56px; } .grid { grid-template-columns: 1fr; } }
   </style>
 </head>

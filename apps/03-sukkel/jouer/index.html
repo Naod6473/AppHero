@@ -177,6 +177,7 @@ ol.top li.me { background: #2450e60d; border-radius: 8px; }
 ol.top li span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 600; }
 ol.top li time { font-variant-numeric: tabular-nums; color: var(--muted); }
 ol.top li.empty { display: block; color: var(--muted); }
+ol.top li.empty::before { content: none; }
 .acts { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px; }
 .tot { color: var(--soft); font-size: 12px; margin: 12px 0 0; }
 
@@ -379,7 +380,7 @@ ol.top li.empty { display: block; color: var(--muted); }
   }
   function getScores() {
     if (LOCAL) return Promise.resolve(local.call("scores"));
-    return fetch(API + "scores").then(function (r) { return r.json(); });
+    return fetch(API + "scores", { cache: "no-store" }).then(function (r) { return r.json(); });
   }
   function fmtDur(ms, long) {
     var s = Math.floor(ms / 1000), h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), r = s % 60;
@@ -683,7 +684,7 @@ ol.top li.empty { display: block; color: var(--muted); }
   function loadTop() {
     getScores().then(function (j) {
       drawTop(j.scores, store("name"));
-      if (j.runs) $("tot").textContent = j.runs.toLocaleString("fr-FR") + " personnes y ont cru, pour un total de " + fmtDur(j.wasted, true) + " de vie perdues.";
+      if (j.runs) $("tot").textContent = j.runs.toLocaleString("fr-FR") + (j.runs > 1 ? " personnes y ont cru" : " personne y a cru") + ", pour un total de " + fmtDur(j.wasted, true) + " de vie perdues.";
     }).catch(function () {
       $("top").innerHTML = '<li class="empty">Classement indisponible. Votre record ici : ' + fmtDur(Number(store("best") || 0), true) + ".</li>";
     });

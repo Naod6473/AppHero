@@ -38,7 +38,7 @@ export async function sukkel(request, env, now, route, h) {
   const input = (await h.readJson(request)) || {};
 
   if (route === "POST /api/sukkel/start") {
-    const { ipHash } = await h.ipHashFor(request, env, now);
+    const { ipHash } = await h.ipHashFor(request, env, `sukkel|${h.day(now)}`);
     const sent = await env.DB.prepare("SELECT COUNT(*) AS n FROM sukkel_runs WHERE ip_hash = ?").bind(ipHash).first();
     if ((sent?.n || 0) >= MAX_STARTS_PER_IP) return h.json({ error: "Trop d'essais depuis ce réseau aujourd'hui." }, 429);
     const id = crypto.randomUUID();
