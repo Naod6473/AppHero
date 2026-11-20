@@ -6,25 +6,12 @@ import { api, esc } from "./common.js";
 import { DAYS, fmtShort } from "../../shared/calendar.js";
 import { CRITERIA, criterionLabel } from "../../shared/criteria.js";
 
-const KEY = "apphero_admin_token";
 const $ = (id) => document.getElementById(id);
 const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 const S = { criteria: null, busy: false };
 
-try {
-  $("token").value = localStorage.getItem(KEY) || "";
-} catch {
-  /* stockage indisponible */
-}
 const token = () => $("token").value.trim();
 const auth = () => (token() ? { authorization: `Bearer ${token()}` } : {});
-function remember() {
-  try {
-    if (token()) localStorage.setItem(KEY, token());
-  } catch {
-    /* rien */
-  }
-}
 
 const parts = (c) => [c, ...(c.extra || [])].map((x) => ({ ...CRITERIA[x.key], text: criterionLabel(x) }));
 
@@ -123,7 +110,6 @@ async function draw() {
   S.busy = true;
   try {
     const res = await api("/api/admin/criteria/draw", { method: "POST", headers: auth() });
-    remember();
     S.criteria = res.criteria;
     await openAll();
     $("status").textContent = "Tirage enregistré. Il sera visible sur le site au lancement.";

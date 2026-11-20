@@ -7,6 +7,13 @@ import "@fontsource/rubik/700.css";
 import "@fontsource/rubik/800.css";
 import "./styles.css";
 
+// Le code organisateur n'est plus jamais gardé dans le navigateur : on efface l'ancienne copie.
+try {
+  localStorage.removeItem("apphero_admin_token");
+} catch {
+  /* stockage indisponible */
+}
+
 // Le compte X du défi.
 export const X_URL = "https://x.com/ZeroE24661";
 
@@ -72,6 +79,9 @@ export async function turnstileToken(siteKey) {
   }
   return new Promise((resolve, reject) => {
     box.innerHTML = "";
+    // Sans réponse au bout de 45 s, on rend la main (sinon les boutons de vote resteraient bloqués).
+    const fail = () => reject(new Error("Vérification anti-robot trop longue, réessaie."));
+    setTimeout(fail, 45000);
     window.turnstile.render(box, {
       sitekey: siteKey,
       appearance: "interaction-only",
@@ -81,6 +91,7 @@ export async function turnstileToken(siteKey) {
         setTimeout(() => (box.innerHTML = ""), 50);
       },
       "error-callback": () => reject(new Error("Vérification anti-robot échouée, réessaie.")),
+      "timeout-callback": fail,
     });
   });
 }

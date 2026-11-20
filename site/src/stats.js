@@ -1,15 +1,8 @@
 // Page privée des statistiques : lit /api/admin/stats avec le code organisateur.
-import { api, esc, toast } from "./common.js";
+import { api, esc, toast, turnstileToken } from "./common.js";
 
-const KEY = "apphero_admin_token";
 const $ = (id) => document.getElementById(id);
 let days = 30;
-
-try {
-  $("token").value = localStorage.getItem(KEY) || "";
-} catch {
-  /* stockage indisponible */
-}
 
 const fmtSec = (s) => (s == null ? "–" : s >= 60 ? `${Math.floor(s / 60)} min ${String(Math.round(s % 60)).padStart(2, "0")} s` : `${Math.round(s)} s`);
 const pct = (a, b) => (b ? `${Math.round((a / b) * 100)} %` : "–");
@@ -86,16 +79,24 @@ async function load() {
   if (!token) return toast("Entre le code organisateur.");
   try {
     const d = await api(`/api/admin/stats?days=${days}`, { headers: { authorization: `Bearer ${token}` } });
-    try {
-      localStorage.setItem(KEY, token);
-    } catch {
-      /* rien */
-    }
     render(d);
   } catch (err) {
     toast(err.message);
   }
 }
+
+// Vérifie que l'anti-robot du vote (Turnstile) répond bien dans ce navigateur, sans attendre un vrai vote.
+$("ts-test").addEventListener("click", async () => {
+  toast("Test de l'anti-robot en cours…");
+  try {
+    const st = await api("/api/state");
+    if (!st.turnstileSiteKey) return toast("Anti-robot désactivé (pas de clé).");
+    const token = await turnstileToken(st.turnstileSiteKey);
+    toast(token ? "Anti-robot : OK, le vote peut passer." : "Anti-robot : pas de jeton reçu.");
+  } catch (err) {
+    toast(`Anti-robot : ${err.message}`);
+  }
+});
 
 $("login").addEventListener("submit", (e) => {
   e.preventDefault();

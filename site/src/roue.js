@@ -11,7 +11,6 @@ const SLICES = 20;
 const STEP = 360 / SLICES;
 const DURATION = 3600;
 const AI_IDEA = "Idée de l'IA";
-const TOKEN_KEY = "apphero_admin_token";
 
 const $ = (id) => document.getElementById(id);
 const studioAllowed = new URLSearchParams(location.search).has("studio");
@@ -246,11 +245,6 @@ async function publish() {
   const body = { ...S.pending, idea: S.pending.label === AI_IDEA ? $("idea").value : null };
   try {
     await api("/api/admin/draws", { method: "POST", body: JSON.stringify(body), headers: { authorization: `Bearer ${token}` } });
-    try {
-      localStorage.setItem(TOKEN_KEY, token);
-    } catch {
-      /* stockage indisponible */
-    }
     toast(`Tirage publié pour le ${slotLabel(body.forDay)} !`);
     S.pending = null;
     $("publish-box").hidden = true;
@@ -353,8 +347,7 @@ function fillSlots() {
 
 async function loadDraws() {
   try {
-    const token = localStorage.getItem(TOKEN_KEY);
-    const st = await api("/api/state", token ? { headers: { authorization: `Bearer ${token}` } } : {});
+    const st = await api("/api/state");
     WHEEL_DAYS = wheelDays(st.criteria);
   } catch {
     WHEEL_DAYS = [];
@@ -411,13 +404,6 @@ drawLights();
 drawFace();
 await loadDraws();
 fillSlots();
-if (studioAllowed) {
-  $("modes").hidden = false;
-  try {
-    $("token").value = localStorage.getItem(TOKEN_KEY) || "";
-  } catch {
-    /* stockage indisponible */
-  }
-}
+if (studioAllowed) $("modes").hidden = false;
 setMode(studioAllowed ? "studio" : "public");
 requestAnimationFrame(idle);

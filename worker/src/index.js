@@ -6,7 +6,14 @@ import { BALLOTS, DAYS, ballotStatus, wheelDays, CHALLENGE_END, REVEAL_AT, LAUNC
 import { CRITERIA, criterionLabel, drawCalendar } from "../../shared/criteria.js";
 import { sukkel } from "./sukkel.js";
 
-const MAX_PER_IP = 8; // un foyer ou un bureau partage souvent la même IP
+// Limite par réseau. En IPv6, un foyer ou un téléphone a son propre bloc /64 : 8 suffit.
+// En IPv4, un opérateur mobile ou une entreprise partage une adresse entre beaucoup de monde.
+const MAX_PER_IP6 = 8;
+const MAX_PER_IP4 = 30;
+// Pour les votes (une voix peut faire basculer un tour), le plafond IPv4 est plus serré.
+const MAX_BALLOT_PER_IP4 = 10;
+const MAX_T_PER_DAY = 600; // envois de mesure d'audience par réseau et par jour
+const MAX_ADMIN_FAILS = 20; // codes organisateur faux par réseau et par jour
 const COOKIE = "ah_id";
 const PREVIEW_COOKIE = "ah_preview";
 const SLICES = 20;
@@ -15,78 +22,137 @@ export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
     const now = currentTime(env);
-    const path = url.pathname;
 
     if (url.hostname === "www.apphero.cloud") {
       url.hostname = "apphero.cloud";
       return Response.redirect(url.toString(), 301);
     }
 
+    let res;
     try {
-      if (path.startsWith("/api/")) return await api(request, env, ctx, url, now);
-
-      // Avant le lancement : toutes les pages affichent le rideau (compte à rebours), sauf pour l'organisateur.
-      if (now < Date.parse(LAUNCH_AT) && isPage(path) && !(await isPreview(request, env))) {
-        const page = await env.ASSETS.fetch(new Request(new URL("/rideau/", request.url)));
-        return new Response(page.body, {
-          status: 200,
-          headers: { "content-type": "text/html; charset=utf-8", "cache-control": "no-store", "x-apphero-rideau": "1" },
-        });
-      }
-
-      // Liens courts pour X : /05 -> /apps/05-nom/
-      const short = path.match(/^\/(\d{2})\/?$/);
-      if (short) {
-        const app = releasedApp(short[1], now);
-        if (app) return Response.redirect(`${url.origin}/apps/${app.slug}/`, 302);
-        return notFound(request, env);
-      }
-
-      // Les apps : invisibles avant leur heure de sortie.
-      const m = path.match(/^\/apps\/([^/]+)(\/.*)?$/);
-      const app = m ? manifest.find((a) => a.slug === m[1]) : null;
-      if (m) {
-        if (!app || !isReleased(app.publishAt, now)) return notFound(request, env);
-        const rest = m[2] || "";
-        if (rest === "" || rest === "/" || rest === "/index.html") {
-          if (request.method === "GET" && !isBot(request)) ctx.waitUntil(countView(env, app.id));
-        }
-      }
-
-      // Pages d'app : pas de 304, sinon la fiche injectée (app suivante, etc.) resterait périmée.
-      let assetReq = request;
-      if (app) {
-        const h = new Headers(request.headers);
-        h.delete("if-none-match");
-        h.delete("if-modified-since");
-        assetReq = new Request(request, { headers: h });
-      }
-      const res = await env.ASSETS.fetch(assetReq);
-      if (res.status === 404) return notFound(request, env);
-      // Les apps sont copiées telles quelles : on y ajoute le petit script de mesure d'audience.
-      if (app && (res.headers.get("content-type") || "").includes("text/html")) {
-        // …et la fiche de l'app (fabrication, j'aime / bof, retour à l'accueil).
-        const crit = await loadCriteria(env);
-        const info = JSON.stringify({ ...publicApp(app, crit), ...neighbours(app, crit, now) }).replace(/</g, "\\u003c");
-        return new HTMLRewriter()
-          .on("head", {
-            element: (el) =>
-              el.append(`<script src="/t.js" defer></script><script>window.AH_APP=${info}</script><script src="/fiche.js" defer></script>`, { html: true }),
-          })
-          .transform(noStore(res));
-      }
-      return res;
+      res = await handle(request, env, ctx, url, now);
     } catch (err) {
       console.error(err);
-      return json({ error: "Oups, erreur du serveur." }, 500);
+      res = json({ error: "Oups, erreur du serveur." }, 500);
     }
+    return harden(res, url);
   },
 };
+
+// Les en-têtes de sécurité, sur tout ce que le Worker renvoie.
+// Le site (hors apps) a une politique de contenu stricte ; les apps, libres de leur code, sont seulement
+// protégées contre l'affichage dans un cadre d'un autre site.
+const SITE_CSP = [
+  "default-src 'self'",
+  "script-src 'self' https://challenges.cloudflare.com",
+  "style-src 'self' 'unsafe-inline'",
+  "img-src 'self' data:",
+  "font-src 'self' data:",
+  "media-src 'self'",
+  "connect-src 'self'",
+  "frame-src https://challenges.cloudflare.com",
+  "frame-ancestors 'self'",
+  "base-uri 'self'",
+  "form-action 'self'",
+  "object-src 'none'",
+].join("; ");
+function harden(res, url) {
+  const out = new Response(res.body, res);
+  const h = out.headers;
+  h.set("x-content-type-options", "nosniff");
+  h.set("referrer-policy", "strict-origin-when-cross-origin");
+  h.set("x-frame-options", "SAMEORIGIN");
+  if (url.protocol === "https:") h.set("strict-transport-security", "max-age=31536000");
+  if ((h.get("content-type") || "").includes("text/html")) {
+    h.set("content-security-policy", /^\/apps\//.test(url.pathname) ? "frame-ancestors 'self'" : SITE_CSP);
+  }
+  return out;
+}
+
+// Un chemin est sûr s'il ne cache ni « .. » ni un détour vers /apps/ (barres doublées ou encodées, majuscules).
+function safePath(path) {
+  let norm;
+  try {
+    norm = decodeURIComponent(path);
+  } catch {
+    return false;
+  }
+  norm = norm.replace(/\\/g, "/").replace(/\/{2,}/g, "/");
+  if (/(^|\/)\.\.(\/|$)/.test(norm)) return false;
+  if (/^\/apps(\/|$)/i.test(norm) && path !== "/apps" && !(/^\/apps\//.test(path) && !/%2f|%5c|\\|\/\//i.test(path))) return false;
+  return true;
+}
+
+async function handle(request, env, ctx, url, now) {
+  const path = url.pathname;
+  if (path.startsWith("/api/")) return await api(request, env, ctx, url, now);
+  if (!safePath(path)) return notFound(request, env);
+
+  // Avant le lancement : toutes les pages affichent le rideau (compte à rebours), sauf pour l'organisateur.
+  if (now < Date.parse(LAUNCH_AT) && isPage(path) && !(await isPreview(request, env, now))) {
+    const page = await env.ASSETS.fetch(new Request(new URL("/rideau/", request.url)));
+    return new Response(page.body, {
+      status: 200,
+      headers: { "content-type": "text/html; charset=utf-8", "cache-control": "no-store", "x-apphero-rideau": "1" },
+    });
+  }
+
+  // Liens courts pour X : /05 -> /apps/05-nom/
+  const short = path.match(/^\/(\d{2})\/?$/);
+  if (short) {
+    const app = releasedApp(short[1], now);
+    if (app) return Response.redirect(`${url.origin}/apps/${app.slug}/`, 302);
+    return notFound(request, env);
+  }
+
+  // Les apps : invisibles avant leur heure de sortie.
+  const m = path.match(/^\/apps\/([^/]+)(\/.*)?$/);
+  const app = m ? manifest.find((a) => a.slug === m[1]) : null;
+  if (m) {
+    if (!app || !isReleased(app.publishAt, now)) return notFound(request, env);
+    const rest = m[2] || "";
+    if (rest === "" || rest === "/" || rest === "/index.html") {
+      // Seulement une vraie ouverture de page (pas une image ou un cadre posé sur un autre site).
+      const dest = request.headers.get("sec-fetch-dest");
+      if (request.method === "GET" && !isBot(request) && (!dest || dest === "document")) ctx.waitUntil(countView(request, env, app.id, now));
+    }
+  }
+
+  // Pages d'app : pas de 304, sinon la fiche injectée (app suivante, etc.) resterait périmée.
+  let assetReq = request;
+  if (app) {
+    const h = new Headers(request.headers);
+    h.delete("if-none-match");
+    h.delete("if-modified-since");
+    assetReq = new Request(request, { headers: h });
+  }
+  const res = await env.ASSETS.fetch(assetReq);
+  if (res.status === 404) return notFound(request, env);
+  // Les apps sont copiées telles quelles : on y ajoute le petit script de mesure d'audience.
+  if (app && (res.headers.get("content-type") || "").includes("text/html")) {
+    // …et la fiche de l'app (fabrication, j'aime / bof, retour à l'accueil).
+    const crit = await loadCriteria(env);
+    const info = JSON.stringify({ ...publicApp(app, crit), ...neighbours(app, crit, now) }).replace(/</g, "\\u003c");
+    return new HTMLRewriter()
+      .on("head", {
+        element: (el) =>
+          el.append(`<script src="/t.js" defer></script><script>window.AH_APP=${info}</script><script src="/fiche.js" defer></script>`, { html: true }),
+      })
+      .transform(noStore(res));
+  }
+  return res;
+}
 
 // ---------------------------------------------------------------- API
 
 async function api(request, env, ctx, url, now) {
   const route = `${request.method} ${url.pathname.replace(/\/$/, "")}`;
+  // Tout ce qui écrit doit venir d'une page du site, pas d'un autre site.
+  if (request.method !== "GET" && request.method !== "HEAD" && !sameOrigin(request, url)) return json({ error: "Requête refusée." }, 403);
+  if (url.pathname.startsWith("/api/admin/")) {
+    const denied = await adminGuard(request, env, now);
+    if (denied) return denied;
+  }
   if (url.pathname.startsWith("/api/sukkel/"))
     return sukkel(request, env, now, route, { json, readJson, ipHashFor, released: releasedApp, preview: isPreview });
   switch (route) {
@@ -107,15 +173,14 @@ async function api(request, env, ctx, url, now) {
     case "POST /api/t":
       return collect(request, env, ctx, now);
     case "GET /api/admin/stats":
-      return isAdmin(request, env) ? stats(env, url, now) : json({ error: "Code organisateur incorrect." }, 401);
+      return stats(env, url, now);
     case "POST /api/admin/preview":
-      return previewOn(request, env);
+      return previewOn(request, env, now);
     case "POST /api/admin/check":
-      return isAdmin(request, env) ? json({ ok: true }) : json({ error: "Code organisateur incorrect." }, 401);
+      return json({ ok: true });
   }
   const del = route.match(/^DELETE \/api\/admin\/draws\/(\d{4}-\d{2}-\d{2})$/);
   if (del) {
-    if (!isAdmin(request, env)) return json({ error: "Code organisateur incorrect." }, 401);
     await env.DB.prepare("DELETE FROM draws WHERE for_day = ?").bind(del[1]).run();
     return json({ ok: true });
   }
@@ -163,7 +228,6 @@ async function loadCriteria(env) {
 // Le tirage en direct des 30 défis (bouton de /tirage/, réservé à l'organisateur).
 // Possible jusqu'au lancement ; ensuite le calendrier est figé.
 async function drawCriteria(request, env, now) {
-  if (!isAdmin(request, env)) return json({ error: "Code organisateur incorrect." }, 401);
   if (now >= Date.parse(DRAW_LOCK_AT)) return json({ error: "Le tirage est fait : le calendrier ne bouge plus." }, 409);
   const rand = (n) => crypto.getRandomValues(new Uint32Array(1))[0] % n;
   const out = drawCalendar(DAYS, rand);
@@ -176,7 +240,7 @@ async function drawCriteria(request, env, now) {
 
 // Les critères restent secrets jusqu'au lancement, sauf pour l'organisateur (page de révélation à filmer).
 async function visibleCriteria(request, env, now) {
-  if (now < Date.parse(REVEAL_AT) && !isAdmin(request, env) && !(await isPreview(request, env))) return null;
+  if (now < Date.parse(REVEAL_AT) && !isAdmin(request, env) && !(await isPreview(request, env, now))) return null;
   return loadCriteria(env);
 }
 
@@ -292,9 +356,46 @@ function voterOrNew(request) {
   return { voter, headers };
 }
 
-async function ipHashFor(request, env, now) {
+// Le réseau d'où vient la requête : l'adresse IPv4, ou le bloc /64 en IPv6
+// (une seule personne dispose de milliards d'adresses dans son bloc).
+function network(request) {
   const ip = request.headers.get("cf-connecting-ip") || "local";
-  return { ip, ipHash: await sha256(`${env.IP_SALT || "apphero"}|${parisDate(now)}|${ip}`) };
+  if (!ip.includes(":")) return { ip, net: ip, v6: false };
+  const [head, tail = ""] = ip.toLowerCase().split("::");
+  const a = head ? head.split(":") : [];
+  const b = tail ? tail.split(":") : [];
+  const full = ip.includes("::") ? [...a, ...Array(Math.max(0, 8 - a.length - b.length)).fill("0"), ...b] : a;
+  return { ip, net: full.slice(0, 4).map((x) => x.replace(/^0+(?=.)/, "")).join(":") + "::/64", v6: true };
+}
+
+// Empreinte du réseau pour un usage précis (une app, un scrutin, un jour) : on ne peut ni remonter
+// à l'adresse, ni rapprocher deux usages entre eux.
+async function ipHashFor(request, env, scope) {
+  const { ip, net, v6 } = network(request);
+  return { ip, max: v6 ? MAX_PER_IP6 : MAX_PER_IP4, ipHash: await sha256(`${env.IP_SALT || "apphero"}|${scope}|${net}`) };
+}
+
+// Compteur du jour pour une clé (table quota). Renvoie le total après ajout.
+async function hit(env, day, key) {
+  const r = await env.DB.prepare("INSERT INTO quota (day, key, n) VALUES (?, ?, 1) ON CONFLICT (day, key) DO UPDATE SET n = n + 1 RETURNING n").bind(day, key).first();
+  return r?.n || 1;
+}
+
+function sameOrigin(request, url) {
+  const site = request.headers.get("sec-fetch-site");
+  if (site) return site === "same-origin";
+  return request.headers.get("origin") === url.origin;
+}
+
+// Routes de l'organisateur : le bon code, et pas plus de 20 codes faux par réseau et par jour.
+async function adminGuard(request, env, now) {
+  const day = parisDate(now);
+  const key = `a:${(await ipHashFor(request, env, `admin|${day}`)).ipHash.slice(0, 24)}`;
+  const row = await env.DB.prepare("SELECT n FROM quota WHERE day = ? AND key = ?").bind(day, key).first();
+  if ((row?.n || 0) >= MAX_ADMIN_FAILS) return json({ error: "Trop d'essais. Réessaie demain." }, 429);
+  if (isAdmin(request, env)) return null;
+  if (request.headers.get("authorization")) await hit(env, day, key);
+  return json({ error: "Code organisateur incorrect." }, 401);
 }
 
 const bumpTally = (env, kind, bucket, app, delta) =>
@@ -305,6 +406,13 @@ const bumpTally = (env, kind, bucket, app, delta) =>
     delta,
   );
 
+// Compteur recalculé depuis les lignes, dans la même transaction que l'écriture :
+// des requêtes simultanées ne peuvent ni le gonfler ni le fausser.
+const recountReactions = (env, appId, value) =>
+  env.DB.prepare(
+    "INSERT INTO tallies (kind, bucket, app, n) SELECT ?2, 'ALL', ?1, COUNT(*) FROM reactions WHERE app = ?1 AND value = ?3 ON CONFLICT (kind, bucket, app) DO UPDATE SET n = excluded.n",
+  ).bind(appId, value === 1 ? "like" : "bof", value);
+
 async function react(request, env, now) {
   const input = await readJson(request);
   if (!input) return json({ error: "Requête invalide." }, 400);
@@ -314,28 +422,18 @@ async function react(request, env, now) {
   if (![1, -1, 0].includes(value)) return json({ error: "Réaction invalide." }, 400);
 
   const { voter, headers } = voterOrNew(request);
-  const { ipHash } = await ipHashFor(request, env, now);
-  const row = await env.DB.prepare(
-    "SELECT (SELECT value FROM reactions WHERE app = ?1 AND voter = ?2) AS current, (SELECT COUNT(*) FROM reactions WHERE app = ?1 AND ip_hash = ?3) AS fromIp",
-  )
-    .bind(app.id, voter, ipHash)
-    .first();
-  const current = row?.current ?? 0;
-  if (current === value) return json({ ok: true, value }, 200, headers);
-  if (current === 0 && (row?.fromIp || 0) >= MAX_PER_IP) return json({ error: "Trop de réactions depuis ce réseau aujourd'hui." }, 429, headers);
-
-  const kind = (v) => (v === 1 ? "like" : "bof");
-  const stmts = [];
-  if (value === 0) stmts.push(env.DB.prepare("DELETE FROM reactions WHERE app = ? AND voter = ?").bind(app.id, voter));
-  else
-    stmts.push(
-      env.DB.prepare(
-        "INSERT INTO reactions (app, voter, value, ip_hash, updated_at) VALUES (?, ?, ?, ?, ?) ON CONFLICT (app, voter) DO UPDATE SET value = excluded.value, updated_at = excluded.updated_at",
-      ).bind(app.id, voter, value, ipHash, now),
-    );
-  if (current !== 0) stmts.push(bumpTally(env, kind(current), "ALL", app.id, -1));
-  if (value !== 0) stmts.push(bumpTally(env, kind(value), "ALL", app.id, 1));
-  await env.DB.batch(stmts);
+  const { ipHash, max } = await ipHashFor(request, env, `react|${app.id}`);
+  // La limite par réseau est vérifiée dans la requête d'écriture elle-même (une seule opération) :
+  // un avis déjà donné peut toujours changer, un nouvel avis ne passe que sous le plafond.
+  const write =
+    value === 0
+      ? env.DB.prepare("DELETE FROM reactions WHERE app = ?1 AND voter = ?2").bind(app.id, voter)
+      : env.DB.prepare(
+          "INSERT INTO reactions (app, voter, value, ip_hash, updated_at) SELECT ?1, ?2, ?3, ?4, ?5 WHERE EXISTS (SELECT 1 FROM reactions WHERE app = ?1 AND voter = ?2) OR (SELECT COUNT(*) FROM reactions WHERE app = ?1 AND ip_hash = ?4) < ?6 ON CONFLICT (app, voter) DO UPDATE SET value = excluded.value, updated_at = excluded.updated_at",
+        ).bind(app.id, voter, value, ipHash, now, max);
+  const res = await env.DB.batch([write, recountReactions(env, app.id, 1), recountReactions(env, app.id, -1)]);
+  if (value !== 0 && !res[0].meta?.changes)
+    return json({ error: "Beaucoup d'avis viennent déjà de ton réseau pour cette app. Essaie depuis une autre connexion." }, 429, headers);
   return json({ ok: true, value }, 200, headers);
 }
 
@@ -350,7 +448,9 @@ async function castBallot(request, env, now) {
   if (!view.candidates?.includes(appId) || !releasedApp(appId, now)) return json({ error: "Cette app ne fait pas partie de ce vote." }, 400);
 
   const { voter, headers } = voterOrNew(request);
-  const { ip, ipHash } = await ipHashFor(request, env, now);
+  const net = await ipHashFor(request, env, `ballot|${def.id}`);
+  const { ip, ipHash } = net;
+  const max = Math.min(net.max, MAX_BALLOT_PER_IP4);
   if (env.TURNSTILE_SECRET) {
     const ok = await verifyTurnstile(env.TURNSTILE_SECRET, input.token, ip);
     if (!ok) return json({ error: "Vérification anti-robot échouée, réessaie." }, 403, headers);
@@ -361,12 +461,18 @@ async function castBallot(request, env, now) {
     .bind(def.id, voter, ipHash)
     .first();
   if (row?.mine) return json({ error: "Tu as déjà voté pour ce tour.", mine: row.mine }, 409, headers);
-  if ((row?.fromIp || 0) >= MAX_PER_IP) return json({ error: "Trop de votes depuis ce réseau." }, 429, headers);
+  if ((row?.fromIp || 0) >= max) return json({ error: "Beaucoup de voix viennent déjà de ton réseau pour ce tour. Essaie depuis une autre connexion." }, 429, headers);
   try {
-    await env.DB.batch([
-      env.DB.prepare("INSERT INTO ballot_votes (ballot, voter, app, ip_hash, created_at) VALUES (?, ?, ?, ?, ?)").bind(def.id, voter, appId, ipHash, now),
-      bumpTally(env, "ballot", def.id, appId, 1),
+    // Plafond par réseau vérifié dans l'écriture elle-même, et compteur recalculé depuis les voix.
+    const res = await env.DB.batch([
+      env.DB.prepare(
+        "INSERT INTO ballot_votes (ballot, voter, app, ip_hash, created_at) SELECT ?1, ?2, ?3, ?4, ?5 WHERE (SELECT COUNT(*) FROM ballot_votes WHERE ballot = ?1 AND ip_hash = ?4) < ?6",
+      ).bind(def.id, voter, appId, ipHash, now, max),
+      env.DB.prepare(
+        "INSERT INTO tallies (kind, bucket, app, n) SELECT 'ballot', ?1, ?2, COUNT(*) FROM ballot_votes WHERE ballot = ?1 AND app = ?2 ON CONFLICT (kind, bucket, app) DO UPDATE SET n = excluded.n",
+      ).bind(def.id, appId),
     ]);
+    if (!res[0].meta?.changes) return json({ error: "Beaucoup de voix viennent déjà de ton réseau pour ce tour. Essaie depuis une autre connexion." }, 429, headers);
   } catch (err) {
     if (String(err).includes("UNIQUE") || String(err).includes("PRIMARY")) return json({ error: "Tu as déjà voté pour ce tour." }, 409, headers);
     throw err;
@@ -374,8 +480,13 @@ async function castBallot(request, env, now) {
   return json({ ok: true, mine: appId }, 200, headers);
 }
 
-async function countView(env, appId) {
+// Une visite par réseau, par app et par jour : recharger la page ne gonfle pas le classement.
+async function countView(request, env, appId, now) {
   try {
+    const day = parisDate(now);
+    const { ipHash } = await ipHashFor(request, env, `view|${day}|${appId}`);
+    const r = await env.DB.prepare("INSERT OR IGNORE INTO seen (day, visitor) VALUES (?, ?)").bind(day, `v${appId}:${ipHash.slice(0, 16)}`).run();
+    if (!r.meta?.changes) return;
     await env.DB.prepare("INSERT INTO tallies (kind, bucket, app, n) VALUES ('view', 'ALL', ?, 1) ON CONFLICT (kind, bucket, app) DO UPDATE SET n = n + 1")
       .bind(appId)
       .run();
@@ -390,13 +501,13 @@ async function listDraws(env) {
 }
 
 async function saveDraw(request, env, now) {
-  if (!isAdmin(request, env)) return json({ error: "Code organisateur incorrect." }, 401);
   let d;
   try {
     d = await request.json();
   } catch {
     return json({ error: "Requête invalide." }, 400);
   }
+  if (!d || typeof d !== "object") return json({ error: "Requête invalide." }, 400);
   if (!wheelDays(await loadCriteria(env)).some((w) => w.forDay === d.forDay)) return json({ error: "Ce jour n'a pas de tirage." }, 400);
   if (!Array.isArray(d.slices) || d.slices.length !== SLICES || !d.slices.every((s) => CRITERES.includes(s)) || new Set(d.slices).size !== SLICES)
     return json({ error: "La roue doit contenir 20 critères différents de la liste." }, 400);
@@ -452,15 +563,16 @@ function isPage(path) {
 }
 
 // L'aperçu organisateur : un cookie signé avec ADMIN_TOKEN, posé après saisie du code sur le rideau.
-const previewValue = (env) => sha256(`${env.ADMIN_TOKEN}|preview`);
-async function isPreview(request, env) {
+// Il porte sa date de fin : passé 48 h, il ne vaut plus rien, même recopié.
+const previewValue = (env, exp) => sha256(`${env.ADMIN_TOKEN}|preview|${exp}`);
+async function isPreview(request, env, now = Date.now()) {
   if (!env.ADMIN_TOKEN) return false;
-  const m = (request.headers.get("cookie") || "").match(new RegExp(`(?:^|;\\s*)${PREVIEW_COOKIE}=([a-f0-9]{64})`));
-  return !!m && m[1] === (await previewValue(env));
+  const m = (request.headers.get("cookie") || "").match(new RegExp(`(?:^|;\\s*)${PREVIEW_COOKIE}=(\\d{13})\\.([a-f0-9]{64})`));
+  return !!m && Number(m[1]) > now && m[2] === (await previewValue(env, m[1]));
 }
-async function previewOn(request, env) {
-  if (!isAdmin(request, env)) return json({ error: "Code organisateur incorrect." }, 401);
-  const cookie = `${PREVIEW_COOKIE}=${await previewValue(env)}; Path=/; Max-Age=172800; HttpOnly; Secure; SameSite=Lax`;
+async function previewOn(request, env, now) {
+  const exp = now + 172800000;
+  const cookie = `${PREVIEW_COOKIE}=${exp}.${await previewValue(env, exp)}; Path=/; Max-Age=172800; HttpOnly; Secure; SameSite=Lax`;
   return json({ ok: true }, 200, { "set-cookie": cookie });
 }
 
@@ -536,7 +648,7 @@ async function collect(request, env, ctx, now) {
   } catch {
     return ok;
   }
-  const events = Array.isArray(data?.events) ? data.events.slice(0, 20) : [];
+  const events = Array.isArray(data?.events) ? data.events.slice(0, 12) : [];
   if (!events.length) return ok;
   let path = "/";
   try {
@@ -548,6 +660,14 @@ async function collect(request, env, ctx, now) {
   const ua = request.headers.get("user-agent") || "";
   const ip = request.headers.get("cf-connecting-ip") || "local";
   const day = parisDate(now);
+  // Plafond par réseau et par jour : au-delà, on n'écrit plus rien (la base sert aussi aux votes).
+  const netHash = (await ipHashFor(request, env, `seen|${day}`)).ipHash.slice(0, 16);
+  try {
+    if ((await hit(env, day, `t:${netHash}`)) > MAX_T_PER_DAY) return ok;
+  } catch (err) {
+    console.error("quota", err);
+    return ok;
+  }
   const visitor = (await sha256(`${env.IP_SALT || "apphero"}|stats|${day}|${ip}|${ua}`)).slice(0, 16);
   const hour = new Date(now + 3600000).getUTCHours();
   const country = clip(request.cf?.country, 2);
@@ -585,13 +705,16 @@ async function collect(request, env, ctx, now) {
       ),
     );
   }
-  // Compteur public : une personne par jour (même empreinte du jour = même personne).
+  // Compteur public : un réseau par jour (changer de navigateur ne compte pas une visite de plus).
   if (events.some((e) => e?.n === "page")) {
     ctx.waitUntil(
       (async () => {
-        const r = await env.DB.prepare("INSERT OR IGNORE INTO seen (day, visitor) VALUES (?, ?)").bind(day, visitor).run();
+        const r = await env.DB.prepare("INSERT OR IGNORE INTO seen (day, visitor) VALUES (?, ?)").bind(day, netHash).run();
         if (r.meta?.changes) await bumpTally(env, "visitors", "ALL", "-", 1).run();
-        if (Math.random() < 0.02) await env.DB.prepare("DELETE FROM seen WHERE day < ?").bind(parisDate(now - 2 * 86400000)).run();
+        if (Math.random() < 0.02) {
+          const old = parisDate(now - 2 * 86400000);
+          await env.DB.batch([env.DB.prepare("DELETE FROM seen WHERE day < ?").bind(old), env.DB.prepare("DELETE FROM quota WHERE day < ?").bind(old)]);
+        }
       })().catch((err) => console.error("seen", err)),
     );
   }
