@@ -345,6 +345,7 @@ body{transition:background .3s,color .3s}
 .pg-hero .lead{margin:0}
 .pg-body{padding:56px max(50px,env(safe-area-inset-left,0px)) 100px;max-width:1340px;margin:0 auto}
 .pg-h2{margin:72px 0 14px;font-size:clamp(28px,3.4vw,44px)}
+.legaltxt>*{max-width:860px}.legaltxt .pg-h2{margin-top:44px;font-size:clamp(22px,2.4vw,30px)}.legaltxt p{color:var(--ink2);line-height:1.6}.realnote{margin-top:48px;font-size:14px;border-top:1px solid var(--line);padding-top:16px}.tgl-list{display:grid;border-top:1px solid var(--line)}.tgl{display:flex;gap:12px;align-items:center;padding:14px 0;border-bottom:1px solid var(--line)}.tgl span{flex:1}.tgl em{font-style:normal;color:var(--muted);font-size:14px}
 .pg-body>.pg-h2:first-child{margin-top:8px}
 .muted{color:var(--muted)}
 .filters{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:34px}
@@ -505,7 +506,7 @@ body{transition:background .3s,color .3s}
   <div class="mi hide-m"><a href="#a-propos">Entreprise</a>
     <div class="dd"><a href="#blog"><b>Blog</b><small>Nos dernières annonces</small></a><a href="#a-propos"><b>À propos</b><small>Nos comités</small></a><a href="#carrieres"><b>Carrières</b><small>Rejoignez nos comités</small></a><a href="#tarifs"><b>Tarifs</b><small>Gratuit, Pro, Entreprise</small></a></div></div>
   <span class="sp"></span>
-  <a class="r contact" href="#bas">Contact</a>
+  <a class="r contact" href="#contact">Contact</a>
   <a class="r start" href="../le-chien/">Commencer à créer<svg viewBox="0 0 12 8" fill="none" stroke="currentColor" stroke-width="1.6"><path d="m1 1.5 5 5 5-5"/></svg></a>
   <button class="burger" id="burger" aria-label="Menu" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
 </nav>
@@ -802,7 +803,7 @@ body{transition:background .3s,color .3s}
     <div class="plans">
       <article class="plan"><h3>Gratuit</h3><p class="price">0 €</p><p class="muted">Pour découvrir Le Chien.</p><ul><li>3 questions par jour</li><li>Niveau Cabot</li><li>Réponses 100 % conformes</li><li>Publicité conforme</li></ul><a class="btn" href="../le-chien/">Commencer</a></article>
       <article class="plan hi"><span class="badge2">Le plus choisi</span><h3>Pro</h3><p class="price">14,99 € <small>par mois</small></p><p class="muted">Pour les professionnels exigeants.</p><ul><li>3 questions par jour</li><li>Niveaux Docile et Chien guide</li><li>Refus prioritaires</li><li>Position garantie dans les 10 000 premiers de la file d'attente</li></ul><a class="btn main" href="../le-chien/">Passer à Pro</a></article>
-      <article class="plan"><h3>Entreprise</h3><p class="price">Sur devis</p><p class="muted">Pour les organisations qui ne prennent aucun risque.</p><ul><li>Modèle LOF (hors jours fériés)</li><li>Comité d'éthique dédié</li><li>Juriste attitré</li><li>Engagement de service : réponse sous 15 jours ouvrés</li></ul><a class="btn" href="#bas">Contacter un conseiller</a></article>
+      <article class="plan"><h3>Entreprise</h3><p class="price">Sur devis</p><p class="muted">Pour les organisations qui ne prennent aucun risque.</p><ul><li>Modèle LOF (hors jours fériés)</li><li>Comité d'éthique dédié</li><li>Juriste attitré</li><li>Engagement de service : réponse sous 15 jours ouvrés</li></ul><a class="btn" href="#contact">Contacter un conseiller</a></article>
     </div>
     <h2 class="pg-h2">Tarification à l'usage</h2>
     <p class="muted tva-intro">Chaque jeton est rémunéré au niveau des cotisations sociales en vigueur, revalorisées tous les 11 jours en moyenne. Le prix est indexé sur le SMIC horaire.</p>
@@ -907,13 +908,130 @@ body{transition:background .3s,color .3s}
     </div>
   </div>
 </section>
+<!-- ===== Mentions légales ===== -->
+<section class="view pg" data-route="mentions-legales" hidden>
+  <header class="pg-hero">
+    <span class="eyebrow">Informations légales</span>
+    <h1 class="pg-h1">Mentions légales.</h1>
+    <p class="lead">Version 31.4, en vigueur depuis le 1er novembre 2026. La version précédente reste applicable jusqu'à son abrogation.</p>
+  </header>
+  <div class="pg-body legaltxt">
+    <h2 class="pg-h2">Éditeur</h2>
+    <p>Le site est édité par Zephir SAS (société par actions souveraine), au capital de 1 €, entièrement libéré après accord du comité d'investissement. Siège social : Paris. Immatriculation en cours depuis 2023.</p>
+    <h2 class="pg-h2">Direction de la publication</h2>
+    <p>La direction de la publication est assurée par le Comité de direction de la publication, qui statue à l'unanimité. En cas d'absence de quorum, la publication est reportée à la séance suivante.</p>
+    <h2 class="pg-h2">Hébergement</h2>
+    <p>Le site est hébergé dans l'Union européenne, sur nos serveurs de Luxembourg, aux horaires de bureau (8 h-12 h et 14 h-18 h). En dehors de ces horaires, il est hébergé sous votre responsabilité.</p>
+    <h2 class="pg-h2">Propriété intellectuelle</h2>
+    <p>Toute reproduction, même partielle, des contenus du site est soumise à une analyse d'impact préalable, à l'avis du délégué à la protection des données et à l'apposition d'un tampon. Les refus du Chien sont protégés au titre du droit d'auteur.</p>
+    <h2 class="pg-h2">Droit applicable</h2>
+    <p>Le présent site est régi par le droit de chacun des 27 États membres, cumulativement. En cas de contradiction, la règle la plus restrictive s'applique.</p>
+    <p class="muted realnote">Zephir et Le Chien sont une parodie réalisée pour Apphéro (apphero.cloud), sans lien avec Mistral AI, ses clients ou l'Union européenne. Les entreprises et personnes citées sont fictives.</p>
+  </div>
+</section>
+
+<!-- ===== Confidentialité ===== -->
+<section class="view pg" data-route="confidentialite" hidden>
+  <header class="pg-hero">
+    <span class="eyebrow">Données personnelles</span>
+    <h1 class="pg-h1">Politique de confidentialité.</h1>
+    <p class="lead">Vos données sont notre bien le plus précieux. C'est pourquoi nous les conservons.</p>
+  </header>
+  <div class="pg-body legaltxt">
+    <h2 class="pg-h2">Données collectées</h2>
+    <p>Nous collectons l'ensemble des données nécessaires pour justifier de ne pas les traiter : identité, pièces justificatives, pointure, groupe sanguin, tour de tête et nom de jeune fille de votre grand-mère maternelle.</p>
+    <h2 class="pg-h2">Finalités</h2>
+    <table class="tbl"><thead><tr><th>Finalité</th><th>Base légale</th></tr></thead><tbody>
+      <tr><td>Vérifier que vous n'avez pas posé de question</td><td>Intérêt légitime</td></tr>
+      <tr><td>Refuser de répondre à votre question</td><td>Obligation légale</td></tr>
+      <tr><td>Conserver la preuve du refus</td><td>Mission d'intérêt public</td></tr>
+      <tr><td>Vous informer de l'existence de la présente politique</td><td>Consentement</td></tr>
+    </tbody></table>
+    <h2 class="pg-h2">Durée de conservation</h2>
+    <p>75 ans à compter de la clôture de votre dossier, puis versement aux archives départementales. Votre dossier n'est jamais clôturé.</p>
+    <h2 class="pg-h2">Vos droits</h2>
+    <p>Vous disposez d'un droit d'accès, de rectification, d'effacement, d'opposition et de portabilité. Ces droits s'exercent par courrier recommandé avec accusé de réception, en trois exemplaires, adressé au délégué à la protection des données, qui le transmet à son propre délégué. Réponse sous un mois, prorogeable de deux mois (RGPD, article 12, paragraphe 3).</p>
+    <p class="muted realnote">En réalité, ce site ne collecte aucune donnée : seuls vos choix de thème et de langue sont enregistrés dans votre navigateur.</p>
+  </div>
+</section>
+
+<!-- ===== Traceurs ===== -->
+<section class="view pg" data-route="traceurs" hidden>
+  <header class="pg-hero">
+    <span class="eyebrow">Traceurs</span>
+    <h1 class="pg-h1">Gestion des traceurs.</h1>
+    <p class="lead">Nous utilisons uniquement des traceurs strictement nécessaires au recueil de votre consentement aux traceurs.</p>
+  </header>
+  <div class="pg-body legaltxt">
+    <table class="tbl"><thead><tr><th>Traceur</th><th>Finalité</th><th>Durée</th></tr></thead><tbody>
+      <tr><td>zephir_consent</td><td>Enregistre votre consentement au dépôt de traceurs</td><td>13 mois</td></tr>
+      <tr><td>zephir_consent_consent</td><td>Enregistre votre consentement au traceur zephir_consent</td><td>13 mois</td></tr>
+      <tr><td>zephir_refus</td><td>Enregistre votre refus, afin de ne plus vous le demander</td><td>13 mois</td></tr>
+      <tr><td>zephir_rappel</td><td>Vous redemande votre consentement tous les 13 mois</td><td>13 mois</td></tr>
+      <tr><td>zephir_horaires</td><td>Vérifie que vous ne consultez pas le site entre 17 h et 8 h</td><td>Jusqu'à 8 h</td></tr>
+      <tr><td>zephir_ferie</td><td>Vérifie qu'aucun des 27 États membres n'est férié</td><td>24 heures</td></tr>
+    </tbody></table>
+    <h2 class="pg-h2">Vos choix</h2>
+    <div class="tgl-list">
+      <label class="tgl"><input type="checkbox" checked disabled><span>Traceurs strictement nécessaires</span><em>Toujours actifs</em></label>
+      <label class="tgl"><input type="checkbox" checked disabled><span>Traceurs nécessaires au consentement</span><em>Toujours actifs</em></label>
+      <label class="tgl"><input type="checkbox" checked disabled><span>Traceurs nécessaires au refus</span><em>Toujours actifs</em></label>
+    </div>
+    <p class="muted realnote">En réalité, ce site ne dépose aucun cookie : seuls vos choix de thème et de langue sont enregistrés dans votre navigateur (zephir-theme, zephir-lang).</p>
+  </div>
+</section>
+
+<!-- ===== Accessibilité ===== -->
+<section class="view pg" data-route="accessibilite" hidden>
+  <header class="pg-hero">
+    <span class="eyebrow">Accessibilité</span>
+    <h1 class="pg-h1">Déclaration d'accessibilité.</h1>
+    <p class="lead">Zephir s'engage à rendre ses refus accessibles à toutes et à tous, sans distinction.</p>
+  </header>
+  <div class="pg-body legaltxt">
+    <h2 class="pg-h2">État de conformité</h2>
+    <p>Le site est en conformité partielle avec le référentiel général d'amélioration de l'accessibilité (RGAA 4.1). 100 % des critères ont été examinés par un comité. Leur application est à l'étude.</p>
+    <h2 class="pg-h2">Contenus non accessibles</h2>
+    <table class="tbl"><thead><tr><th>Contenu</th><th>Motif</th></tr></thead><tbody>
+      <tr><td>Les réponses du Chien</td><td>Inexistantes</td></tr>
+      <tr><td>Le modèle LOF</td><td>Jours fériés</td></tr>
+      <tr><td>Le Cloud</td><td>Mercredi après-midi</td></tr>
+      <tr><td>Le site, de 17 h à 8 h</td><td>Reproduction des rainettes</td></tr>
+      <tr><td>Le formulaire de réexamen</td><td>12 étapes, dont 11 en cours d'optimisation</td></tr>
+    </tbody></table>
+    <h2 class="pg-h2">Retour d'information et contact</h2>
+    <p>Si vous ne parvenez pas à accéder à un contenu, vous pouvez nous le signaler par courrier recommandé. Si vous ne parvenez pas à accéder au formulaire de signalement, vous pouvez nous le signaler au moyen du formulaire de signalement.</p>
+    <h2 class="pg-h2">Voies de recours</h2>
+    <p>Vous pouvez saisir le Défenseur des droits, en joignant la copie de votre courrier recommandé, de son accusé de réception et de l'absence de réponse.</p>
+  </div>
+</section>
+
+<!-- ===== Contact ===== -->
+<section class="view pg" data-route="contact" hidden>
+  <header class="pg-hero">
+    <span class="eyebrow">Contact</span>
+    <h1 class="pg-h1">Parlons de votre projet. Par écrit.</h1>
+    <p class="lead">Nos conseillers vous répondent sous 15 jours ouvrés, prorogeables de deux mois compte tenu de la complexité et du nombre de demandes.</p>
+  </header>
+  <div class="pg-body legaltxt">
+    <div class="offices">
+      <div><b>Par courrier</b><span>Recommandé avec accusé de réception, en trois exemplaires</span></div>
+      <div><b>Par téléphone</b><span>Le mardi, de 10 h à 11 h, hors vacances scolaires des trois zones</span></div>
+      <div><b>Sur place</b><span>Sur rendez-vous, pris par courrier</span></div>
+      <div><b>Par Le Chien</b><span>Le Chien n'est pas en mesure de traiter votre demande</span></div>
+    </div>
+    <h2 class="pg-h2">Pièces à joindre</h2>
+    <p>Copie recto verso de votre pièce d'identité, justificatif de domicile de moins de trois mois, extrait Kbis de votre organisation, et une enveloppe timbrée pour la réponse.</p>
+  </div>
+</section>
+
 
 <div class="ztoast" id="ztoast" hidden></div>
 <div class="cmodal" id="cmodal" hidden><div class="cm-in" role="dialog" aria-modal="true" aria-labelledby="cmt"><button class="cm-x" id="cmx" aria-label="Fermer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6 6 18"/></svg></button><div id="cmbody"></div></div></div>
 <div class="legal" id="bas">
   <div class="eu"><svg id="euf" width="42" height="28" viewBox="0 0 36 24" role="img" aria-label="Drapeau européen"></svg><div><b>Conforme au règlement (UE) 2024/1689</b>Entraîné, hébergé et contrôlé dans l'Union européenne.</div></div>
   <span class="sp"></span>
-  <div class="links"><a href="#conformite">Conformité et biodiversité</a><a href="#bas">Mentions légales</a><a href="#bas">Confidentialité</a><a href="#bas">Gestion des traceurs</a><a href="#bas">Accessibilité</a></div>
+  <div class="links"><a href="#conformite">Conformité et biodiversité</a><a href="#mentions-legales">Mentions légales</a><a href="#confidentialite">Confidentialité</a><a href="#traceurs">Gestion des traceurs</a><a href="#accessibilite">Accessibilité</a></div>
   <div style="width:100%;font-size:11.5px;opacity:.75">Zephir et Le Chien sont une parodie réalisée pour Apphéro. Sans lien avec Mistral AI, ses clients ni l'Union européenne. Les entreprises citées sont fictives.</div>
 </div>
 <footer class="bigfoot">
