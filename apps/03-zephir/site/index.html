@@ -611,11 +611,11 @@ body{transition:background .3s,color .3s}
 <section class="further" aria-labelledby="fl">
   <h2 id="fl">Aller plus loin.</h2>
   <div class="cards">
-    <a class="card" href="#modeles"><svg class="px ico" id="ic1" viewBox="0 0 7 7" aria-hidden="true"></svg><h3>Recherche</h3>
+    <a class="card" href="#recherche"><svg class="px ico" id="ic1" viewBox="0 0 7 7" aria-hidden="true"></svg><h3>Recherche</h3>
       <p>Explorez la science à l'origine de nos modèles. Nos publications sont consultables sur rendez-vous, en salle de lecture, du mardi au jeudi.</p></a>
     <a class="card" href="#ia-souveraine"><svg class="px ico" id="ic2" viewBox="0 0 7 7" aria-hidden="true"></svg><h3>IA souveraine</h3>
       <p>Une indépendance totale : nos modèles sont conçus en Europe, entraînés sur des puces importées et financés par des partenaires internationaux.</p></a>
-    <a class="card" href="#modeles"><svg class="px ico" id="ic3" viewBox="0 0 7 7" aria-hidden="true"></svg><h3>Cloud</h3>
+    <a class="card" href="#cloud"><svg class="px ico" id="ic3" viewBox="0 0 7 7" aria-hidden="true"></svg><h3>Cloud</h3>
       <p>Accédez à nos modèles sur l'infrastructure Zephir, ouverte du lundi au vendredi de 8 h à 12 h et de 14 h à 18 h. Fermé le mercredi après-midi.</p></a>
   </div>
 </section>
@@ -1291,7 +1291,8 @@ const BENCH=[["Questions répondues",[["Le Chien LOF",0,"0 %"],["Modèle améric
 function bench(){document.querySelectorAll("#bench em").forEach(e=>{e.style.width="0";requestAnimationFrame(()=>requestAnimationFrame(()=>e.style.width=e.dataset.w+"%"))})}
 document.querySelectorAll(".read").forEach(b=>b.onclick=()=>ztoast("Publication consultable sur rendez-vous, en salle de lecture, du mardi au jeudi."));
 document.querySelectorAll(".apply").forEach(b=>b.onclick=()=>ztoast("Candidatures en trois exemplaires, par courrier recommandé. Joindre un carnet de vaccination à jour."));
-document.querySelectorAll(".post").forEach(b=>b.onclick=()=>ztoast("Article réservé aux abonnés Le Chien Pro."));
+document.querySelectorAll(".post").forEach(b=>{b.tabIndex=0;b.setAttribute("role","button");b.onclick=()=>ztoast("Article réservé aux abonnés Le Chien Pro.");b.onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();b.click()}}});
+document.querySelectorAll("#mmenu a").forEach(a=>a.addEventListener("click",closeMenu));
 
 /* ---- Cloud : guichet ---- */
 function guichet(){const {h,d}=parisHour();let open=d>=1&&d<=5&&((h>=8&&h<12)||(h>=14&&h<18&&d!==3));
