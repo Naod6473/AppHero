@@ -408,6 +408,7 @@ body{transition:background .3s,color .3s}
 .tbl th,.tbl td{text-align:left;padding:11px 0;border-bottom:1px solid var(--line);vertical-align:top}
 .tbl th{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:600}
 .tbl td:last-child,.tbl th:last-child{text-align:right;padding-left:16px}
+.tbl.tva td:nth-child(2),.tbl.tva th:nth-child(2){text-align:right;padding-left:16px;white-space:nowrap}.tva-intro{max-width:720px;margin:0 0 6px}.tva-ex{font-size:14px;margin:14px 0 0}@media (max-width:600px){.tbl.tva{font-size:13px}.tbl.tva td:nth-child(2),.tbl.tva th:nth-child(2){white-space:normal}}
 .hours{max-width:720px;margin-top:20px}
 .plans{display:grid;grid-template-columns:repeat(3,1fr);border:1px solid var(--line)}
 .plan{padding:34px 28px;display:flex;flex-direction:column;gap:10px;position:relative;min-width:0}
@@ -805,12 +806,31 @@ body{transition:background .3s,color .3s}
       <article class="plan hi"><span class="badge2">Le plus choisi</span><h3>Pro</h3><p class="price">14,99 € <small>par mois</small></p><p class="muted">Pour les professionnels exigeants.</p><ul><li>3 questions par jour</li><li>Niveaux Docile et Chien guide</li><li>Refus prioritaires</li><li>Position garantie dans les 10 000 premiers de la file d'attente</li></ul><a class="btn main" href="../le-chien/">Passer à Pro</a></article>
       <article class="plan"><h3>Entreprise</h3><p class="price">Sur devis</p><p class="muted">Pour les organisations qui ne prennent aucun risque.</p><ul><li>Modèle LOF (hors jours fériés)</li><li>Comité d'éthique dédié</li><li>Juriste attitré</li><li>Engagement de service : réponse sous 15 jours ouvrés</li></ul><a class="btn" href="#bas">Contacter un conseiller</a></article>
     </div>
+    <h2 class="pg-h2">Tarification à l'usage</h2>
+    <p class="muted tva-intro">Chaque jeton est rémunéré au niveau des cotisations sociales en vigueur, revalorisées tous les 11 jours en moyenne. Le prix est indexé sur le SMIC horaire.</p>
+    <table class="tbl tva"><thead><tr><th>Prestation</th><th>Prix HT pour 1 000 jetons</th><th>TVA</th></tr></thead><tbody>
+      <tr><td>Jetons d'entrée (votre question)</td><td>0,18 €</td><td>20 %</td></tr>
+      <tr><td>Jetons de refus</td><td>0,42 €</td><td>20 %</td></tr>
+      <tr><td>Jetons de réponse</td><td>Offerts</td><td>Sans objet</td></tr>
+      <tr><td>Refus consulté sur place</td><td>0,05 €</td><td>10 %</td></tr>
+      <tr><td>Refus à emporter (copier-coller)</td><td>0,05 €</td><td>5,5 %</td></tr>
+      <tr><td>Citation d'un article de loi</td><td>0,09 €</td><td>2,1 %</td></tr>
+      <tr><td>Refus à visée pédagogique</td><td>0,42 €</td><td>Exonéré (CGI, art. 261)</td></tr>
+      <tr><td>Accès depuis la Corse</td><td>0,42 €</td><td>13 %</td></tr>
+      <tr><td>Accès depuis les départements d'outre-mer</td><td>0,42 €</td><td>8,5 %</td></tr>
+      <tr><td>Cotisations sociales du Chien (part patronale)</td><td>45 % du HT</td><td>20 %</td></tr>
+      <tr><td>Écocontribution numérique</td><td>0,02 € par requête</td><td>20 %</td></tr>
+      <tr><td>Frais de dossier</td><td>35 € (une fois)</td><td>20 %</td></tr>
+      <tr><td>Timbre fiscal</td><td>Obligatoire</td><td>Hors champ</td></tr>
+    </tbody></table>
+    <p class="muted tva-ex">Exemple : une question de 12 jetons, refusée, consultée sur place puis copiée, avec citation de l'article 5 du RGPD, depuis Ajaccio : 42,03 € TTC, dont 42,00 € de frais de dossier.</p>
     <h2 class="pg-h2">Questions fréquentes</h2>
     <div class="faq">
-      <details><summary>Puis-je résilier mon abonnement ?</summary><p>Oui, à tout moment, par lettre recommandée avec accusé de réception, moyennant un préavis de six mois.</p></details>
+      <details><summary>Puis-je résilier mon abonnement ?</summary><p>Oui, à tout moment, par lettre recommandée avec accusé de réception, moyennant un préavis de trois mois.</p></details>
       <details><summary>Le Chien répond-il plus vite avec Pro ?</summary><p>Avec Pro, Le Chien refuse plus vite.</p></details>
       <details><summary>Pourquoi Pro est-il limité à 3 questions par jour, comme Gratuit ?</summary><p>Notre engagement de sobriété numérique (article 7 de notre charte) s'applique à tous, sans distinction de niveau d'abonnement.</p></details>
-      <details><summary>Quels moyens de paiement acceptez-vous ?</summary><p>Le virement SEPA, le chèque et le mandat cash. Le paiement par carte est en cours d'évaluation de conformité.</p></details>
+      <details><summary>Quels moyens de paiement acceptez-vous ?</summary><p>Le chèque, le mandat administratif et le virement SEPA, avec 35 € de frais de dossier et un timbre fiscal. Le paiement par carte est en cours d'évaluation de conformité.</p></details>
+      <details><summary>Existe-t-il un tarif réduit ?</summary><p>Oui, 30 % de réduction sur présentation de la carte famille nombreuse, accompagnée d'un justificatif de domicile de moins de trois mois.</p></details>
     </div>
   </div>
 </section>
