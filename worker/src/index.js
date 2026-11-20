@@ -4,6 +4,7 @@ import manifest from "../generated/apps.json";
 import CRITERES from "../../shared/criteres.json";
 import { BALLOTS, DAYS, ballotStatus, wheelDays, CHALLENGE_END, REVEAL_AT, LAUNCH_AT, DRAW_LOCK_AT, parisDate, isReleased } from "../../shared/calendar.js";
 import { CRITERIA, criterionLabel, drawCalendar } from "../../shared/criteria.js";
+import { preavis } from "./preavis.js";
 
 // Limite par réseau : une adresse IPv4, ou un bloc /56 en IPv6 (ce qu'une box reçoit le plus souvent :
 // compter par /64 laissait un seul foyer multiplier le plafond par 256).
@@ -157,6 +158,9 @@ async function api(request, env, ctx, url, now) {
     const denied = await adminGuard(request, env, now);
     if (denied) return denied;
   }
+  // Préavis (app 11) : ses routes publiques, et celles de l'arbitre (le code organisateur vient d'être vérifié).
+  if (url.pathname.startsWith("/api/preavis/") || url.pathname.startsWith("/api/admin/preavis/"))
+    return preavis(request, env, ctx, url, now, { json, readJson, ipHashFor, hit, verifyTurnstile, released: releasedApp, preview: isPreview });
   switch (route) {
     case "GET /api/state":
       return state(request, env, now);

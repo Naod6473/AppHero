@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Préavis · la bourse de la grogne</title>
+<meta name="description" content="On parie, pour rire, sur les grèves, les manifs et les 49.3 d'ici la présidentielle de 2027. Des pavés fictifs, des cotes qui bougent, un arbitre qui tranche. Aucun argent.">
+<meta name="theme-color" content="#080c18">
+<meta property="og:title" content="Préavis · la bourse de la grogne">
+<meta property="og:url" content="https://apphero.cloud/apps/11-preavis/jouer/">
+<meta property="og:description" content="On parie, pour rire, sur les grèves, les manifs et les 49.3 d'ici la présidentielle de 2027. Aucun argent : seulement des pavés fictifs.">
+<meta property="og:image" content="https://apphero.cloud/apps/11-preavis/media/poster.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="../logo.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="../media/apple-touch-icon.png">
+<link rel="preload" href="../fonts/barlow-condensed-latin-800-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="style.css">
+<script type="module" src="app.js"></script>
+</head>
+<body>
+<a class="skip" href="#view">Aller aux paris</a>
+<div class="app">
+
+  <header class="top">
+    <a class="brand" href="../" title="Retour à la présentation de l'app">
+      <span class="brand-mark">PRÉAVIS</span>
+      <span class="brand-sub">La bourse de la grogne</span>
+    </a>
+    <div class="top-right">
+      <span class="live" aria-hidden="true"><i></i>DIRECT</span>
+      <button class="wallet" id="wallet" type="button" hidden aria-label="Mon compte"></button>
+      <button class="btn btn-red" id="enter" type="button" hidden>Entrer</button>
+    </div>
+  </header>
+
+  <div class="ticker" aria-hidden="true">
+    <span class="ticker-label">LES COTES</span>
+    <div class="ticker-window"><div class="ticker-track" id="ticker"></div></div>
+  </div>
+
+  <nav class="tabs" id="tabs" aria-label="Rubriques">
+    <button type="button" data-tab="salle" aria-current="page">La salle</button>
+    <button type="button" data-tab="paris">Mes paris</button>
+    <button type="button" data-tab="classement">Classement</button>
+    <button type="button" data-tab="bingo">Bingo</button>
+    <button type="button" data-tab="regles">Règles</button>
+  </nav>
+
+  <main id="view" tabindex="-1">
+    <p class="loading">Ouverture de la salle des marchés…</p>
+  </main>
+
+  <footer class="foot">
+    <p><b>Aucun argent, aucun lot.</b> Les pavés sont fictifs, les paris sont pour rire, et l'arbitre tranche à partir de sources publiques.</p>
+    <p>Préavis est l'app 11 d'<a href="/">Apphéro</a> : 30 jours, 30 apps. <a href="/mentions-legales/">Mentions légales</a></p>
+  </footer>
+</div>
+
+<div class="sheet-wrap" id="sheet" hidden>
+  <div class="sheet-back" data-act="close-sheet"></div>
+  <section class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheet-title" id="sheet-box" tabindex="-1"></section>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+<noscript><p style="padding:24px;color:#fff;font-family:sans-serif">Préavis a besoin de JavaScript pour afficher les paris.</p></noscript>
+</body>
+</html>

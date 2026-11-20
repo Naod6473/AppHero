@@ -19,6 +19,7 @@ export default defineConfig({
         bilan: resolve(import.meta.dirname, "site/bilan/index.html"),
         tirage: resolve(import.meta.dirname, "site/tirage/index.html"),
         rideau: resolve(import.meta.dirname, "site/rideau/index.html"),
+        arbitre: resolve(import.meta.dirname, "site/arbitre/index.html"),
       },
     },
   },

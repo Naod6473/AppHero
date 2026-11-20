@@ -1,0 +1,23 @@
+{
+  "num": 11,
+  "title": "Préavis",
+  "tagline": "La bourse de la grogne. On parie, pour rire, sur les grèves, les manifs et les 49.3, d'ici la présidentielle de 2027.",
+  "publishAt": "2026-11-28T18:00:00+01:00",
+  "color": "#FF2D46",
+  "tags": [
+    "paris",
+    "satire",
+    "cloudflare-workers",
+    "d1"
+  ],
+  "status": "prêt",
+  "making": {
+    "buildMinutes": 95,
+    "thinkingMinutes": 20,
+    "tokens": 1400000,
+    "prompts": 3,
+    "lines": 4470,
+    "tool": "Claude Code",
+    "note": "Idée de Simon : un site de paris sur l'actualité sociale jusqu'à la présidentielle. Des pavés fictifs, des cotes qui bougent comme au PMU, un arbitre qui tranche avec ses sources. Construit d'une traite, en un seul message."
+  }
+}
