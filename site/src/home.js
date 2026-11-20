@@ -60,6 +60,18 @@ function critOf(day) {
   const all = [c, ...(c.extra || [])];
   return { ...base, key: c.key, label: all.map(criterionLabel).join(" + "), short: all.map((x) => `${CRITERIA[x.key].emoji} ${criterionLabel(x)}`).join(" + ") };
 }
+// Sur une couleur sombre (bleu roi, noir…), le texte passe en clair : sinon il ne se lit plus.
+function onDark(color) {
+  const m = /^#([0-9a-f]{6})$/i.exec(String(color || ""));
+  if (!m) return "";
+  const [r, g, b] = [0, 2, 4].map((i) => {
+    const c = parseInt(m[1].slice(i, i + 2), 16) / 255;
+    return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
+  });
+  const lum = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+  // Contraste de l'encre (#15112B) sur cette couleur : sous 4,5, on écrit en clair.
+  return (lum + 0.05) / 0.0575 < 4.5 ? " on-dark" : "";
+}
 const colorOf = (day) => (day.filler ? day.color : critOf(day).color);
 
 // ------------------------------------------------------------ la semaine en cours
@@ -249,7 +261,7 @@ function renderDeck() {
       }
       return `<article class="card ${active ? "is-active" : "is-side"}" data-card="${i}" data-tf="${tf}" style="transform:${tf};z-index:${z};opacity:${ar > 3 ? 0 : 1};pointer-events:${ar > 3 ? "none" : "auto"}"
           aria-hidden="${active ? "false" : "true"}" aria-label="${esc(day.id ? `Jour ${day.id}` : fmtLongUpper(day.date))}">
-        <div class="card-inner" style="background:${esc(c.bg)}">
+        <div class="card-inner${onDark(c.bg)}" style="background:${esc(c.bg)}">
           <div class="card-top">
             <span class="card-when">${esc(fmtLongUpper(day.date))}</span>
             <span class="card-num">${day.id ? `JOUR ${day.id} / 30` : c.tag}</span>
@@ -371,7 +383,7 @@ function renderTiles() {
         <span class="tile-text"><span class="tile-name">Bientôt</span><br><span class="tile-meta">${esc(meta)}</span></span>
         <span class="sr-only">${esc(full)}</span></div>`;
     }
-    return `<div class="tile is-open" style="--r:${rot};--bg:${esc(app.color)}">
+    return `<div class="tile is-open${onDark(app.color)}" style="--r:${rot};--bg:${esc(app.color)}">
       <span class="tile-top"><span class="tile-num" aria-hidden="true">${day.id}</span>${app.logo ? `<img class="tile-logo" src="${esc(app.logo)}" alt="" loading="lazy" width="56" height="56">` : emo}</span>
       <span class="tile-text"><a class="tile-link tile-name" href="/apps/${esc(app.slug)}/" data-open="${esc(app.id)}">${esc(app.title)}</a><br><span class="tile-meta">${esc(meta)}</span></span>
       ${reactButtons(app, true)}
@@ -437,7 +449,7 @@ function choicesHtml(b) {
     .map((id) => {
       const app = S.apps.get(id);
       const can = open && !mine && app;
-      return `<button class="choice ${mine === id ? "is-mine" : ""} ${pick === id ? "is-pick" : ""}" type="button" ${can ? `aria-pressed="${pick === id}"` : ""} style="--bg:${esc(app?.color || "var(--paper)")}"
+      return `<button class="choice${onDark(app?.color)} ${mine === id ? "is-mine" : ""} ${pick === id ? "is-pick" : ""}" type="button" ${can ? `aria-pressed="${pick === id}"` : ""} style="--bg:${esc(app?.color || "var(--paper)")}"
         ${can ? `data-ballot="${esc(b.id)}" data-app="${esc(id)}"` : "disabled"}
         aria-label="${esc(open && !mine ? `Choisir ${candidateLabel(id)}` : candidateLabel(id))}"><i>${Number(id)}</i><span>${esc(candidateLabel(id))}</span></button>`;
     })
