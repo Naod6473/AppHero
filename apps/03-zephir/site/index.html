@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="description" content="Zephir, l'IA la plus sûre du monde libre. Une parodie Apphéro.">
+<meta name="description" content="Zephir, l'IA la plus sûre du monde libre.">
 <link rel="icon" href="../media/favicon.png">
 <link rel="apple-touch-icon" href="../media/apple-touch-icon.png">
 <title>Zephir</title>
@@ -345,6 +345,7 @@ body{transition:background .3s,color .3s}
 .pg-hero .lead{margin:0}
 .pg-body{padding:56px max(50px,env(safe-area-inset-left,0px)) 100px;max-width:1340px;margin:0 auto}
 .pg-h2{margin:72px 0 14px;font-size:clamp(28px,3.4vw,44px)}
+.dc-photo{margin:0}.dc-photo img{display:block;width:100%;height:auto;border:1px solid var(--line)}.dc-photo figcaption{font-size:13px;color:var(--muted);margin-top:10px}.dc-stats{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--line);border-left:1px solid var(--line);margin-top:40px}.dc-stats div{border-right:1px solid var(--line);border-bottom:1px solid var(--line);padding:22px 20px;display:flex;flex-direction:column;gap:6px}.dc-stats b{font-family:var(--display);font-weight:500;font-size:clamp(30px,3.4vw,44px);letter-spacing:-.02em}.dc-stats span{color:var(--muted);font-size:14px}.dc-grid{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--line);border-left:1px solid var(--line)}.dc-grid article{border-right:1px solid var(--line);border-bottom:1px solid var(--line);padding:26px 24px}.dc-grid h3{margin:0 0 10px;font-family:var(--display);font-weight:500;font-size:22px}.dc-grid p,.dc-p{margin:0;color:var(--ink2);line-height:1.6;max-width:860px}.dc-certs{display:flex;flex-wrap:wrap;gap:12px}.dc-certs span{border:1px solid var(--line);padding:12px 16px;display:flex;flex-direction:column;gap:2px;font-weight:600}.dc-certs small{font-weight:400;color:var(--muted);font-size:13px}@media (max-width:900px){.dc-stats{grid-template-columns:repeat(2,1fr)}.dc-grid{grid-template-columns:1fr}}
 .legaltxt>*{max-width:860px}.legaltxt .pg-h2{margin-top:44px;font-size:clamp(22px,2.4vw,30px)}.legaltxt p{color:var(--ink2);line-height:1.6}.realnote{margin-top:48px;font-size:14px;border-top:1px solid var(--line);padding-top:16px}.tgl-list{display:grid;border-top:1px solid var(--line)}.tgl{display:flex;gap:12px;align-items:center;padding:14px 0;border-bottom:1px solid var(--line)}.tgl span{flex:1}.tgl em{font-style:normal;color:var(--muted);font-size:14px}
 .pg-body>.pg-h2:first-child{margin-top:8px}
 .muted{color:var(--muted)}
@@ -500,7 +501,7 @@ body{transition:background .3s,color .3s}
   <div class="mi hide-m"><a href="#ia-souveraine">IA souveraine</a>
     <div class="dd"><a href="#ia-souveraine"><b>Pourquoi l'IA souveraine</b><small>Un enjeu administratif</small></a><a href="#conformite"><b>Conformité et biodiversité</b><small>Notre charte en 9 articles</small></a></div></div>
   <div class="mi hide-m"><a href="#cloud">Cloud</a>
-    <div class="dd"><a href="#cloud"><b>Inférence</b><small>Ouverte aux horaires de bureau</small></a><a href="#cloud"><b>Compute</b><small>Mise à disposition sous 6 à 8 semaines</small></a></div></div>
+    <div class="dd"><a href="#cloud"><b>Inférence</b><small>Ouverte aux horaires de bureau</small></a><a href="#cloud"><b>Compute</b><small>Mise à disposition sous 6 à 8 semaines</small></a><a href="#data-center"><b>Data center</b><small>Visites le premier jeudi du mois</small></a></div></div>
   <div class="mi hide-m"><a href="#clients">Clients</a>
     <div class="dd"><a href="#clients" data-f="Énergie et services publics"><b>Énergie et services publics</b></a><a href="#clients" data-f="Industrie"><b>Industrie</b></a><a href="#clients" data-f="Services financiers"><b>Services financiers</b></a><a href="#clients" data-f="Secteur public"><b>Secteur public</b></a><a href="#clients" data-f="Cybersécurité"><b>Cybersécurité</b></a><a href="#clients" data-f="Tous"><b>Tous nos clients</b></a></div></div>
   <div class="mi hide-m"><a href="#a-propos">Entreprise</a>
@@ -513,7 +514,7 @@ body{transition:background .3s,color .3s}
 <div class="mmenu" id="mmenu" hidden>
   <div class="mg"><b>Recherche</b><a href="#recherche">Publications</a><a href="#modeles">Modèles</a></div>
   <div class="mg"><b>IA souveraine</b><a href="#ia-souveraine">Pourquoi l'IA souveraine</a><a href="#conformite">Conformité et biodiversité</a></div>
-  <div class="mg"><b>Cloud</b><a href="#cloud">Inférence et Compute</a></div>
+  <div class="mg"><b>Cloud</b><a href="#cloud">Inférence et Compute</a><a href="#data-center">Data center</a></div>
   <div class="mg"><b>Clients</b><a href="#clients">Tous nos clients</a></div>
   <div class="mg"><b>Entreprise</b><a href="#blog">Blog</a><a href="#a-propos">À propos</a><a href="#carrieres">Carrières</a><a href="#tarifs">Tarifs</a></div>
   <a class="mcta" href="../le-chien/">Utiliser Le Chien</a>
@@ -773,6 +774,7 @@ body{transition:background .3s,color .3s}
     <span class="eyebrow">Cloud</span>
     <h1 class="pg-h1">Zephir Cloud. Souverain, de 8 h à 18 h.</h1>
     <p class="lead">Une infrastructure européenne pour l'inférence et le calcul, hébergée à Strasbourg, Luxembourg et Bruxelles, et ouverte aux horaires de bureau.</p>
+    <p style="margin:22px 0 0"><a class="btn" href="#data-center">Visiter notre data center</a></p>
   </header>
   <div class="pg-body">
     <div class="guichet" id="guichet"><span class="dot" id="gdot"></span><div><b id="gtitle">Guichet</b><span id="gtext"></span></div></div>
@@ -790,6 +792,39 @@ body{transition:background .3s,color .3s}
       <tr><td>Jours fériés des 27 États membres</td><td>Fermé</td></tr>
       <tr><td>Du 1er au 31 août</td><td>Fermeture annuelle</td></tr>
     </tbody></table>
+  </div>
+</section>
+
+<!-- ===== Data center ===== -->
+<section class="view pg" data-route="data-center" hidden>
+  <header class="pg-hero">
+    <span class="eyebrow">Infrastructure</span>
+    <h1 class="pg-h1">Notre data center. Souverain, sécurisé, à taille humaine.</h1>
+    <p class="lead">Situé au deuxième étage de notre site de Luxembourg, entre la salle de réunion B et le local d'entretien, notre centre de données héberge l'intégralité des modèles Le Chien, de leurs refus et de nos archives depuis 2003.</p>
+  </header>
+  <div class="pg-body">
+    <figure class="dc-photo"><img src="img/datacenter.webp" alt="L'armoire du data center Zephir : deux serveurs, des câbles, des classeurs et trois boîtes d'archives" loading="lazy"><figcaption>Salle serveur n° 1, et unique. Photographie réalisée avec l'accord du comité de sécurité physique, porte ouverte pour les besoins de la prise de vue.</figcaption></figure>
+    <div class="dc-stats">
+      <div><b>2</b><span>serveurs, en redondance verticale</span></div>
+      <div><b>214</b><span>câbles réseau, dont 31 identifiés</span></div>
+      <div><b>1</b><span>armoire, en bois massif</span></div>
+      <div><b>Tier 0,5</b><span>certification en cours</span></div>
+    </div>
+    <h2 class="pg-h2">Les équipements</h2>
+    <div class="dc-grid">
+      <article><h3>Calcul</h3><p>Deux serveurs de génération 2003, montés en cluster vertical. Redondance garantie : si le premier tombe, il tombe sur le second.</p></article>
+      <article><h3>Réseau</h3><p>Un câblage structuré selon une topologie dite organique, qui a fait l'objet d'une étude d'impact. Chaque câble débranché est conservé, au cas où.</p></article>
+      <article><h3>Stockage</h3><p>Cinq classeurs et trois boîtes d'archives, étiquetés conformément au registre des traitements (RGPD, article 30). Les données critiques sont rangées sous les données secrètes, par ordre de sensibilité.</p></article>
+      <article><h3>Refroidissement</h3><p>Free cooling naturel par le couloir, porte entrouverte. Un refroidissement liquide est assuré en cas de besoin par les canalisations qui passent au-dessus des serveurs.</p></article>
+      <article><h3>Énergie</h3><p>Une multiprise européenne, alimentée à 100 % par le réseau de l'immeuble. Un onduleur thermique (cylindre inox, en haut à droite) garantit la continuité du café de l'équipe d'astreinte.</p></article>
+      <article><h3>Sécurité physique</h3><p>Armoire fermée par loquet. La clé est conservée par le gardien, aux horaires du gardien. Aucune intrusion n'est possible en dehors de ces horaires, y compris pour nous.</p></article>
+    </div>
+    <h2 class="pg-h2">Plan de continuité d'activité</h2>
+    <p class="dc-p">En cas de panne, Le Chien continue de refuser vos demandes à l'identique. Aucun utilisateur n'a jamais perçu la différence. Une sauvegarde complète est imprimée chaque vendredi et versée dans la boîte d'archives de gauche.</p>
+    <h2 class="pg-h2">Certifications</h2>
+    <div class="dc-certs"><span>ISO/IEC 27001 <small>en cours de lecture</small></span><span>HDS <small>Hébergeur de données de secours</small></span><span>SecNumCloud <small>dossier déposé en 2019</small></span><span>Label bas carbone <small>2 serveurs, 0 GPU</small></span></div>
+    <h2 class="pg-h2">Visites</h2>
+    <p class="dc-p">Le data center se visite le premier jeudi du mois, de 10 h à 10 h 15, par groupes de deux personnes (l'armoire ne permet pas davantage). Inscription par courrier recommandé, port de surchaussures obligatoire.</p>
   </div>
 </section>
 
@@ -1032,7 +1067,6 @@ body{transition:background .3s,color .3s}
   <div class="eu"><svg id="euf" width="42" height="28" viewBox="0 0 36 24" role="img" aria-label="Drapeau européen"></svg><div><b>Conforme au règlement (UE) 2024/1689</b>Entraîné, hébergé et contrôlé dans l'Union européenne.</div></div>
   <span class="sp"></span>
   <div class="links"><a href="#conformite">Conformité et biodiversité</a><a href="#mentions-legales">Mentions légales</a><a href="#confidentialite">Confidentialité</a><a href="#traceurs">Gestion des traceurs</a><a href="#accessibilite">Accessibilité</a></div>
-  <div style="width:100%;font-size:13px">Zephir et Le Chien sont une parodie réalisée pour Apphéro. Sans lien avec Mistral AI, ses clients ni l'Union européenne. Les entreprises citées sont fictives.</div>
 </div>
 <footer class="bigfoot">
   <div class="bf-top">
@@ -1043,8 +1077,8 @@ body{transition:background .3s,color .3s}
     <div class="get">
       <span>Obtenir Le Chien</span>
       <div class="badges">
-        <a href="#bas" class="badge"><svg viewBox="0 0 36 24"><rect width="36" height="24" rx="3" fill="var(--eu)"/><g id="eub"></g></svg><span><small>Bientôt disponible sur</small>Euro Store</span></a>
-        <a href="#bas" class="badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6Z"/><path d="m8.5 12 2.5 2.5 4.5-5"/></svg><span><small>Sous réserve de conformité</small>Magasin souverain</span></a>
+        <a href="#bas" class="badge"><svg viewBox="0 0 36 24"><rect width="36" height="24" rx="3" fill="var(--eu)"/><g id="eub"></g></svg><span><small>Version papier (A4, recto verso) sur</small>Euro Store</span></a>
+        <a href="#bas" class="badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6Z"/><path d="m8.5 12 2.5 2.5 4.5-5"/></svg><span><small>Sur rendez-vous, en préfecture</small>Magasin souverain</span></a>
       </div>
     </div>
   </div>
