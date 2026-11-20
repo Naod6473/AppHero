@@ -68,10 +68,53 @@ function render(d) {
       ${box("Systèmes", "", bars(d.os, { color: "var(--mint)" }))}
       ${box("Pays", "", bars(d.countries, { color: "var(--yellow)" }))}
       ${box("Langues", "", bars(d.langs, { color: "var(--yellow)" }))}
+      ${sukkelBox(d)}
       ${box("Erreurs JavaScript", "À corriger en priorité.", d.errors.length
         ? `<table><tr><th>Erreur</th><th>Page</th><th class="n">Fois</th></tr>${d.errors.map((r) => `<tr><td>${esc(r.k)}</td><td>${esc(r.path)}</td><td class="n">${r.n}</td></tr>`).join("")}</table>`
         : `<p class="empty">Aucune erreur. 🎉</p>`)}
+      ${journalBox(d.journal)}
     </div>`;
+}
+
+const fmtMs = (ms) => (ms == null ? "–" : fmtSec(ms / 1000).replace(/^(\d+) min (\d+) s$/, (m, a, b) => (a >= 60 ? `${Math.floor(a / 60)} h ${String(a % 60).padStart(2, "0")}` : m)));
+const fmtTs = (ts) => new Date(ts).toLocaleString("fr-FR", { timeZone: "Europe/Paris", day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit", second: "2-digit" });
+const PROVIDERS = { claude: "Claude Code", chatgpt: "ChatGPT", mistral: "Mistral AI", gemini: "Gemini", grok: "Grok", deepseek: "DeepSeek", hermes: "Hermes", openrouter: "OpenRouter", perplexity: "Perplexity" };
+
+function sukkelBox(d) {
+  const s = d.sukkel || {};
+  if (!s.starts) return box("Sukkel (app 03)", "Les appuis sur la touche Espace.", `<p class="empty">Aucun essai sur la période.</p>`);
+  return `<section class="box wide"><h2>Sukkel (app 03)</h2><p>Chaque appui sur la touche Espace (chrono mesuré par le serveur).</p>
+    <div class="kpis mini">
+      <div class="kpi"><small>Appuis</small><strong>${s.starts}</strong></div>
+      <div class="kpi"><small>Lâchés avant 5 s</small><strong>${s.early || 0}</strong></div>
+      <div class="kpi"><small>Parties (5 s et plus)</small><strong>${s.runs || 0}</strong></div>
+      <div class="kpi"><small>Temps moyen</small><strong>${fmtMs(s.avg)}</strong></div>
+      <div class="kpi"><small>Record</small><strong>${fmtMs(s.best)}</strong></div>
+      <div class="kpi"><small>Inscrits au mur</small><strong>${s.named || 0}</strong></div>
+      <div class="kpi"><small>Temps perdu au total</small><strong>${fmtMs(s.wasted)}</strong></div>
+      <div class="kpi"><small>En cours</small><strong>${s.open || 0}</strong></div>
+    </div>
+    <div class="grid">
+      ${box("Fournisseur choisi", "", bars(d.sukkelProviders, { label: (r) => PROVIDERS[r.k] || r.k, color: "var(--pink)" }))}
+      ${box("Durée tenue", "", bars(d.sukkelBuckets, { label: (r) => r.k.slice(4), color: "var(--lilac)" }))}
+    </div>
+    <div class="scroll"><table><tr><th>Quand</th><th class="n">Tenu</th><th>Fournisseur</th><th>Pseudo</th></tr>${d.sukkelRecent
+      .map((r) => `<tr><td>${fmtTs(r.ts)}</td><td class="n">${r.ms == null ? "en cours" : fmtMs(r.ms)}</td><td>${esc(PROVIDERS[r.provider] || r.provider || "–")}</td><td>${esc(r.name || "")}</td></tr>`)
+      .join("")}</table></div></section>`;
+}
+
+// Le journal : connexions (pages vues) et actions, du plus récent au plus ancien.
+function journalBox(rows) {
+  const what = (r) => {
+    let p = {};
+    try { p = JSON.parse(r.props || "{}"); } catch {}
+    const extra = Object.entries(p).filter(([k]) => !["load", "w", "h"].includes(k)).map(([k, v]) => `${k}=${v}`).join(" ");
+    return extra;
+  };
+  return `<section class="box wide"><h2>Journal</h2><p>Les 200 derniers événements de la période : visites (page), sorties de page (fin), clics et actions dans les apps. « Qui » = empreinte du jour, anonyme.</p>
+    <div class="scroll"><table><tr><th>Quand</th><th>Qui</th><th>Événement</th><th>Page</th><th>Détails</th><th>Appareil</th><th>Pays</th></tr>${(rows || [])
+      .map((r) => `<tr><td>${fmtTs(r.ts)}</td><td><code>${esc(r.v)}</code></td><td><b>${esc(r.name)}</b></td><td>${esc(r.path)}</td><td>${esc(what(r))}</td><td>${esc([r.device, r.browser, r.os].filter(Boolean).join(" · "))}</td><td>${esc(r.country || "")}</td></tr>`)
+      .join("")}</table></div></section>`;
 }
 
 async function load() {

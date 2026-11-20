@@ -1,0 +1,734 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>100 $ de crédit API offerts · Programme Développeurs</title>
+<meta name="description" content="100 $ de crédit API offerts chez le fournisseur IA de votre choix. Maintenez la touche Espace pendant la vérification.">
+<meta name="theme-color" content="#f7f7f5">
+<meta property="og:title" content="100 $ de crédit API offerts">
+<meta property="og:description" content="Chez le fournisseur IA de votre choix. Il suffit de maintenir la touche Espace pendant la vérification.">
+<meta property="og:url" content="https://apphero.cloud/apps/03-sukkel/jouer/">
+<meta property="og:image" content="https://apphero.cloud/apps/03-sukkel/media/poster.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="../media/favicon.png">
+<link rel="preload" href="fonts/inter-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<style>@font-face{font-family:"Inter";font-weight:400;font-display:swap;src:url(fonts/inter-latin-400-normal.woff2) format("woff2")}</style>
+<style>@font-face{font-family:"Inter";font-weight:500;font-display:swap;src:url(fonts/inter-latin-500-normal.woff2) format("woff2")}</style>
+<style>@font-face{font-family:"Inter";font-weight:600;font-display:swap;src:url(fonts/inter-latin-600-normal.woff2) format("woff2")}</style>
+<style>@font-face{font-family:"Inter";font-weight:700;font-display:swap;src:url(fonts/inter-latin-700-normal.woff2) format("woff2")}</style>
+
+<style>
+@property --a { syntax: "<angle>"; inherits: true; initial-value: 0deg; }
+/* Une page d'offre « corporate » : blanc cassé, encre presque noire, un seul bleu, typo Inter. Le néon n'apparaît que sur la touche tenue. */
+:root {
+  color-scheme: light;
+  --bg: #f7f7f5;
+  --card: #ffffff;
+  --ink: #111214;
+  --muted: #6b6e76;
+  --soft: #9a9ca3;
+  --line: #e4e4e0;
+  --blue: #2450e6;
+  --ok: #138a52;
+  --n1: #ff3dc8; --n2: #7b61ff; --n3: #19c8ff; --n4: #36e39a; --n5: #ffd23f;
+  --font: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  font-family: var(--font); color: var(--ink); background: var(--bg); min-height: 100dvh;
+  -webkit-font-smoothing: antialiased; font-feature-settings: "cv11", "ss01";
+  -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; -webkit-tap-highlight-color: transparent;
+}
+.wrap { max-width: 1040px; margin: 0 auto; padding-left: max(20px, env(safe-area-inset-left, 0px)); padding-right: max(20px, env(safe-area-inset-right, 0px)); }
+
+header.top { border-bottom: 1px solid var(--line); background: #ffffffcc; -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); }
+header.top .wrap { display: flex; align-items: center; justify-content: space-between; height: 60px; padding-top: env(safe-area-inset-top, 0px); }
+.brand { display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: 15px; letter-spacing: -.01em; }
+.brand svg { display: block; }
+.brand small { color: var(--soft); font-weight: 500; font-size: 13px; padding-left: 10px; border-left: 1px solid var(--line); }
+.nav { display: flex; gap: 22px; font-size: 14px; color: var(--muted); }
+.nav span { cursor: default; }
+
+main .wrap { padding-block: 56px 120px; display: grid; grid-template-columns: 1.05fr 1fr; gap: 56px; align-items: start; }
+.eyebrow { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; color: var(--blue); background: #2450e60f; border: 1px solid #2450e622; padding: 6px 10px; border-radius: 999px; }
+.eyebrow i { width: 6px; height: 6px; border-radius: 50%; background: var(--blue); }
+h1 { font-size: clamp(38px, 5.4vw, 56px); line-height: 1.04; letter-spacing: -.035em; font-weight: 700; margin: 18px 0 16px; text-wrap: balance; }
+.lead { font-size: 18px; line-height: 1.55; color: var(--muted); margin: 0 0 28px; max-width: 30em; }
+.lead b { color: var(--ink); font-weight: 600; }
+.facts { display: grid; grid-template-columns: repeat(3, auto); justify-content: start; gap: 28px; margin: 0 0 32px; padding: 0; list-style: none; }
+.facts b { display: block; font-size: 22px; font-weight: 700; letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
+.facts span { font-size: 13px; color: var(--muted); }
+.trust { display: flex; flex-wrap: wrap; gap: 8px 18px; font-size: 13px; color: var(--muted); }
+.trust span { display: inline-flex; align-items: center; gap: 6px; }
+.trust svg { color: var(--ok); }
+
+/* La carte de demande */
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 18px; box-shadow: 0 1px 2px #0000000a, 0 12px 40px #0000000d; padding: 26px; }
+.card h2 { font-size: 17px; font-weight: 600; margin: 0 0 4px; letter-spacing: -.01em; }
+.card .hint { font-size: 14px; color: var(--muted); margin: 0 0 18px; }
+.prov { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 0 0 24px; border: 0; padding: 0; }
+.prov legend { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+.prov label { position: relative; cursor: pointer; }
+.prov input { position: absolute; opacity: 0; pointer-events: none; }
+.prov span { display: flex; flex-direction: column; gap: 2px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 12px; font-size: 14px; font-weight: 600; transition: border-color .15s, box-shadow .15s; }
+.prov span small { font-weight: 500; font-size: 12px; color: var(--soft); }
+.prov input:checked + span { border-color: var(--ink); box-shadow: 0 0 0 1px var(--ink); }
+.prov input:focus-visible + span { outline: 2px solid var(--blue); outline-offset: 2px; }
+body.holding .prov { opacity: .45; pointer-events: none; }
+
+/* Le captcha */
+.captcha { border: 1px solid var(--line); border-radius: 14px; background: #fafaf8; padding: 14px 14px 10px; transition: border-color .2s, background .2s; }
+.cap-head { display: flex; gap: 10px; align-items: flex-start; margin-bottom: 14px; color: var(--ink); }
+.cap-head svg { flex: none; margin-top: 1px; color: var(--muted); }
+.cap-head b { display: block; font-size: 14px; font-weight: 600; }
+.cap-head span { display: block; font-size: 13px; color: var(--muted); line-height: 1.4; }
+.captcha.info { border-color: #b9c8f7; background: #f3f6ff; }
+.captcha.info .cap-head svg, .captcha.info .cap-head b { color: var(--blue); }
+.captcha.info .cap-head span { color: #2a3a78; }
+.cap-foot { display: flex; justify-content: space-between; gap: 8px; margin-top: 16px; font-size: 11px; color: var(--soft); }
+
+/* La touche Espace */
+.keywrap { --a: 0deg; position: relative; isolation: isolate; perspective: 700px; }
+.keywrap::before { content: ""; position: absolute; inset: -6px; border-radius: 22px; z-index: -1; pointer-events: none;
+  background: conic-gradient(from var(--a), var(--n1), var(--n2), var(--n3), var(--n4), var(--n5), var(--n1));
+  filter: blur(18px); opacity: 0; transition: opacity .5s; }
+body.holding .keywrap { animation: spin 3s linear infinite; }
+body.holding .keywrap::before { opacity: .45; }
+@keyframes spin { to { --a: 360deg; } }
+.key { position: relative; display: grid; place-items: center; width: 100%; height: 92px; border: 0; padding: 0; cursor: pointer; touch-action: none;
+  border-radius: 16px; color: #3a3c42; font: 500 15px/1 var(--font); letter-spacing: .02em;
+  background: linear-gradient(#ffffff, #f1f1ee); box-shadow: 0 0 0 1px #d9d9d4, 0 6px 0 #d4d4ce, 0 8px 18px #00000014;
+  transition: transform .08s ease, box-shadow .08s ease; }
+.key::before { content: ""; position: absolute; inset: -2px; border-radius: 18px; padding: 2px;
+  background: conic-gradient(from var(--a), var(--n1), var(--n2), var(--n3), var(--n4), var(--n5), var(--n1));
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude;
+  opacity: 0; transition: opacity .3s; }
+.key .lbl { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.key .lbl small { font-size: 12px; color: var(--soft); letter-spacing: 0; }
+.key:focus-visible { outline: 2px solid var(--blue); outline-offset: 6px; }
+.key.on { transform: translateY(5px); box-shadow: 0 0 0 1px #d9d9d4, 0 1px 0 #d4d4ce, 0 2px 6px #00000014; }
+.key.on::before { opacity: 1; }
+.key.on .lbl small { visibility: hidden; }
+
+/* Le traitement */
+.proc { margin-top: 26px; }
+.proc .row { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin-bottom: 10px; }
+.status { font-size: 14px; color: var(--muted); }
+.pct { white-space: nowrap; font-size: 15px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.bar { height: 6px; border-radius: 999px; background: #ececea; overflow: hidden; }
+.bar i { display: block; height: 100%; width: 0; border-radius: inherit; background: var(--ink); transition: width 1.2s cubic-bezier(.2,.7,.2,1); }
+body.stalled .bar i { opacity: .55; }
+.meta { display: flex; justify-content: space-between; gap: 10px; color: var(--soft); font-size: 12px; margin-top: 8px; font-variant-numeric: tabular-nums; }
+ol.steps { list-style: none; margin: 20px 0 0; padding: 18px 0 0; border-top: 1px solid var(--line); display: grid; gap: 10px; font-size: 14px; }
+ol.steps li { display: flex; align-items: center; gap: 10px; color: var(--soft); }
+ol.steps li::before { content: ""; width: 16px; height: 16px; border-radius: 50%; border: 1.5px solid #cfcfca; flex: none; box-sizing: border-box; }
+ol.steps li.now { color: var(--ink); }
+ol.steps li.now::before { border-color: var(--ink); border-top-color: transparent; animation: turn .9s linear infinite; }
+body:not(.holding) ol.steps li.now::before { animation: none; border-color: #cfcfca; }
+ol.steps li.done { color: var(--muted); }
+ol.steps li.done::before { border: 0; background: var(--ok) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M4.5 8.2l2.2 2.2 4.8-4.8' fill='none' stroke='white' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/16px no-repeat; }
+@keyframes turn { to { transform: rotate(360deg); } }
+.legal { font-size: 12px; line-height: 1.55; color: var(--soft); margin: 18px 0 0; }
+
+footer.bot { border-top: 1px solid var(--line); }
+footer.bot .wrap { padding-block: 22px 90px; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 10px; font-size: 12px; color: var(--soft); }
+
+/* Notifications : discrètes, comme celles du système */
+.toasts { position: fixed; top: calc(72px + env(safe-area-inset-top, 0px)); right: max(16px, env(safe-area-inset-right, 0px)); left: max(16px, env(safe-area-inset-left, 0px)); z-index: 20; display: flex; flex-direction: column; align-items: flex-end; gap: 8px; pointer-events: none; }
+.toast { width: min(360px, 100%); display: grid; grid-template-columns: 28px 1fr; gap: 10px; text-align: left; background: #ffffffee; -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px);
+  border: 1px solid var(--line); border-radius: 14px; padding: 11px 13px; box-shadow: 0 8px 28px #00000017; animation: tin .35s ease-out both; }
+.toast.out { animation: tout .35s ease-in forwards; }
+@keyframes tin { from { transform: translateY(-8px); opacity: 0; } }
+@keyframes tout { to { transform: translateY(-6px); opacity: 0; } }
+.toast .ic { width: 28px; height: 28px; border-radius: 8px; display: grid; place-items: center; background: var(--ink); color: #fff; }
+.toast b { display: flex; justify-content: space-between; gap: 8px; font-size: 13px; font-weight: 600; margin-bottom: 2px; }
+.toast b small { color: var(--soft); font-weight: 500; }
+.toast p { margin: 0; font-size: 13px; line-height: 1.42; color: #3a3c42; }
+
+/* La révélation */
+.reveal { position: fixed; inset: 0; z-index: 30; overflow-y: auto; background: var(--bg); -webkit-user-select: text; user-select: text; }
+.reveal[hidden] { display: none; }
+.reveal .in { max-width: 620px; margin: 0 auto; padding-block: max(56px, env(safe-area-inset-top)) 110px; padding-left: max(20px, env(safe-area-inset-left, 0px)); padding-right: max(20px, env(safe-area-inset-right, 0px)); }
+.reveal .tag { font-size: 13px; font-weight: 600; color: var(--muted); }
+.zero { font-size: clamp(76px, 18vw, 132px); line-height: .95; font-weight: 700; letter-spacing: -.05em; margin: 10px 0 18px; font-variant-numeric: tabular-nums; animation: drop .5s cubic-bezier(.2,1.2,.3,1) both .05s; }
+@keyframes drop { from { transform: translateY(-14px); opacity: 0; } }
+.reveal h2 { font-size: clamp(24px, 4vw, 30px); letter-spacing: -.02em; margin: 0 0 10px; }
+.held { font-size: 16px; color: var(--muted); margin: 0; }
+.held b { color: var(--ink); font-variant-numeric: tabular-nums; }
+.mock { font-size: 19px; line-height: 1.5; margin: 22px 0 28px; }
+.panel { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 20px; margin: 0 0 14px; }
+.panel h3 { margin: 0 0 4px; font-size: 16px; }
+.panel .sub { color: var(--muted); font-size: 14px; margin: 0 0 14px; }
+form.name { display: flex; gap: 8px; }
+form.name input { flex: 1; min-width: 0; font: 500 16px var(--font); color: var(--ink); background: var(--bg); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; }
+form.name input:focus { outline: 2px solid var(--blue); outline-offset: 1px; }
+.btn { font: 600 15px/1 var(--font); border: 0; border-radius: 10px; padding: 13px 18px; cursor: pointer; color: #fff; background: var(--ink); }
+.btn.alt { background: transparent; color: var(--ink); box-shadow: inset 0 0 0 1px var(--line); }
+.btn:disabled { opacity: .5; cursor: default; }
+.btn:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+.err { color: #c42b4a; font-size: 13px; margin: 8px 0 0; min-height: 1em; }
+ol.top { list-style: none; margin: 0; padding: 0; counter-reset: r; }
+ol.top li { counter-increment: r; display: grid; grid-template-columns: 28px 1fr auto; gap: 10px; align-items: center; padding: 10px 6px; border-top: 1px solid var(--line); font-size: 15px; }
+ol.top li:first-child { border-top: 0; }
+ol.top li::before { content: counter(r); font-weight: 600; color: var(--soft); font-variant-numeric: tabular-nums; }
+ol.top li.me { background: #2450e60d; border-radius: 8px; }
+ol.top li span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 600; }
+ol.top li time { font-variant-numeric: tabular-nums; color: var(--muted); }
+ol.top li.empty { display: block; color: var(--muted); }
+ol.top li.empty::before { content: none; }
+.acts { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px; }
+.tot { color: var(--soft); font-size: 12px; margin: 12px 0 0; }
+
+@media (max-width: 860px) {
+  main .wrap { grid-template-columns: 1fr; gap: 32px; padding-block: 32px 110px; }
+  .nav span:not(:last-child) { display: none; }
+}
+@media (max-width: 480px) {
+  .brand small { display: none; }
+  .facts { gap: 18px; }
+  .facts b { font-size: 19px; }
+  .card { padding: 20px; }
+  .prov span { padding: 9px 8px; font-size: 13px; }
+  .prov span small { font-size: 11px; }
+  .lead { font-size: 16px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  body.holding .keywrap { animation-duration: 10s; }
+  .toast, .zero { animation: none; }
+}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <div class="brand">
+      <svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><rect x="1" y="1" width="20" height="20" rx="6" fill="#111214"/><path d="M6 14.5h10M8 10.5h6M10 6.5h2" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/></svg>
+      Crédits API
+      <small>Programme Développeurs 2026</small>
+    </div>
+    <nav class="nav" aria-label="Liens"><span>Conditions</span><span>FAQ</span><span>Aide</span></nav>
+  </div>
+</header>
+
+<main>
+  <div class="wrap">
+    <section>
+      <span class="eyebrow"><i></i>Offre de lancement · places limitées</span>
+      <h1>100 $ de crédit API offerts.</h1>
+      <p class="lead">Pour accompagner l'arrivée des agents de code, nous offrons <b>100 $ de crédit</b> chez le fournisseur IA de votre choix. Aucune carte bancaire, aucun compte à créer : il suffit de <b>maintenir la touche Espace</b> pendant la vérification.</p>
+      <ul class="facts">
+        <li><b id="given">12 482</b><span>crédits attribués</span></li>
+        <li><b>100 $</b><span>par personne</span></li>
+        <li><b>0 €</b><span>à payer</span></li>
+      </ul>
+      <div class="trust">
+        <span><svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 8.5l3 3 6-6.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Sans carte bancaire</span>
+        <span><svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 8.5l3 3 6-6.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Crédit valable 12 mois</span>
+        <span><svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 8.5l3 3 6-6.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Connexion sécurisée</span>
+      </div>
+    </section>
+
+    <section class="card" aria-labelledby="req-title">
+      <h2 id="req-title">Demander mon crédit</h2>
+      <p class="hint">Choisissez votre fournisseur, puis maintenez la touche jusqu'à la fin de la vérification.</p>
+      <fieldset class="prov">
+        <legend>Fournisseur</legend>
+        <label><input type="radio" name="prov" value="claude" checked><span>Claude Code<small>Anthropic</small></span></label>
+        <label><input type="radio" name="prov" value="chatgpt"><span>ChatGPT<small>OpenAI</small></span></label>
+        <label><input type="radio" name="prov" value="mistral"><span>Mistral AI<small>Le Chat</small></span></label>
+        <label><input type="radio" name="prov" value="gemini"><span>Gemini<small>Google</small></span></label>
+        <label><input type="radio" name="prov" value="grok"><span>Grok<small>xAI</small></span></label>
+        <label><input type="radio" name="prov" value="deepseek"><span>DeepSeek<small>DeepSeek</small></span></label>
+        <label><input type="radio" name="prov" value="hermes"><span>Hermes<small>Nous Research</small></span></label>
+        <label><input type="radio" name="prov" value="openrouter"><span>OpenRouter<small>300+ modèles</small></span></label>
+        <label><input type="radio" name="prov" value="perplexity"><span>Perplexity<small>Sonar</small></span></label>
+      </fieldset>
+
+      <div class="captcha" id="captcha">
+        <div class="cap-head">
+          <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l8 3v6c0 5-3.4 8.6-8 10-4.6-1.4-8-5-8-10v-6z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M8.5 12l2.4 2.4 4.6-4.8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <div><b>Vérification anti-robot</b><span id="cap-text">Maintenez la touche Espace enfoncée pendant toute la vérification.</span></div>
+        </div>
+        <div class="keywrap">
+          <button class="key" id="key" type="button" aria-describedby="how">
+            <span class="lbl">espace<small id="how">Maintenez la touche Espace de votre clavier</small></span>
+          </button>
+        </div>
+        <div class="cap-foot"><span>HoldCheck™ · protection anti-robot</span><span>Confidentialité · Conditions</span></div>
+      </div>
+
+      <div class="proc" aria-live="polite">
+        <div class="row"><span class="status" id="status">En attente</span><span class="pct" id="pct">0,0 %</span></div>
+        <div class="bar"><i id="bar"></i></div>
+        <div class="meta"><span id="clock">00:00</span><span id="eta">Temps restant estimé : quelques instants</span></div>
+        <ol class="steps" id="steps">
+          <li>Vérification de l'appareil</li>
+          <li>Contrôle d'éligibilité</li>
+          <li>Attribution du crédit</li>
+        </ol>
+      </div>
+      <p class="legal">Relâcher la touche annule la demande. Une demande par personne. Offre soumise aux conditions générales du programme.</p>
+    </section>
+  </div>
+</main>
+
+<footer class="bot">
+  <div class="wrap"><span>© 2026 Programme Développeurs. Tous droits réservés.</span><span>Conditions · Confidentialité · Cookies</span></div>
+</footer>
+
+<div class="toasts" id="toasts" aria-live="polite"></div>
+
+<section class="reveal" id="reveal" aria-labelledby="rv-title" hidden>
+  <div class="in">
+    <span class="tag">Votre demande</span>
+    <div class="zero">0,00 $</div>
+    <h2 id="rv-title">Il n'y avait rien à gagner.</h2>
+    <p class="held">Vous avez tenu <b id="rv-time">0 s</b>, vérification à <b id="rv-pct">0 %</b>.</p>
+    <p class="mock" id="rv-mock"></p>
+
+    <div class="panel" id="sign">
+      <h3>Le mur des Sukkel</h3>
+      <p class="sub" id="sign-lead">Inscrivez votre nom parmi ceux qui ont tenu le plus longtemps.</p>
+      <form class="name" id="name-form">
+        <input id="name" name="name" maxlength="16" autocomplete="nickname" placeholder="Votre pseudo" aria-label="Votre pseudo" required>
+        <button class="btn" type="submit">Inscrire</button>
+      </form>
+      <p class="err" id="name-err"></p>
+    </div>
+
+    <div class="panel">
+      <h3>Ceux qui y ont cru le plus longtemps</h3>
+      <ol class="top" id="top"><li class="empty">Chargement du classement…</li></ol>
+      <p class="tot" id="tot"></p>
+    </div>
+
+    <div class="acts">
+      <button class="btn" id="again" type="button">Retenter ma chance</button>
+      <button class="btn alt" id="share" type="button">Piéger un ami</button>
+    </div>
+    <p class="legal">Sukkel (néerlandais) : le pauvre naïf. Aucun crédit n'existe, aucune donnée n'a été vendue. Une app du défi Apphéro.</p>
+  </div>
+</section>
+
+<script>
+(function () {
+  "use strict";
+  var KEY = "app03_";
+  var API = "/api/sukkel/";
+  var $ = function (id) { return document.getElementById(id); };
+  var keyEl = $("key"), pctEl = $("pct"), barEl = $("bar"), statusEl = $("status"), clockEl = $("clock"), etaEl = $("eta");
+  var touch = matchMedia("(hover: none) and (pointer: coarse)").matches;
+  // Sur téléphone, pas de barre d'espace : tous les textes parlent du « bouton ».
+  function M(t) {
+    return t.replace(/la touche Espace de votre clavier/g, "le bouton").replace(/la touche Espace/g, "le bouton")
+      .replace(/\b(la|votre) touche/g, function (_, a) { return (a === "la" ? "le" : "votre") + " bouton"; })
+      .replace(/touche/g, "bouton").replace(/enfoncée/g, "enfoncé");
+  }
+  function mobileTexts(root) {
+    var w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT), n;
+    while ((n = w.nextNode())) {
+      if (n.parentNode && /SCRIPT|STYLE/.test(n.parentNode.nodeName)) continue;
+      var v = M(n.nodeValue);
+      if (v !== n.nodeValue) n.nodeValue = v;
+    }
+  }
+  if (touch) {
+    $("how").textContent = "Gardez le doigt appuyé ici";
+    keyEl.querySelector(".lbl").firstChild.nodeValue = "maintenir";
+    mobileTexts(document.body);
+    new MutationObserver(function (list) {
+      list.forEach(function (m) { mobileTexts(m.target.nodeType === 3 ? m.target.parentNode : m.target); });
+    }).observe(document.body, { childList: true, subtree: true, characterData: true });
+  }
+  // Le compteur de crédits « attribués » grimpe tout seul, comme sur toutes les vraies pages d'offre.
+  (function () {
+    var n = 12482 + Math.floor((Date.now() / 1000 - 1795000000) / 37) % 4000, el = $("given");
+    var show = function () { el.textContent = n.toLocaleString("fr-FR"); };
+    show();
+    (function tick() { setTimeout(function () { n += 1 + Math.floor(Math.random() * 3); show(); tick(); }, rnd(2500, 7000)); })();
+  })();
+
+  function store(k, v) { try { if (v === undefined) return localStorage.getItem(KEY + k); localStorage.setItem(KEY + k, v); } catch (e) { return null; } }
+  function track(n, p) { if (window.ahTrack) window.ahTrack(n, p); }
+  // Hors d'apphero.cloud (maquette, fichier local), le classement vit dans ce navigateur, avec quelques exemples.
+  var LOCAL = !/(^|\.)apphero\.cloud$|^localhost$|^127\.|workers\.dev$/.test(location.hostname);
+  var local = {
+    runs: {},
+    list: function () {
+      var l = null; try { l = JSON.parse(store("demo_scores") || "null"); } catch (e) {}
+      return l || [{ name: "Gérard", ms: 4391000 }, { name: "Nadia", ms: 1312000 }, { name: "Le Borgne", ms: 742000 }, { name: "Kevin", ms: 205000 }, { name: "Mamie Jo", ms: 61000 }];
+    },
+    rank: function (ms) { return local.list().filter(function (s) { return s.ms > ms; }).length + 1; },
+    call: function (path, b) {
+      if (path === "start") { var id = String(Math.random()).slice(2); local.runs[id] = {}; return { id: id }; }
+      if (path === "beat") return { ok: true };
+      if (path === "stop") { local.runs[b.id].ms = b.ms; return { ms: b.ms, rank: local.rank(b.ms) }; }
+      if (path === "name") {
+        var l = local.list(); l.push({ name: b.name, ms: local.runs[b.id].ms });
+        l.sort(function (a, c) { return c.ms - a.ms; }); store("demo_scores", JSON.stringify(l));
+        return { ok: true, rank: local.rank(local.runs[b.id].ms), scores: l.slice(0, 10) };
+      }
+      if (path === "scores") { var all = local.list(); return { scores: all.slice(0, 10), runs: all.length, wasted: all.reduce(function (a, c) { return a + c.ms; }, 0) }; }
+    },
+  };
+  function post(path, body, keep) {
+    if (LOCAL) return new Promise(function (ok) { setTimeout(function () { ok(local.call(path, body)); }, 120); });
+    return fetch(API + path, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body || {}), keepalive: !!keep })
+      .then(function (r) { return r.json().then(function (j) { if (!r.ok) throw j; return j; }); });
+  }
+  function getScores() {
+    if (LOCAL) return Promise.resolve(local.call("scores"));
+    return fetch(API + "scores", { cache: "no-store" }).then(function (r) { return r.json(); });
+  }
+  function fmtDur(ms, long) {
+    var s = Math.floor(ms / 1000), h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), r = s % 60;
+    if (!long) return (h ? h + ":" + String(m).padStart(2, "0") : String(m).padStart(2, "0")) + ":" + String(r).padStart(2, "0");
+    if (h) return h + " h " + String(m).padStart(2, "0") + " min";
+    if (m) return m + " min " + String(r).padStart(2, "0") + " s";
+    if (ms < 10000) return (ms / 1000).toFixed(1).replace(".", ",") + " s";
+    return r + " s";
+  }
+  function fmtPct(p, dec) { return p.toFixed(dec).replace(".", ",") + " %"; }
+  function pick(a) { return a[Math.floor(Math.random() * a.length)]; }
+  function rnd(a, b) { return a + Math.random() * (b - a); }
+
+  // ---------------------------------------------------------------- le chargement
+  // Il avance par petits pas, s'arrête parfois, repart. Il n'arrive jamais à 100 % :
+  // à 99,1 % on passe aux millièmes (99,101 ; 99,102…), puis aux dix-millièmes, et ainsi de suite.
+  var p = 0, dec = 1, unit = 0, tickTimer = 0, stalled = false;
+  var STEPS = [
+    [8, "Vérification de l'appareil"],
+    [22, "Contrôle d'éligibilité"],
+    [40, "Contrôle anti-fraude"],
+    [58, "Génération du code"],
+    [74, "Validation de la demande"],
+    [88, "Attribution du crédit"],
+    [97, "Finalisation"],
+    [99.1, "Presque terminé"],
+    [101, "Finalisation de l'attribution"],
+  ];
+  var STALLS = ["Forte affluence, merci de patienter", "Nouvelle tentative", "Reconnexion au serveur", "En attente de confirmation", "Synchronisation avec le fournisseur"];
+  function stepLabel() { for (var i = 0; i < STEPS.length; i++) if (p < STEPS[i][0]) return STEPS[i][1]; return STEPS[STEPS.length - 1][1]; }
+  function render() {
+    pctEl.textContent = fmtPct(p, dec);
+    barEl.style.width = Math.min(p, 99.6) + "%";
+    keyEl.style.setProperty("--p", Math.min(p, 99.6) + "%");
+    if (!stalled && holding) statusEl.textContent = stepLabel();
+    var k = p < 8 ? 0 : p < 74 ? 1 : 2, lis = document.querySelectorAll("#steps li");
+    for (var i = 0; i < lis.length; i++) lis[i].className = p === 0 && !holding ? "" : i < k ? "done" : i === k ? "now" : "";
+  }
+  function advance() {
+    if (p < 99.1) {
+      var inc = p < 30 ? rnd(.4, 1.4) : p < 60 ? rnd(.2, .9) : p < 85 ? rnd(.1, .5) : p < 97 ? rnd(.05, .2) : rnd(.02, .06);
+      p = Math.min(99.1, Math.round((p + inc) * 10) / 10);
+      if (p >= 99.1) { dec = 3; unit = 0.001; }
+    } else {
+      // On ne touche jamais 100 : quand le prochain chiffre arrondi ferait 100, on ajoute une décimale.
+      var next = Math.round((p + unit) * Math.pow(10, dec)) / Math.pow(10, dec);
+      if (next >= 100 - unit / 2) { dec++; unit /= 10; next = Math.round((p + unit) * Math.pow(10, dec)) / Math.pow(10, dec); }
+      p = next;
+    }
+    render();
+  }
+  function schedule() {
+    clearTimeout(tickTimer);
+    if (!holding) return;
+    if (!stalled && Math.random() < (p > 50 ? .14 : .09) && heldMs() > 8000) {
+      stalled = true; document.body.classList.add("stalled");
+      statusEl.textContent = pick(STALLS);
+      tickTimer = setTimeout(function () { stalled = false; document.body.classList.remove("stalled"); render(); schedule(); }, rnd(6000, 18000));
+      return;
+    }
+    tickTimer = setTimeout(function () { advance(); schedule(); }, rnd(1500, 4800));
+  }
+  var ETAS = ["quelques instants", "moins d'une minute", "2 minutes", "quelques secondes", "calcul en cours", "bientôt", "30 secondes", "presque rien"];
+  function eta() { etaEl.textContent = "Temps restant estimé : " + pick(ETAS); }
+
+  // ---------------------------------------------------------------- les notifications
+  // Des notifications qui ont l'air vraies. Le sérieux d'abord, la chute en fin de phrase.
+  var FIRST = [
+    ["Sécurité", "Ne fermez pas cette page et ne relâchez pas la touche Espace."],
+    ["Demande", "Votre crédit est réservé pendant toute la durée de la session."],
+  ];
+  var NOTES = [
+    ["Trafic", "Forte affluence en ce moment. Le traitement peut prendre un peu plus de temps que prévu."],
+    ["Demande", "Rappel : relâcher la touche annule la demande. Les crédits non réclamés sont reversés à nos actionnaires."],
+    ["File d'attente", "Votre position : 3. Les deux demandes précédentes sont inactives depuis 41 heures, touche toujours enfoncée."],
+    ["Conditions", "Mise à jour de l'article 12.4 : en cas de décès pendant le traitement, le crédit revient aux ayants droit."],
+    ["Confidentialité", "La pression exercée sur votre touche est utilisée pour améliorer nos modèles. Merci de votre contribution."],
+    ["Éligibilité", "Contrôle effectué. Consommation de la vérification : 2,4 litres d'eau douce."],
+    ["Support", "Un conseiller va valider votre demande. Délai moyen de réponse : 3 à 5 ans."],
+    ["Session", "Session active depuis {t}. Vos proches ont été informés que tout va bien."],
+    ["Validation", "Une validation humaine est requise. Le poste est en cours de recrutement."],
+    ["Sécurité", "Maintien par objet lourd détecté sur un autre compte. Le compte a été clôturé, ainsi que son titulaire."],
+    ["Conditions", "Le crédit sera versé en jetons valables à partir du 1er janvier 2031."],
+    ["Entreprise", "Un résumé de votre session des {m} dernières minutes a été transmis à votre responsable."],
+    ["Trafic", "Traitement en cours. Merci de ne pas respirer trop fort près du clavier."],
+    ["Statistiques", "0 demande aboutie à ce jour. La vôtre pourrait être la première."],
+    ["Fournisseur", "Votre assistant IA a analysé votre patience. Il pourra bientôt attendre à votre place."],
+    ["Bien-être", "Au-delà de 45 minutes, pensez à vous hydrater. Le doigt, lui, peut rester."],
+    ["Demande", "Votre dossier est complet. Il manque seulement un dossier."],
+    ["Conditions", "En poursuivant, vous acceptez que votre prochain anniversaire soit fêté sans vous."],
+    ["Emploi", "Votre poste a été confié à un agent IA plus patient. Il maintient la touche depuis 6 heures."],
+    ["Récompense", "Bonne nouvelle : votre crédit a été converti en expérience de vie. Aucune action requise."],
+  ];;
+  var noteTimer = 0, notesLeft = [], noteCount = 0;
+  function minutes() { var m = Math.max(1, Math.round(heldMs() / 60000)); return String(m); }
+  function nextNote() {
+    clearTimeout(noteTimer);
+    if (!holding) return;
+    noteTimer = setTimeout(function () {
+      if (!holding) return;
+      if (!notesLeft.length) notesLeft = NOTES.slice().sort(function () { return Math.random() - .5; });
+      var n = noteCount < FIRST.length ? FIRST[noteCount] : notesLeft.pop();
+      noteCount++;
+      var t = n[1].replace("{m}", minutes()).replace("{t}", fmtDur(heldMs(), true));
+      toast(n[0], t);
+      eta();
+      nextNote();
+    }, noteCount === 0 ? 2000 : noteCount === 1 ? rnd(9000, 12000) : rnd(15000, 26000));
+  }
+  function toast(title, text) {
+    var box = $("toasts");
+    var el = document.createElement("div");
+    el.className = "toast";
+    el.innerHTML = '<div class="ic"><svg width="14" height="14" viewBox="0 0 22 22" aria-hidden="true"><path d="M5 15h12M7.5 10.5h7M10 6h2" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/></svg></div><div><b></b><p></p></div>';
+    el.querySelector("b").innerHTML = "<span></span><small>maintenant</small>";
+    el.querySelector("b span").textContent = "Crédits API · " + title;
+    el.querySelector("p").textContent = text;
+    box.prepend(el);
+    while (box.children.length > 2) box.lastChild.remove();
+    setTimeout(function () { el.classList.add("out"); setTimeout(function () { el.remove(); }, 400); }, 10000);
+  }
+  function clearToasts() { $("toasts").innerHTML = ""; }
+
+  // ---------------------------------------------------------------- l'appui
+  var holding = false, t0 = 0, run = null, runReq = null, beatTimer = 0, clockTimer = 0, endReason = "";
+  function heldMs() { return holding ? performance.now() - t0 : 0; }
+  function provider() { var c = document.querySelector("input[name=prov]:checked"); return c ? c.value : "claude"; }
+
+  function start() {
+    if (holding || document.body.classList.contains("ended")) return;
+    holding = true; endReason = "";
+    $("captcha").classList.remove("info");
+    $("cap-text").textContent = "Merci de conserver la touche enfoncée.";
+    keepI = 0; nextKeep();
+    t0 = performance.now();
+    if (!paused) { p = 0; dec = 1; unit = 0; }
+    paused = false; stalled = false; noteCount = 0;
+    document.body.classList.add("holding");
+    keyEl.classList.add("on");
+    render(); eta();
+    statusEl.textContent = STEPS[0][1];
+    clockTimer = setInterval(function () { clockEl.textContent = fmtDur(heldMs()); }, 250);
+    setTimeout(advance, 600);
+    schedule(); nextNote();
+    run = null;
+    runReq = post("start", { provider: provider() }).then(function (j) { run = j.id; return j.id; }).catch(function () { return null; });
+    beatTimer = setInterval(function () { if (run) post("beat", { id: run }).catch(function () {}); }, 10000);
+    track("sukkel_start", { provider: provider() });
+  }
+
+  function stop(reason) {
+    if (!holding) return;
+    var ms = Math.round(performance.now() - t0);
+    if (ms < GRACE) return softReset(ms);
+    holding = false; endReason = reason || ""; clearTimeout(keepTimer);
+    clearTimeout(tickTimer); clearTimeout(noteTimer); clearInterval(beatTimer); clearInterval(clockTimer);
+    document.body.classList.remove("holding", "stalled");
+    keyEl.classList.remove("on");
+    clockEl.textContent = fmtDur(ms);
+    var reached = p;
+    var result = runReq.then(function (id) {
+      if (!id) return { ms: ms, offline: true };
+      return post("stop", { id: id, ms: ms }, true).catch(function () { return { ms: ms, offline: true }; });
+    });
+    showReveal(ms, reached, result);
+    track("sukkel_stop", { s: Math.round(ms / 1000), reason: endReason || "lache" });
+  }
+
+  // Sous la touche, des messages qui poussent à garder le doigt appuyé, plus insistants à mesure qu'on avance.
+  var KEEP = [
+    "Merci de conserver la touche enfoncée.",
+    "Vérification en cours. Ne relâchez pas la touche.",
+    "Votre demande est en cours de traitement. Merci de maintenir la touche.",
+    "Votre place est réservée tant que la touche reste enfoncée.",
+    "Relâcher maintenant annulerait votre demande de 100 $.",
+    "Ne rechargez pas la page et gardez la touche enfoncée.",
+    "Tout se passe bien. Continuez de maintenir la touche.",
+  ];
+  var KEEP_LATE = [
+    "Vous y êtes presque. Gardez le doigt sur la touche.",
+    "Votre crédit est prêt, il ne reste qu'à le confirmer. Ne lâchez pas.",
+    "Plus que quelques instants. Merci de votre patience.",
+    "8 participants sur 10 abandonnent juste avant la fin. Pas vous.",
+    "L'attribution est imminente. Surtout, ne relâchez pas maintenant.",
+  ];
+  var KEEP_STALL = "Le serveur est un peu lent. Votre demande est conservée tant que la touche reste enfoncée.";
+  var keepTimer = 0, keepI = 0;
+  function nextKeep() {
+    clearTimeout(keepTimer);
+    if (!holding) return;
+    keepTimer = setTimeout(function () {
+      if (!holding) return;
+      var list = p >= 85 ? KEEP_LATE : KEEP;
+      $("cap-text").textContent = stalled ? KEEP_STALL : p >= 99.1 ? "Vous êtes à " + fmtPct(p, dec) + ". Lâcher maintenant serait vraiment dommage." : list[keepI++ % list.length];
+      nextKeep();
+    }, rnd(6000, 9000));
+  }
+
+  // Lâcher pendant les 5 premières secondes ne termine rien : le captcha rappelle la consigne et on recommence.
+  var GRACE = 5000, paused = false;
+  function softReset(ms) {
+    holding = false; clearTimeout(keepTimer);
+    clearTimeout(tickTimer); clearTimeout(noteTimer); clearInterval(beatTimer); clearInterval(clockTimer);
+    document.body.classList.remove("holding", "stalled");
+    keyEl.classList.remove("on");
+    clearToasts();
+    var req = runReq;
+    req.then(function (id) { if (id) post("stop", { id: id, ms: ms, early: 1 }, true).catch(function () {}); });
+    paused = true; render();
+    statusEl.textContent = "En pause";
+    $("captcha").classList.add("info");
+    $("cap-text").textContent = "Information : pour éviter les robots, la touche Espace doit rester enfoncée pendant toute la vérification. Appuyez à nouveau pour reprendre.";
+    track("sukkel_early");
+  }
+
+  // Clavier : seulement la barre d'espace, et pas pendant la saisie du pseudo.
+  addEventListener("keydown", function (e) {
+    if (e.code !== "Space" && e.key !== " ") return;
+    if (e.target && /INPUT|TEXTAREA/.test(e.target.tagName)) return;
+    e.preventDefault();
+    if (!e.repeat) start();
+  });
+  addEventListener("keyup", function (e) {
+    if (e.code !== "Space" && e.key !== " ") return;
+    if (e.target && /INPUT|TEXTAREA/.test(e.target.tagName)) return;
+    e.preventDefault();
+    stop();
+  });
+  // Doigt ou souris sur la touche virtuelle.
+  keyEl.addEventListener("pointerdown", function (e) {
+    if (e.button > 0) return;
+    e.preventDefault();
+    try { keyEl.setPointerCapture(e.pointerId); } catch (_) {}
+    start();
+  });
+  keyEl.addEventListener("pointerup", function () { stop(); });
+  keyEl.addEventListener("pointercancel", function () { stop(); });
+  keyEl.addEventListener("lostpointercapture", function () { if (holding && !spaceDown) stop(); });
+  keyEl.addEventListener("click", function (e) { e.preventDefault(); });
+  keyEl.addEventListener("contextmenu", function (e) { e.preventDefault(); });
+  var spaceDown = false;
+  addEventListener("keydown", function (e) { if (e.code === "Space") spaceDown = true; }, true);
+  addEventListener("keyup", function (e) { if (e.code === "Space") spaceDown = false; }, true);
+  // Changer d'onglet ou de fenêtre, c'est lâcher.
+  document.addEventListener("visibilitychange", function () { if (document.hidden) stop("onglet"); });
+  addEventListener("blur", function () { stop("onglet"); });
+
+  // ---------------------------------------------------------------- la révélation
+  function mockFor(ms) {
+    var s = ms / 1000;
+    if (endReason === "onglet") return pick([
+      "Vous avez changé d'onglet. On comprend : il y avait sûrement une meilleure arnaque ailleurs.",
+      "Vous êtes parti voir ailleurs. Comme tous ceux qui ont failli toucher 100 $.",
+    ]);
+    if (s < 2) return "Même pas deux secondes. Vous ne croyez plus en rien, et franchement, vous avez raison.";
+    if (s < 10) return "Quelques secondes et vous avez flairé le piège. Ou alors on vous a appelé pour manger.";
+    if (s < 30) return "Moins de trente secondes de foi aveugle. C'est mignon. Pas rentable, mais mignon.";
+    if (s < 60) return "Presque une minute pour 0 $. Votre taux horaire vient de passer à 0 $ de l'heure. Bienvenue dans l'économie de demain.";
+    if (s < 180) return "Vous y avez cru. Un peu. Assez pour rester. On vous a vu.";
+    if (s < 600) return "Plusieurs minutes de votre vie, offertes gracieusement à une barre de chargement. Elle vous remercie. Elle est la seule.";
+    if (s < 1200) return "Vous avez tenu plus longtemps que la plupart des résolutions du Nouvel An. Pour rien. Exactement comme elles.";
+    if (s < 3600) return "Plus d'un quart d'heure. Quelqu'un devrait vérifier que vous allez bien. Pas nous, on est occupés.";
+    return "Plus d'une heure. Votre doigt mérite des excuses. Vous, on ne sait pas encore.";
+  }
+
+  var lastMs = 0, lastRank = null;
+  function showReveal(ms, reached, result) {
+    lastMs = ms;
+    clearToasts();
+    $("rv-time").textContent = fmtDur(ms, true);
+    $("rv-pct").textContent = fmtPct(reached, reached >= 99.1 ? dec : 1);
+    $("rv-mock").textContent = mockFor(ms);
+    $("name-err").textContent = "";
+    $("sign").style.display = "";
+    $("sign-lead").textContent = "Inscrivez votre nom parmi ceux qui ont tenu le plus longtemps.";
+    var saved = store("name"); if (saved) $("name").value = saved;
+    document.body.classList.add("ended");
+    $("reveal").hidden = false;
+    $("reveal").scrollTop = 0;
+    var best = Number(store("best") || 0);
+    if (ms > best) store("best", String(ms));
+    result.then(function (r) {
+      if (r.offline) { $("sign").style.display = "none"; loadTop(); return; }
+      lastMs = r.ms; lastRank = r.rank;
+      $("rv-time").textContent = fmtDur(r.ms, true);
+      if (r.ms < 1000) { $("sign").style.display = "none"; }
+      else $("sign-lead").textContent = "Avec ce temps, vous seriez " + (r.rank === 1 ? "1er" : r.rank + "e") + " sur le mur. Inscrivez votre nom (ou gardez votre dignité).";
+      loadTop();
+    });
+  }
+
+  function esc(s) { return String(s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
+  function drawTop(scores, me) {
+    var ol = $("top");
+    if (!scores || !scores.length) { ol.innerHTML = '<li class="empty">Personne pour l\'instant. Vous pouvez être le premier pigeon.</li>'; return; }
+    ol.innerHTML = scores.map(function (s) {
+      var mine = me && s.name.toLowerCase() === me.toLowerCase();
+      return '<li' + (mine ? ' class="me"' : "") + "><span>" + esc(s.name) + "</span><time>" + fmtDur(s.ms, true) + "</time></li>";
+    }).join("");
+  }
+  function loadTop() {
+    getScores().then(function (j) {
+      drawTop(j.scores, store("name"));
+      if (j.runs) $("tot").textContent = j.runs.toLocaleString("fr-FR") + (j.runs > 1 ? " personnes y ont cru" : " personne y a cru") + ", pour un total de " + fmtDur(j.wasted, true) + " de vie perdues.";
+    }).catch(function () {
+      $("top").innerHTML = '<li class="empty">Classement indisponible. Votre record ici : ' + fmtDur(Number(store("best") || 0), true) + ".</li>";
+    });
+  }
+
+  $("name-form").addEventListener("submit", function (e) {
+    e.preventDefault();
+    var name = $("name").value.trim();
+    var btn = this.querySelector("button");
+    btn.disabled = true; $("name-err").textContent = "";
+    runReq.then(function (id) {
+      if (!id) throw { error: "Le classement n'est pas joignable." };
+      return post("name", { id: id, name: name });
+    }).then(function (j) {
+      store("name", name);
+      drawTop(j.scores, name);
+      loadTop();
+      $("sign").style.display = "none";
+      track("sukkel_name");
+    }).catch(function (j) {
+      $("name-err").textContent = (j && j.error) || "Oups, réessaie.";
+    }).then(function () { btn.disabled = false; });
+  });
+
+  $("again").addEventListener("click", function () {
+    document.body.classList.remove("ended");
+    $("reveal").hidden = true;
+    $("cap-text").textContent = "Maintenez la touche Espace enfoncée pendant toute la vérification.";
+    p = 0; dec = 1; render();
+    statusEl.textContent = "En attente";
+    clockEl.textContent = "00:00";
+    keyEl.focus();
+  });
+
+  $("share").addEventListener("click", function () {
+    var url = "https://apphero.cloud/03";
+    var text = "100 $ de crédit API offerts chez votre prestataire IA préféré. Il suffit de maintenir la touche Espace.";
+    if (navigator.share) navigator.share({ title: "100 $ de crédit API offerts", text: text, url: url }).catch(function () {});
+    else if (navigator.clipboard) navigator.clipboard.writeText(text + " " + url).then(function () { $("share").textContent = "Lien copié, à vous de jouer"; });
+    track("share", { app: "03" });
+  });
+
+  render();
+})();
+</script>
+</body>
+</html>

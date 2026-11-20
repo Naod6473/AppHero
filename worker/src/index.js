@@ -4,6 +4,7 @@ import manifest from "../generated/apps.json";
 import CRITERES from "../../shared/criteres.json";
 import { BALLOTS, DAYS, ballotStatus, wheelDays, CHALLENGE_END, REVEAL_AT, LAUNCH_AT, DRAW_LOCK_AT, parisDate, isReleased } from "../../shared/calendar.js";
 import { CRITERIA, criterionLabel, drawCalendar } from "../../shared/criteria.js";
+import { sukkel } from "./sukkel.js";
 
 // Limite par réseau. En IPv6, un foyer ou un téléphone a son propre bloc /64 : 8 suffit.
 // En IPv4, un opérateur mobile ou une entreprise partage une adresse entre beaucoup de monde.
@@ -152,6 +153,8 @@ async function api(request, env, ctx, url, now) {
     const denied = await adminGuard(request, env, now);
     if (denied) return denied;
   }
+  if (url.pathname.startsWith("/api/sukkel/"))
+    return sukkel(request, env, now, route, { json, readJson, ipHashFor, released: releasedApp, preview: isPreview, day: parisDate });
   switch (route) {
     case "GET /api/state":
       return state(request, env, now);
@@ -728,6 +731,8 @@ async function stats(env, url, now) {
   const days = Math.max(1, Math.min(400, Number(url.searchParams.get("days")) || 30));
   const since = parisDate(now - (days - 1) * 86400000);
   const q = (sql, ...args) => env.DB.prepare(sql).bind(since, ...args);
+  const sinceTs = Date.parse(`${since}T00:00:00+01:00`);
+  const S = (sql) => env.DB.prepare(sql).bind(sinceTs);
   const top = (col, name = "page", limit = 10) =>
     q(`SELECT ${col} AS k, COUNT(*) AS n FROM events WHERE day >= ? AND name = ? AND ${col} IS NOT NULL AND ${col} != '' GROUP BY k ORDER BY n DESC LIMIT ${limit}`, name);
   const prop = (key, name, limit = 10) =>
@@ -767,6 +772,21 @@ async function stats(env, url, now) {
     reactions: env.DB.prepare("SELECT app AS k, SUM(CASE WHEN kind = 'like' THEN n END) AS likes, SUM(CASE WHEN kind = 'bof' THEN n END) AS bofs FROM tallies WHERE kind IN ('like', 'bof') GROUP BY app ORDER BY app"),
     ballots: env.DB.prepare("SELECT bucket AS k, SUM(n) AS n FROM tallies WHERE kind = 'ballot' GROUP BY bucket ORDER BY bucket"),
     errors: q("SELECT json_extract(props, '$.msg') AS k, path, COUNT(*) AS n FROM events WHERE day >= ? AND name = 'erreur' GROUP BY k, path ORDER BY n DESC LIMIT 10"),
+    // Le journal : les derniers événements, visites et actions, du plus récent au plus ancien.
+    journal: q("SELECT ts, name, path, app, props, country, device, browser, os, substr(visitor, 1, 6) AS v FROM events WHERE day >= ? ORDER BY ts DESC LIMIT 200"),
+    // Sukkel (app 03) : chaque appui sur la touche Espace.
+    sukkel: S(
+      `SELECT COUNT(*) AS starts, SUM(ms < 5000) AS early, SUM(ms >= 5000) AS runs, SUM(ended_at IS NULL) AS open,
+              SUM(name IS NOT NULL) AS named, ROUND(AVG(CASE WHEN ms >= 5000 THEN ms END)) AS avg, MAX(ms) AS best,
+              SUM(CASE WHEN ms >= 5000 THEN ms ELSE 0 END) AS wasted FROM sukkel_runs WHERE started_at >= ?`,
+    ),
+    sukkelProviders: S("SELECT COALESCE(provider, '?') AS k, COUNT(*) AS n FROM sukkel_runs WHERE started_at >= ? GROUP BY k ORDER BY n DESC"),
+    sukkelBuckets: S(
+      `SELECT CASE WHEN ms < 5000 THEN '0 · moins de 5 s' WHEN ms < 30000 THEN '1 · 5 à 30 s' WHEN ms < 120000 THEN '2 · 30 s à 2 min'
+                   WHEN ms < 600000 THEN '3 · 2 à 10 min' WHEN ms < 1800000 THEN '4 · 10 à 30 min' ELSE '5 · plus de 30 min' END AS k, COUNT(*) AS n
+       FROM sukkel_runs WHERE started_at >= ? AND ms IS NOT NULL GROUP BY k ORDER BY k`,
+    ),
+    sukkelRecent: S("SELECT started_at AS ts, ms, provider, name FROM sukkel_runs WHERE started_at >= ? ORDER BY started_at DESC LIMIT 60"),
   };
   const keys = Object.keys(queries);
   const res = await env.DB.batch(keys.map((k) => queries[k]));
@@ -775,6 +795,7 @@ async function stats(env, url, now) {
   out.totals = out.totals[0];
   out.bounce = out.bounce[0];
   out.wheel = out.wheel[0];
+  out.sukkel = out.sukkel[0];
   return json(out);
 }
 

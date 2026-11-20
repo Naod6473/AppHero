@@ -46,6 +46,21 @@ CREATE TABLE IF NOT EXISTS draws (
   created_at INTEGER NOT NULL
 );
 
+-- Sukkel (app 03) : une ligne par appui sur la touche Espace. ms = durée tenue (mesurée par le serveur),
+-- beat_at = dernier signe de vie pendant l'appui, name = pseudo si la personne s'inscrit au tableau.
+CREATE TABLE IF NOT EXISTS sukkel_runs (
+  id TEXT PRIMARY KEY,
+  provider TEXT,
+  ip_hash TEXT NOT NULL,
+  started_at INTEGER NOT NULL,
+  beat_at INTEGER NOT NULL,
+  ended_at INTEGER,
+  ms INTEGER,
+  name TEXT
+);
+CREATE INDEX IF NOT EXISTS sukkel_runs_ms ON sukkel_runs (ms DESC);
+CREATE INDEX IF NOT EXISTS sukkel_runs_ip ON sukkel_runs (ip_hash);
+
 -- Mesure d'audience maison, sans cookie. Une ligne par événement.
 -- visitor = empreinte de (sel secret, jour, IP, navigateur) : elle change chaque jour,
 -- on ne peut ni remonter à l'IP ni suivre quelqu'un d'un jour à l'autre.
