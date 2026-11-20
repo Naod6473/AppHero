@@ -17,6 +17,33 @@
     video.addEventListener("play", function () { box.classList.add("is-playing"); });
   }
 
+  // Le cadre d'ampoules : un vrai chenillard, comme dans les vidéos et à l'accueil.
+  var screen = $(".pl-screen");
+  if (screen) {
+    var ring = document.createElement("div");
+    ring.className = "pl-bulbs"; ring.setAttribute("aria-hidden", "true");
+    screen.appendChild(ring);
+    var lastW = 0, lastH = 0;
+    var drawBulbs = function () {
+      var W = screen.clientWidth, H = screen.clientHeight;
+      if (!W || !H || (W === lastW && H === lastH)) return;
+      lastW = W; lastH = H;
+      var pad = parseFloat(getComputedStyle(screen).paddingLeft) || 24, m = pad / 2, step = pad + 6, pts = [];
+      var nx = Math.max(2, Math.round((W - 2 * m) / step)), ny = Math.max(2, Math.round((H - 2 * m) / step));
+      for (var i = 0; i <= nx; i++) { var x = m + i * (W - 2 * m) / nx; pts.push([x, m], [x, H - m]); }
+      for (var j = 1; j < ny; j++) { var y = m + j * (H - 2 * m) / ny; pts.push([m, y], [W - m, y]); }
+      ring.textContent = "";
+      pts.forEach(function (p) {
+        var k = Math.round((Math.atan2(p[1] - H / 2, p[0] - W / 2) + Math.PI) * 6) % 3, b = document.createElement("i");
+        b.style.left = p[0].toFixed(1) + "px"; b.style.top = p[1].toFixed(1) + "px"; b.style.animationDelay = "-" + k * 125 + "ms";
+        ring.appendChild(b);
+      });
+    };
+    drawBulbs();
+    if (window.ResizeObserver) new ResizeObserver(drawBulbs).observe(screen);
+    else window.addEventListener("resize", drawBulbs);
+  }
+
   if (!app) return;
 
   // Le défi tiré au sort pour cette case.
