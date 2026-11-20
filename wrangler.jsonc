@@ -33,7 +33,7 @@
     "REPO_URL": "https://github.com/Naod6473/AppHero",
     // "1" : anti-robot au premier j'aime / bof d'une personne. À n'allumer qu'après un test réussi
     // de l'anti-robot sur /stats/ (bouton « Tester l'anti-robot du vote »), sinon plus aucun avis ne passe.
-    "LIKE_TURNSTILE": "0"
+    "LIKE_TURNSTILE": "1"
   },
   "observability": { "enabled": true }
   // Secrets (wrangler secret put) : ADMIN_TOKEN, IP_SALT, TURNSTILE_SECRET.
