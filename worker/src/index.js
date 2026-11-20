@@ -4,7 +4,6 @@ import manifest from "../generated/apps.json";
 import CRITERES from "../../shared/criteres.json";
 import { BALLOTS, DAYS, ballotStatus, wheelDays, CHALLENGE_END, REVEAL_AT, LAUNCH_AT, DRAW_LOCK_AT, parisDate, isReleased } from "../../shared/calendar.js";
 import { CRITERIA, criterionLabel, drawCalendar } from "../../shared/criteria.js";
-import { sukkel } from "./sukkel.js";
 
 // Limite par réseau. En IPv6, un foyer ou un téléphone a son propre bloc /64 : 8 suffit.
 // En IPv4, un opérateur mobile ou une entreprise partage une adresse entre beaucoup de monde.
@@ -153,8 +152,6 @@ async function api(request, env, ctx, url, now) {
     const denied = await adminGuard(request, env, now);
     if (denied) return denied;
   }
-  if (url.pathname.startsWith("/api/sukkel/"))
-    return sukkel(request, env, now, route, { json, readJson, ipHashFor, released: releasedApp, preview: isPreview, day: parisDate });
   switch (route) {
     case "GET /api/state":
       return state(request, env, now);
