@@ -1,6 +1,6 @@
 // Accueil : pile de cartes de la semaine, grille des 30 apps, j'aime / bof, votes, classements.
 import { initTeaser } from "./teaser.js";
-import { api, esc, toast, confetti, turnstileToken, track, shareApp, X_URL } from "./common.js";
+import { api, esc, toast, confetti, turnstileToken, sendReaction, track, shareApp, X_URL } from "./common.js";
 import { DAYS, BALLOTS, CHALLENGE_END, WEEKDAYS_SHORT, PAPER, wheelDays, parisDate, fmtShort, fmtDateTime } from "../../shared/calendar.js";
 import { CRITERIA, criterionLabel } from "../../shared/criteria.js";
 
@@ -58,7 +58,11 @@ function critOf(day) {
   const base = c && CRITERIA[c.key];
   if (!base) return SECRET;
   const all = [c, ...(c.extra || [])];
-  return { ...base, key: c.key, label: all.map(criterionLabel).join(" + "), short: all.map((x) => `${CRITERIA[x.key].emoji} ${criterionLabel(x)}`).join(" + ") };
+  let label = all.map(criterionLabel).join(" + ");
+  // Une fois la roue tournée, la case affiche ce qu'elle a tiré.
+  const draw = c.key === "roue" ? S.draws.get(day.date) : null;
+  if (draw) label = `La roue : ${draw.idea ? "idée de l'IA" : draw.label}`;
+  return { ...base, key: c.key, label, short: all.map((x) => `${CRITERIA[x.key].emoji} ${criterionLabel(x)}`).join(" + ") };
 }
 // Sur une couleur sombre (bleu roi, noir…), le texte passe en clair : sinon il ne se lit plus.
 function onDark(color) {
@@ -193,7 +197,7 @@ function cardModel(day) {
         ? "La roue a choisi l'idée de l'IA. Revois le tirage pour la découvrir."
         : `La roue a parlé. Critère du jour : « ${draw.label} ».`
       : `Le critère sort de la roue le ${fmtShort(w.drawOn).toLowerCase()} au soir. Tu pourras revoir le tirage.`;
-    if (draw) theme = `Critère : ${draw.label}`;
+    if (draw) theme = `${crit.emoji} ${crit.label}`;
     cta = { label: "Voir la roue", href: "/roue/" };
   } else if (crit.key === "abonne") {
     title = "L'idée d'un abonné";
@@ -385,7 +389,7 @@ function renderTiles() {
     }
     return `<div class="tile is-open${onDark(app.color)}" style="--r:${rot};--bg:${esc(app.color)}">
       <span class="tile-top"><span class="tile-num" aria-hidden="true">${day.id}</span>${app.logo ? `<img class="tile-logo" src="${esc(app.logo)}" alt="" loading="lazy" width="56" height="56">` : emo}</span>
-      <span class="tile-text"><a class="tile-link tile-name" href="/apps/${esc(app.slug)}/" data-open="${esc(app.id)}">${esc(app.title)}</a><br><span class="tile-meta">${esc(meta)}</span></span>
+      <span class="tile-text"><a class="tile-link tile-name" href="/apps/${esc(app.slug)}/" data-open="${esc(app.id)}">${esc(app.title)}</a><br class="tile-br"><span class="tile-meta">${esc(meta)}</span></span>
       ${reactButtons(app, true)}
     </div>`;
   }).join("");
@@ -499,7 +503,7 @@ function ballotHtml(b) {
     body = resultsHtml(b);
   }
   return `<div class="ballot ${b.final ? "is-final" : ""}">
-    <h3>${b.final ? "La grande finale" : `Le vote de la ${esc(b.label.toLowerCase())}`}</h3>
+    <h3>${b.final ? "La grande finale" : `${b.status === "closed" ? "Résultat" : "Le vote"} de la ${esc(b.label.toLowerCase())}`}</h3>
     <span class="ballot-when">${esc(when)}</span>
     ${text ? `<p>${esc(text)}</p>` : ""}
     ${body}
@@ -516,7 +520,35 @@ function renderBallots() {
     el.innerHTML = `<div class="ballot"><h3>Le vote de la semaine</h3><p>Le premier vote ouvre le dimanche 22 novembre à 18 h.</p></div>`;
     return;
   }
-  el.innerHTML = ballotHtml(featuredWeekly()) + ballotHtml(S.ballots.find((b) => b.final));
+  const featured = featuredWeekly();
+  const last = lastClosedWeekly();
+  // Le dernier résultat reste affiché à côté du vote suivant.
+  el.innerHTML = ballotHtml(featured) + (last && last !== featured ? ballotHtml(last) : "") + ballotHtml(S.ballots.find((b) => b.final));
+}
+
+// Le dernier vote de la semaine terminé (son résultat reste à l'affiche).
+function lastClosedWeekly() {
+  return S.ballots.filter((b) => !b.final && b.status === "closed").pop() || null;
+}
+
+// 4 : le bandeau du haut de page. Vote ouvert, ou dernier résultat tant que le vote suivant n'a pas commencé.
+function renderVoteBanner() {
+  const el = $("vote-banner");
+  const open = S.ballots.find((b) => b.status === "open");
+  const closed = S.ballots.filter((b) => b.status === "closed").pop();
+  let html = "";
+  if (open) {
+    const what = open.final ? "La grande finale est ouverte" : `Le vote de la ${open.label.toLowerCase()} est ouvert`;
+    const until = `jusqu'à ${fmtDateTime(open.closesAt).toLowerCase()}`;
+    html = S.me.ballots[open.id]
+      ? `<span aria-hidden="true">✅</span><span><strong>Tu as voté pour ${esc(appTitle(S.me.ballots[open.id]))}.</strong> Résultat ${esc(fmtDateTime(open.closesAt).toLowerCase())}.</span>`
+      : `<span aria-hidden="true">🗳️</span><span><strong>${esc(what)}</strong>, ${esc(until)}.</span><b>Voter</b>`;
+  } else if (closed?.winner) {
+    html = `<span aria-hidden="true">👑</span><span><strong>${closed.final ? "La grande gagnante" : `L'app de la ${esc(closed.label.toLowerCase())}`} : ${esc(appTitle(closed.winner))}</strong></span><b>Voir le résultat</b>`;
+  }
+  el.hidden = !html;
+  el.classList.toggle("is-open", !!open);
+  el.innerHTML = html;
 }
 
 // La barre des 30 apps : une case par app, colorée quand elle est sortie.
@@ -544,6 +576,7 @@ function renderAll() {
   renderTiles();
   renderRanks();
   renderBallots();
+  renderVoteBanner();
 }
 
 function appTitle(id) {
@@ -574,7 +607,7 @@ async function react(appId, value, button) {
   const again = document.querySelector(`[data-react="${value}"][data-app="${appId}"]`);
   if (again && next !== 0) again.classList.add("pop");
   try {
-    await api("/api/react", { method: "POST", body: JSON.stringify({ app: appId, value: next }) });
+    await sendReaction(appId, next, S.siteKey);
     track(next === 1 ? "jaime" : next === -1 ? "bof" : "avis_retire", { app: appId });
   } catch (err) {
     S.likes[appId] = likesBefore;
@@ -674,6 +707,7 @@ document.addEventListener("click", (e) => {
     if (S.voting) return;
     S.pick = { ballot: b.dataset.ballot, app: b.dataset.app };
     renderBallots();
+    renderVoteBanner();
     return document.querySelector("[data-confirm]")?.focus();
   }
   if (e.target.closest("[data-confirm]") && S.pick) return castBallot(S.pick.ballot, S.pick.app, document.querySelector(".choice.is-pick"));

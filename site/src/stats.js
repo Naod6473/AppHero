@@ -82,8 +82,9 @@ const PROVIDERS = { claude: "Claude Code", chatgpt: "ChatGPT", mistral: "Mistral
 
 function sukkelBox(d) {
   const s = d.sukkel || {};
-  if (!s.starts) return box("Sukkel (app 03)", "Les appuis sur la touche Espace.", `<p class="empty">Aucun essai sur la période.</p>`);
-  return `<section class="box wide"><h2>Sukkel (app 03)</h2><p>Chaque appui sur la touche Espace (chrono mesuré par le serveur).</p>
+  // Sukkel n'est plus l'app 03 (elle attend une autre case) : sans essai, pas de bloc.
+  if (!s.starts) return "";
+  return `<section class="box wide"><h2>Sukkel</h2><p>Chaque appui sur la touche Espace (chrono mesuré par le serveur).</p>
     <div class="kpis mini">
       <div class="kpi"><small>Appuis</small><strong>${s.starts}</strong></div>
       <div class="kpi"><small>Lâchés avant 5 s</small><strong>${s.early || 0}</strong></div>
@@ -128,14 +129,20 @@ async function load() {
   }
 }
 
-// Vérifie que l'anti-robot du vote (Turnstile) répond bien dans ce navigateur, sans attendre un vrai vote.
+// Vérifie l'anti-robot du vote (Turnstile) de bout en bout, sans attendre un vrai vote :
+// le jeton reçu dans ce navigateur, puis son contrôle par le serveur avec la clé secrète.
 $("ts-test").addEventListener("click", async () => {
   toast("Test de l'anti-robot en cours…");
   try {
     const st = await api("/api/state");
     if (!st.turnstileSiteKey) return toast("Anti-robot désactivé (pas de clé).");
     const token = await turnstileToken(st.turnstileSiteKey);
-    toast(token ? "Anti-robot : OK, le vote peut passer." : "Anti-robot : pas de jeton reçu.");
+    if (!token) return toast("Anti-robot : pas de jeton reçu.");
+    // Le jeton est ensuite contrôlé par le serveur, exactement comme pour un vote (rien n'est enregistré).
+    const code = $("token").value.trim();
+    if (!code) return toast("Jeton reçu. Entre le code organisateur pour tester aussi le contrôle du serveur.");
+    const r = await api("/api/admin/turnstile", { method: "POST", body: JSON.stringify({ token }), headers: { authorization: `Bearer ${code}` } });
+    toast(r.ok ? `Anti-robot : tout est bon (jeton reçu et accepté par le serveur${r.hostname ? `, ${r.hostname}` : ""}). Le vote peut passer.` : `Anti-robot : le serveur REFUSE le jeton. ${r.why || (r.codes || []).join(", ")}`);
   } catch (err) {
     toast(`Anti-robot : ${err.message}`);
   }

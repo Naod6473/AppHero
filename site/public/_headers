@@ -1,3 +1,9 @@
 # Fichiers servis directement (sans passer par le Worker).
 /*
   X-Content-Type-Options: nosniff
+
+# Fichiers au nom unique (le nom change à chaque version) : le navigateur peut les garder un an.
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
+/plateau/fonts/*
+  Cache-Control: public, max-age=31536000, immutable

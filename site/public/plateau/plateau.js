@@ -88,9 +88,14 @@
       paint();
       busy = true;
       if (msg) say("");
-      fetch("/api/react", { method: "POST", credentials: "same-origin", headers: { "content-type": "application/json" }, body: JSON.stringify({ app: app.id, value: mine }) })
-        .then(function (r) {
-          if (!r.ok) return r.json().catch(function () { return {}; }).then(function (d) { throw new Error(d.error || ""); });
+      // window.AH_REACT vient de /fiche.js, ajouté par le site (il gère l'anti-robot du premier avis).
+      var send = window.AH_REACT
+        ? window.AH_REACT(app.id, mine)
+        : fetch("/api/react", { method: "POST", credentials: "same-origin", headers: { "content-type": "application/json" }, body: JSON.stringify({ app: app.id, value: mine }) }).then(function (r) {
+            if (!r.ok) return r.json().catch(function () { return {}; }).then(function (d) { throw new Error(d.error || ""); });
+          });
+      send
+        .then(function () {
           track(mine === 1 ? "jaime" : mine === -1 ? "bof" : "avis_retire", { app: app.id, from: "plateau" });
         })
         .catch(function (err) { mine = before; likes = likesBefore; paint(); say(err.message || "Ton avis n'a pas pu être enregistré. Réessaie dans un instant."); })
@@ -103,6 +108,15 @@
       likes = (st.likes && st.likes[app.id]) || 0;
       mine = (st.me && st.me.reactions && st.me.reactions[app.id]) || 0;
       paint();
+      // Quand un vote où cette app est en lice est ouvert, la page y envoie.
+      var open = (st.ballots || []).filter(function (b) { return b.status === "open" && b.candidates && b.candidates.indexOf(app.id) >= 0; })[0];
+      var hint = votes && votes.parentNode.querySelector("small");
+      if (open && hint) {
+        var voted = st.me && st.me.ballots && st.me.ballots[open.id];
+        hint.innerHTML = voted
+          ? "Tu as déjà voté pour ce tour. Merci !"
+          : '<a href="/#vote" style="color:inherit;font-weight:800">' + (open.final ? "La grande finale est ouverte" : "Le vote de la semaine est ouvert") + " : voter</a>";
+      }
     })
     .catch(function () {});
 

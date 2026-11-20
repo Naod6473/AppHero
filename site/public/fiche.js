@@ -2,6 +2,50 @@
 // Une pastille en bas de l'écran : comment l'app a été fabriquée, j'aime / bof, retour à l'accueil.
 // Tout est dans un Shadow DOM : le style de l'app n'est pas touché, et inversement.
 (function () {
+  // Envoi d'un avis (j'aime / bof), utilisé par la fiche et par la page de présentation (plateau).
+  // Au tout premier avis d'une personne, le serveur demande un jeton anti-robot (Turnstile) :
+  // on le récupère, invisible la plupart du temps, et on renvoie l'avis.
+  var tsLoad = null;
+  function tsToken() {
+    return fetch("/api/state", { credentials: "same-origin" })
+      .then(function (r) { return r.json(); })
+      .then(function (st) {
+        var key = st.turnstileSiteKey;
+        if (!key) throw new Error("Vérification anti-robot indisponible.");
+        tsLoad = tsLoad || new Promise(function (ok, ko) {
+          if (window.turnstile) return ok();
+          var s = document.createElement("script");
+          s.src = "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
+          s.async = true;
+          s.onload = ok;
+          s.onerror = function () { tsLoad = null; ko(new Error("Vérification anti-robot indisponible.")); };
+          document.head.appendChild(s);
+        });
+        return tsLoad.then(function () {
+          return new Promise(function (ok, ko) {
+            var box = document.createElement("div");
+            box.style.cssText = "position:fixed;left:50%;bottom:80px;transform:translateX(-50%);z-index:2147483001";
+            document.body.appendChild(box);
+            var done = function (fn, v) { setTimeout(function () { box.remove(); }, 50); fn(v); };
+            var fail = function () { done(ko, new Error("Vérification anti-robot échouée, réessaie.")); };
+            setTimeout(fail, 45000);
+            window.turnstile.render(box, { sitekey: key, appearance: "interaction-only", language: "fr", callback: function (t) { done(ok, t); }, "error-callback": fail, "timeout-callback": fail });
+          });
+        });
+      });
+  }
+  window.AH_REACT = function (appId, value) {
+    function post(token) {
+      return fetch("/api/react", { method: "POST", credentials: "same-origin", headers: { "content-type": "application/json" }, body: JSON.stringify({ app: appId, value: value, token: token }) })
+        .then(function (r) { return r.json().catch(function () { return {}; }).then(function (d) { return { ok: r.ok, d: d }; }); });
+    }
+    function check(res) { if (!res.ok) throw new Error(res.d.error || ""); }
+    return post().then(function (res) {
+      if (res.ok || !res.d.needToken) return check(res);
+      return tsToken().then(post).then(check);
+    });
+  };
+
   var app = window.AH_APP;
   if (!app || window.top !== window) return;
   // La page de présentation (plateau) a déjà sa propre fiche, ses j'aime / bof et ses liens.
@@ -126,9 +170,8 @@
       paint();
       busy = true;
       say("");
-      fetch("/api/react", { method: "POST", credentials: "same-origin", headers: { "content-type": "application/json" }, body: JSON.stringify({ app: app.id, value: mine }) })
-        .then(function (r) {
-          if (!r.ok) return r.json().catch(function () { return {}; }).then(function (d) { throw new Error(d.error || ""); });
+      window.AH_REACT(app.id, mine)
+        .then(function () {
           if (window.ahTrack) window.ahTrack(mine === 1 ? "jaime" : mine === -1 ? "bof" : "avis_retire", { app: app.id, from: "fiche" });
         })
         .catch(function (err) { mine = before; likes = likesBefore; paint(); say(err.message || "Ton avis n'a pas pu être enregistré. Réessaie dans un instant."); })

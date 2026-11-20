@@ -5,12 +5,11 @@ import CRITERES from "../../shared/criteres.json";
 import { BALLOTS, DAYS, ballotStatus, wheelDays, CHALLENGE_END, REVEAL_AT, LAUNCH_AT, DRAW_LOCK_AT, parisDate, isReleased } from "../../shared/calendar.js";
 import { CRITERIA, criterionLabel, drawCalendar } from "../../shared/criteria.js";
 
-// Limite par réseau. En IPv6, un foyer ou un téléphone a son propre bloc /64 : 8 suffit.
-// En IPv4, un opérateur mobile ou une entreprise partage une adresse entre beaucoup de monde.
-const MAX_PER_IP6 = 8;
-const MAX_PER_IP4 = 30;
-// Pour les votes (une voix peut faire basculer un tour), le plafond IPv4 est plus serré.
-const MAX_BALLOT_PER_IP4 = 10;
+// Limite par réseau : une adresse IPv4, ou un bloc /56 en IPv6 (ce qu'une box reçoit le plus souvent :
+// compter par /64 laissait un seul foyer multiplier le plafond par 256).
+const MAX_PER_NET = 30;
+// Pour les votes (une voix peut faire basculer un tour), le plafond est plus serré.
+const MAX_BALLOT_PER_NET = 10;
 const MAX_T_PER_DAY = 600; // envois de mesure d'audience par réseau et par jour
 const MAX_ADMIN_FAILS = 20; // codes organisateur faux par réseau et par jour
 const COOKIE = "ah_id";
@@ -131,7 +130,13 @@ async function handle(request, env, ctx, url, now) {
   if (app && (res.headers.get("content-type") || "").includes("text/html")) {
     // …et la fiche de l'app (fabrication, j'aime / bof, retour à l'accueil).
     const crit = await loadCriteria(env);
-    const info = JSON.stringify({ ...publicApp(app, crit), ...neighbours(app, crit, now) }).replace(/</g, "\\u003c");
+    const pub = publicApp(app, crit);
+    // Case « La roue décide » : on affiche ce que la roue a tiré.
+    if (crit[app.id]?.key === "roue") {
+      const draw = await env.DB.prepare("SELECT label, idea FROM draws WHERE for_day = ?").bind(app.date).first().catch(() => null);
+      if (draw) pub.theme = `La roue : ${draw.idea ? "idée de l'IA" : draw.label}`;
+    }
+    const info = JSON.stringify({ ...pub, ...neighbours(app, crit, now) }).replace(/</g, "\\u003c");
     return new HTMLRewriter()
       .on("head", {
         element: (el) =>
@@ -175,6 +180,8 @@ async function api(request, env, ctx, url, now) {
       return previewOn(request, env, now);
     case "POST /api/admin/check":
       return json({ ok: true });
+    case "POST /api/admin/turnstile":
+      return turnstileTest(request, env);
   }
   const del = route.match(/^DELETE \/api\/admin\/draws\/(\d{4}-\d{2}-\d{2})$/);
   if (del) {
@@ -353,8 +360,8 @@ function voterOrNew(request) {
   return { voter, headers };
 }
 
-// Le réseau d'où vient la requête : l'adresse IPv4, ou le bloc /64 en IPv6
-// (une seule personne dispose de milliards d'adresses dans son bloc).
+// Le réseau d'où vient la requête : l'adresse IPv4, ou le bloc /56 en IPv6
+// (une seule personne dispose de milliards d'adresses, et souvent de 256 blocs /64).
 function network(request) {
   const ip = request.headers.get("cf-connecting-ip") || "local";
   if (!ip.includes(":")) return { ip, net: ip, v6: false };
@@ -362,14 +369,16 @@ function network(request) {
   const a = head ? head.split(":") : [];
   const b = tail ? tail.split(":") : [];
   const full = ip.includes("::") ? [...a, ...Array(Math.max(0, 8 - a.length - b.length)).fill("0"), ...b] : a;
-  return { ip, net: full.slice(0, 4).map((x) => x.replace(/^0+(?=.)/, "")).join(":") + "::/64", v6: true };
+  const groups = full.slice(0, 4).map((x) => x.padStart(4, "0"));
+  groups[3] = groups[3].slice(0, 2) + "00"; // 56 bits : on oublie le dernier octet du 4e groupe
+  return { ip, net: groups.join(":") + "::/56", v6: true };
 }
 
 // Empreinte du réseau pour un usage précis (une app, un scrutin, un jour) : on ne peut ni remonter
 // à l'adresse, ni rapprocher deux usages entre eux.
 async function ipHashFor(request, env, scope) {
-  const { ip, net, v6 } = network(request);
-  return { ip, max: v6 ? MAX_PER_IP6 : MAX_PER_IP4, ipHash: await sha256(`${env.IP_SALT || "apphero"}|${scope}|${net}`) };
+  const { ip, net } = network(request);
+  return { ip, max: MAX_PER_NET, ipHash: await sha256(`${env.IP_SALT || "apphero"}|${scope}|${net}`) };
 }
 
 // Compteur du jour pour une clé (table quota). Renvoie le total après ajout.
@@ -419,7 +428,20 @@ async function react(request, env, now) {
   if (![1, -1, 0].includes(value)) return json({ error: "Réaction invalide." }, 400);
 
   const { voter, headers } = voterOrNew(request);
-  const { ipHash, max } = await ipHashFor(request, env, `react|${app.id}`);
+  const { ip, ipHash, max } = await ipHashFor(request, env, `react|${app.id}`);
+  // Anti-robot au premier avis : tant que cette personne n'a encore ni avis ni voix enregistrés,
+  // il faut un jeton Turnstile. Ensuite, changer d'avis ou aimer une autre app ne demande plus rien.
+  // (Un cookie inventé ne suffit pas : on regarde ce qui est en base.)
+  // S'allume avec LIKE_TURNSTILE = "1" (wrangler.jsonc), une fois le test de /stats/ passé en production.
+  if (value !== 0 && env.TURNSTILE_SECRET && env.LIKE_TURNSTILE === "1") {
+    const known = readVoter(request)
+      ? await env.DB.prepare("SELECT 1 AS ok FROM reactions WHERE voter = ?1 UNION ALL SELECT 1 FROM ballot_votes WHERE voter = ?1 LIMIT 1").bind(voter).first()
+      : null;
+    if (!known) {
+      if (!input.token) return json({ error: "Vérification anti-robot demandée.", needToken: true }, 403);
+      if (!(await verifyTurnstile(env.TURNSTILE_SECRET, input.token, ip))) return json({ error: "Vérification anti-robot échouée, réessaie." }, 403);
+    }
+  }
   // La limite par réseau est vérifiée dans la requête d'écriture elle-même (une seule opération) :
   // un avis déjà donné peut toujours changer, un nouvel avis ne passe que sous le plafond.
   const write =
@@ -447,7 +469,7 @@ async function castBallot(request, env, now) {
   const { voter, headers } = voterOrNew(request);
   const net = await ipHashFor(request, env, `ballot|${def.id}`);
   const { ip, ipHash } = net;
-  const max = Math.min(net.max, MAX_BALLOT_PER_IP4);
+  const max = Math.min(net.max, MAX_BALLOT_PER_NET);
   if (env.TURNSTILE_SECRET) {
     const ok = await verifyTurnstile(env.TURNSTILE_SECRET, input.token, ip);
     if (!ok) return json({ error: "Vérification anti-robot échouée, réessaie." }, 403, headers);
@@ -599,15 +621,33 @@ async function sha256(text) {
   return [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, "0")).join("");
 }
 
+// La réponse de Cloudflare pour un jeton. Une panne de leur côté compte comme un refus, pas comme une erreur 500.
+async function turnstileResult(secret, token, ip) {
+  if (!token || typeof token !== "string" || token.length > 2048) return { success: false, "error-codes": ["jeton-absent"] };
+  try {
+    const form = new FormData();
+    form.append("secret", secret);
+    form.append("response", token);
+    if (ip && ip !== "local") form.append("remoteip", ip);
+    const res = await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", { method: "POST", body: form });
+    return await res.json();
+  } catch (err) {
+    console.error("turnstile", err);
+    return { success: false, "error-codes": ["verification-injoignable"] };
+  }
+}
 async function verifyTurnstile(secret, token, ip) {
-  if (!token) return false;
-  const form = new FormData();
-  form.append("secret", secret);
-  form.append("response", token);
-  form.append("remoteip", ip);
-  const res = await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", { method: "POST", body: form });
-  const data = await res.json();
-  return data.success === true;
+  return (await turnstileResult(secret, token, ip)).success === true;
+}
+
+// Test de l'anti-robot par l'organisateur (bouton de /stats/) : le même contrôle que pour un vote,
+// sans rien enregistrer. À lancer avant chaque ouverture de vote.
+async function turnstileTest(request, env) {
+  const input = await readJson(request);
+  if (!env.TURNSTILE_SECRET) return json({ ok: false, why: "TURNSTILE_SECRET n'est pas posé : l'anti-robot est désactivé." });
+  if (!env.TURNSTILE_SITE_KEY) return json({ ok: false, why: "TURNSTILE_SITE_KEY est vide : le site ne demande pas de jeton." });
+  const r = await turnstileResult(env.TURNSTILE_SECRET, input?.token, network(request).ip);
+  return json({ ok: r.success === true, hostname: r.hostname || null, codes: r["error-codes"] || [] });
 }
 
 // ---------------------------------------------------------------- mesure d'audience (sans cookie)

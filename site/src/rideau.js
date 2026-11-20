@@ -1,9 +1,9 @@
 // Le rideau avant le lancement : compte à rebours jusqu'au mercredi 18 novembre à 18 h.
 // À zéro : « Tchin ! », les ampoules s'allument, puis la page bascule sur l'accueil.
 // Le code Konami ouvre la saisie du code organisateur (aperçu du vrai site avant l'heure).
-import "@fontsource/bagel-fat-one/400.css";
-import "@fontsource/rubik/700.css";
-import "@fontsource/rubik/800.css";
+import "@fontsource/bagel-fat-one/latin-400.css";
+import "@fontsource/rubik/latin-700.css";
+import "@fontsource/rubik/latin-800.css";
 import "./styles.css";
 import { LAUNCH_AT } from "../../shared/calendar.js";
 import { initTeaser } from "./teaser.js";

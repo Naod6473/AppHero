@@ -1,10 +1,11 @@
 // Outils partagés par l'accueil et la roue.
 import { CHALLENGE_END } from "../../shared/calendar.js";
 // Polices hébergées avec le site : aucune requête vers Google Fonts.
-import "@fontsource/bagel-fat-one/400.css";
-import "@fontsource/rubik/500.css";
-import "@fontsource/rubik/700.css";
-import "@fontsource/rubik/800.css";
+// Seulement l'alphabet latin : les autres jeux (coréen, arabe, cyrillique…) pesaient 125 Ko dans la feuille de style.
+import "@fontsource/bagel-fat-one/latin-400.css";
+import "@fontsource/rubik/latin-500.css";
+import "@fontsource/rubik/latin-700.css";
+import "@fontsource/rubik/latin-800.css";
 import "./styles.css";
 
 // Le code organisateur n'est plus jamais gardé dans le navigateur : on efface l'ancienne copie.
@@ -94,6 +95,18 @@ export async function turnstileToken(siteKey) {
       "timeout-callback": fail,
     });
   });
+}
+
+// J'aime / bof. Au tout premier avis d'une personne, le serveur demande un jeton anti-robot :
+// on le récupère (invisible la plupart du temps) et on renvoie l'avis.
+export async function sendReaction(app, value, siteKey) {
+  const post = (token) => api("/api/react", { method: "POST", body: JSON.stringify({ app, value, token }) });
+  try {
+    return await post();
+  } catch (err) {
+    if (!err.data?.needToken) throw err;
+    return post(await turnstileToken(siteKey));
+  }
 }
 
 // Petite pluie de confettis dans un conteneur positionné.
