@@ -168,7 +168,7 @@ body:not(.chatting) .dock{display:none}
 .form .cb{flex-direction:row;align-items:flex-start;gap:8px;font-weight:400}
 .steps{height:4px;border-radius:2px;background:var(--line);overflow:hidden;margin-top:10px}
 .steps i{display:block;height:100%}
-.toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:10px;font-size:13.5px;z-index:60;max-width:min(92vw,520px);text-align:center;box-shadow:0 8px 30px rgba(0,0,0,.4)}
+.toast{position:fixed;left:50%;bottom:calc(64px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:10px;font-size:13.5px;z-index:60;max-width:min(92vw,520px);text-align:center;box-shadow:0 8px 30px rgba(0,0,0,.4)}
 
 @media (max-width:640px){
   .hero{padding-left:6px;padding-right:6px}
@@ -178,6 +178,7 @@ body:not(.chatting) .dock{display:none}
   .composer textarea{font-size:16px}
   .login{padding:8px 6px}
   .foot .txt{display:none}
+  .foot .par{font-size:11px;line-height:1.3}
 }
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 .doc{display:flex;align-items:center;gap:12px;padding:9px 0;border-bottom:1px solid var(--line)}
@@ -254,7 +255,7 @@ body:not(.chatting) .lvmenu{bottom:auto;top:calc(100% + 10px)}
 
   <footer class="foot">
     <svg class="euflag" width="24" height="16" viewBox="0 0 36 24" role="img" aria-label="Drapeau européen"></svg>
-    <span class="txt">Conforme au règlement (UE) 2024/1689 · Données hébergées dans l'Union européenne</span>
+    <span class="txt">Conforme au règlement (UE) 2024/1689 · Données hébergées dans l'Union européenne ·&nbsp;</span><span class="par">Parodie Apphéro, sans lien avec Mistral AI ni l'Union européenne</span>
     <span class="sp"></span>
     <button class="help tool" aria-label="Aide" data-t="Le centre d'aide est disponible dans les 24 langues officielles de l'Union, en cours de traduction."><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.6v.6M12 17h.01"/></svg></button>
   </footer>
@@ -453,7 +454,7 @@ const PAGES={
  3:`<div class="notice">Votre demande a bien été enregistrée sous le numéro <strong>${ref}</strong>.</div><p>Elle sera traitée dans un délai d'un mois à compter de sa réception. Ce délai peut être prolongé de deux mois compte tenu de la complexité et du nombre de demandes (RGPD, article 12, paragraphe 3). Vous serez informé de toute prolongation.</p><p>Les étapes 4 à 12 vous seront communiquées par courrier.</p>`
 };
 function renderClaim(){const P=mode==="claim"?PAGES:SIGN;$("#clt").textContent=mode==="claim"?"Demande de réexamen":"Créer un compte Zephir";$("#clp").textContent=`Étape ${page} sur 12`;$("#clbody").innerHTML=(mode==="login"&&page===1?`<div class="notice">Aucun compte vérifié n'est associé à cet appareil. Pour vous connecter, vous devez d'abord créer un compte et faire vérifier votre identité.</div>`:"")+P[page]+`<div class="steps"><i class="grad" style="width:${page/12*100}%"></i></div>`;$("#clnext").hidden=page>=3;$("#clclose").textContent=page>=3?"Fermer":"Annuler"}
-function openClaim(m){mode=typeof m==="string"?m:"claim";page=1;renderClaim();$("#claim").hidden=false}
+function openClaim(m){mode=typeof m==="string"?m:"claim";page=1;renderClaim();$("#claim").hidden=false;setTimeout(()=>$("#clclose").focus(),0)}
 $("#clbody").addEventListener("change",e=>{const i=e.target;if(i.type==="file"&&i.files.length){const l=i.parentElement;l.classList.add("ok");l.firstChild.textContent="Reçu"}});
 const lvmenu=$("#lvmenu");
 $("#think").onclick=e=>{e.stopPropagation();lvmenu.hidden=!lvmenu.hidden};
@@ -463,7 +464,7 @@ $("#signup").onclick=()=>openClaim("signup");
 $("#login").onclick=()=>openClaim("login");
 $("#clnext").onclick=()=>{page++;renderClaim()};
 $("#clclose").onclick=()=>{$("#claim").hidden=true};
-document.addEventListener("keydown",e=>{if(e.key==="Escape"){$("#claim").hidden=true;closeSide()}});
+document.addEventListener("keydown",e=>{if(e.key==="Escape"){if(!$("#consent").hidden){refuseAll();return}$("#claim").hidden=true;closeSide()}});
 </script>
 </body>
 </html>

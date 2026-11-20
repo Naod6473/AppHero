@@ -926,7 +926,7 @@ body{transition:background .3s,color .3s}
     <p>Toute reproduction, même partielle, des contenus du site est soumise à une analyse d'impact préalable, à l'avis du délégué à la protection des données et à l'apposition d'un tampon. Les refus du Chien sont protégés au titre du droit d'auteur.</p>
     <h2 class="pg-h2">Droit applicable</h2>
     <p>Le présent site est régi par le droit de chacun des 27 États membres, cumulativement. En cas de contradiction, la règle la plus restrictive s'applique.</p>
-    <p class="muted realnote">Zephir et Le Chien sont une parodie réalisée pour Apphéro (apphero.cloud), sans lien avec Mistral AI, ses clients ou l'Union européenne. Les entreprises et personnes citées sont fictives.</p>
+    <p class="muted realnote">Zephir et Le Chien sont une parodie réalisée pour Apphéro (apphero.cloud), sans lien avec Mistral AI, ses clients ni l'Union européenne. Les entreprises et personnes citées sont fictives.</p>
   </div>
 </section>
 
@@ -1032,7 +1032,7 @@ body{transition:background .3s,color .3s}
   <div class="eu"><svg id="euf" width="42" height="28" viewBox="0 0 36 24" role="img" aria-label="Drapeau européen"></svg><div><b>Conforme au règlement (UE) 2024/1689</b>Entraîné, hébergé et contrôlé dans l'Union européenne.</div></div>
   <span class="sp"></span>
   <div class="links"><a href="#conformite">Conformité et biodiversité</a><a href="#mentions-legales">Mentions légales</a><a href="#confidentialite">Confidentialité</a><a href="#traceurs">Gestion des traceurs</a><a href="#accessibilite">Accessibilité</a></div>
-  <div style="width:100%;font-size:11.5px;opacity:.75">Zephir et Le Chien sont une parodie réalisée pour Apphéro. Sans lien avec Mistral AI, ses clients ni l'Union européenne. Les entreprises citées sont fictives.</div>
+  <div style="width:100%;font-size:13px">Zephir et Le Chien sont une parodie réalisée pour Apphéro. Sans lien avec Mistral AI, ses clients ni l'Union européenne. Les entreprises citées sont fictives.</div>
 </div>
 <footer class="bigfoot">
   <div class="bf-top">
@@ -1239,10 +1239,12 @@ function filterClients(f){
 document.querySelectorAll("#filters button").forEach(b=>b.onclick=()=>filterClients(b.dataset.f));
 function openCase(i){const c=CLIENTS[i];
   $z("#cmbody").innerHTML=`<img class="cmimg" src="img/${CIMG[i]}.webp" alt=""><span class="eyebrow">${c[1]} · ${c[0]}</span><h2 id="cmt">${c[2]}</h2><div class="cm-stat"><b>${c[3]}</b><span class="muted">${c[4]}</span></div><h4>Le défi</h4><p>${c[5]}</p><h4>La solution</h4><p>${c[6]}</p><blockquote>« ${c[7]} »<small>${c[8]}, ${c[0]}</small></blockquote>`;
-  $z("#cmodal").hidden=false;$z("#cmx").focus();if(window.applyLang)applyLang()}
-$z("#cmx").onclick=()=>$z("#cmodal").hidden=true;
-$z("#cmodal").addEventListener("click",e=>{if(e.target.id==="cmodal")$z("#cmodal").hidden=true});
-addEventListener("keydown",e=>{if(e.key==="Escape"){$z("#cmodal").hidden=true;closeMenu()}});
+  cmRet=document.activeElement;$z("#cmodal").hidden=false;$z("#cmx").focus();if(window.applyLang)applyLang()}
+let cmRet=null;function closeCase(){if($z("#cmodal").hidden)return;$z("#cmodal").hidden=true;if(cmRet&&cmRet.focus)cmRet.focus()}
+$z("#cmx").onclick=closeCase;
+$z("#cmodal").addEventListener("click",e=>{if(e.target.id==="cmodal")closeCase()});
+$z("#cmodal").addEventListener("keydown",e=>{if(e.key!=="Tab")return;const f=[...$z("#cmodal").querySelectorAll("button,a[href]")];if(!f.length)return;const a=f[0],b=f[f.length-1];if(e.shiftKey&&document.activeElement===a){e.preventDefault();b.focus()}else if(!e.shiftKey&&document.activeElement===b){e.preventDefault();a.focus()}});
+addEventListener("keydown",e=>{if(e.key==="Escape"){closeCase();closeMenu()}});
 filterClients("Tous");
 
 /* ---- Recherche : résultats ---- */
