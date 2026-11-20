@@ -61,6 +61,103 @@ CREATE TABLE IF NOT EXISTS sukkel_runs (
 CREATE INDEX IF NOT EXISTS sukkel_runs_ms ON sukkel_runs (ms DESC);
 CREATE INDEX IF NOT EXISTS sukkel_runs_ip ON sukkel_runs (ip_hash);
 
+-- Préavis (app 11) : des paris pour rire sur l'actualité sociale, en « pavés » fictifs. Aucun argent.
+-- Joueurs. key = empreinte (SHA-256) du secret gardé dans le cookie pv_id : le secret n'est pas en base.
+-- balance = pavés disponibles, staked = pavés engagés dans des paris pas encore tranchés,
+-- mood = somme des mises pondérées par la « grogne » de l'issue choisie (pour le titre du joueur),
+-- ip_hash = empreinte salée du réseau le jour de l'inscription (limite les comptes créés en série).
+CREATE TABLE IF NOT EXISTS pv_players (
+  id INTEGER PRIMARY KEY,
+  key TEXT NOT NULL UNIQUE,
+  name TEXT NOT NULL,
+  name_key TEXT NOT NULL UNIQUE,
+  balance INTEGER NOT NULL,
+  staked INTEGER NOT NULL DEFAULT 0,
+  fortune INTEGER GENERATED ALWAYS AS (balance + staked) VIRTUAL,
+  wagered INTEGER NOT NULL DEFAULT 0,
+  mood INTEGER NOT NULL DEFAULT 0,
+  settled INTEGER NOT NULL DEFAULT 0,
+  won INTEGER NOT NULL DEFAULT 0,
+  bonus_day TEXT,
+  banned INTEGER NOT NULL DEFAULT 0,
+  ip_hash TEXT NOT NULL,
+  created_at INTEGER NOT NULL,
+  seen_at INTEGER NOT NULL
+);
+CREATE INDEX IF NOT EXISTS pv_players_rank ON pv_players (fortune DESC);
+
+-- Les paris. status = draft (brouillon), open (ouvert, puis « clos » une fois closes_at passé),
+-- resolved (tranché, winner = index de l'issue gagnante) ou void (annulé, tout le monde remboursé).
+-- hist = la courbe des cagnottes, en JSON : [[instant, [cagnotte de chaque issue]], …].
+CREATE TABLE IF NOT EXISTS pv_markets (
+  id TEXT PRIMARY KEY,
+  symbol TEXT NOT NULL,
+  cat TEXT NOT NULL,
+  title TEXT NOT NULL,
+  rules TEXT NOT NULL DEFAULT '',
+  status TEXT NOT NULL DEFAULT 'open',
+  closes_at INTEGER NOT NULL,
+  resolve_by INTEGER,
+  winner INTEGER,
+  verdict TEXT,
+  source TEXT,
+  month TEXT,
+  resolved_at INTEGER,
+  bettors INTEGER NOT NULL DEFAULT 0,
+  hist TEXT NOT NULL DEFAULT '[]',
+  pinned INTEGER NOT NULL DEFAULT 0,
+  created_at INTEGER NOT NULL,
+  updated_at INTEGER NOT NULL
+);
+
+-- Les issues d'un pari. seed = la mise de la maison (fixe les cotes de départ), pool = les mises des joueurs,
+-- grogne = de -100 (tout va bien) à +100 (ça chauffe), pour le grognomètre.
+CREATE TABLE IF NOT EXISTS pv_outcomes (
+  market TEXT NOT NULL,
+  idx INTEGER NOT NULL,
+  label TEXT NOT NULL,
+  seed INTEGER NOT NULL,
+  pool INTEGER NOT NULL DEFAULT 0,
+  grogne INTEGER NOT NULL DEFAULT 0,
+  PRIMARY KEY (market, idx)
+);
+
+-- Une ligne par mise. payout = ce qu'elle a rapporté une fois le pari tranché (NULL tant qu'il ne l'est pas).
+CREATE TABLE IF NOT EXISTS pv_bets (
+  id INTEGER PRIMARY KEY,
+  uid TEXT NOT NULL UNIQUE,
+  market TEXT NOT NULL,
+  player INTEGER NOT NULL,
+  outcome INTEGER NOT NULL,
+  amount INTEGER NOT NULL,
+  payout INTEGER,
+  created_at INTEGER NOT NULL
+);
+CREATE INDEX IF NOT EXISTS pv_bets_market ON pv_bets (market, player);
+CREATE INDEX IF NOT EXISTS pv_bets_player ON pv_bets (player, market);
+
+-- Gains et pertes de chaque joueur par mois (mois du verdict), pour le classement du mois.
+CREATE TABLE IF NOT EXISTS pv_gains (
+  month TEXT NOT NULL,
+  player INTEGER NOT NULL,
+  profit INTEGER NOT NULL DEFAULT 0,
+  PRIMARY KEY (month, player)
+);
+CREATE INDEX IF NOT EXISTS pv_gains_rank ON pv_gains (month, profit DESC);
+
+-- Réglages (les paris de départ ont-ils été inscrits ?) et journal des gestes de l'arbitre.
+CREATE TABLE IF NOT EXISTS pv_meta (
+  k TEXT PRIMARY KEY,
+  v TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS pv_log (
+  id INTEGER PRIMARY KEY,
+  ts INTEGER NOT NULL,
+  action TEXT NOT NULL,
+  market TEXT,
+  data TEXT
+);
+
 -- Mesure d'audience maison, sans cookie. Une ligne par événement.
 -- visitor = empreinte de (sel secret, jour, IP, navigateur) : elle change chaque jour,
 -- on ne peut ni remonter à l'IP ni suivre quelqu'un d'un jour à l'autre.

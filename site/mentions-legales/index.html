@@ -34,9 +34,10 @@
     <section class="panel tldr">
       <h2>En bref</h2>
       <ul>
-        <li>Pas de compte, pas de pub, pas de pisteur publicitaire.</li>
+        <li>Pas de pub, pas de pisteur publicitaire, et pas de compte (sauf un pseudo, si tu joues à Préavis).</li>
         <li>Une mesure d'audience maison, anonyme et sans cookie, pour savoir ce qui plaît. Ces statistiques restent chez nous et ne sont jamais vendues.</li>
         <li>Un cookie, seulement si tu donnes ton avis (j'aime, bof ou vote), pour que ta voix compte une seule fois.</li>
+        <li>Un second cookie, seulement si tu t'inscris à Préavis (l'app 11), pour retrouver ton compte de pavés.</li>
         <li>Le site est hébergé chez Cloudflare. Le nom de domaine est enregistré chez OVH.</li>
         <li>Le code est public sur GitHub.</li>
       </ul>
@@ -50,7 +51,7 @@
 
     <section class="panel">
       <h2>Hébergement</h2>
-      <p>Le site, l'API du vote et sa base de données (Cloudflare Workers et D1, base située en Europe de l'Ouest) sont hébergés par :<br>
+      <p>Le site, ses API (le vote, Préavis) et leur base de données (Cloudflare Workers et D1, base située en Europe de l'Ouest) sont hébergés par :<br>
       <strong>Cloudflare, Inc.</strong>, 101 Townsend Street, San Francisco, CA 94107, États-Unis. <a href="https://www.cloudflare.com" rel="noopener">cloudflare.com</a></p>
       <p>Le nom de domaine <code>apphero.cloud</code> est enregistré chez :<br>
       <strong>OVH SAS</strong>, 2 rue Kellermann, 59100 Roubaix, France. <a href="https://www.ovhcloud.com" rel="noopener">ovhcloud.com</a></p>
@@ -94,8 +95,22 @@
     </section>
 
     <section class="panel">
+      <h2>Préavis (app 11)</h2>
+      <p>Préavis est un jeu de paris pour rire : on y mise des pavés fictifs, sans argent et sans lot. Pour jouer, tu choisis un pseudo. Pas d'e-mail, pas de mot de passe.</p>
+      <p>À l'inscription, et seulement à ce moment-là, le site dépose un cookie (<code>pv_id</code>). Il contient une clé tirée au hasard, qui te rend ton compte à chaque visite. Les scripts des pages ne peuvent pas la lire et elle n'est envoyée qu'au jeu. Ce cookie est nécessaire au jeu que tu demandes : il n'a donc pas besoin de bandeau de consentement. Il expire après 400 jours sans visite.</p>
+      <p>Pour chaque compte, la base enregistre :</p>
+      <ul>
+        <li>ton pseudo, qui est public (il apparaît dans les classements : ne mets pas ton vrai nom) ;</li>
+        <li>ton solde de pavés, tes mises avec leur date, et la date de ta dernière visite ;</li>
+        <li>l'empreinte de la clé du cookie, jamais la clé elle-même ;</li>
+        <li>une empreinte de ton réseau, calculée le jour de l'inscription avec une clé secrète. L'adresse IP elle-même n'est jamais enregistrée, et l'empreinte change chaque jour. Elle sert seulement à limiter les inscriptions en masse et à repérer les comptes multiples.</li>
+      </ul>
+      <p>Ces données servent uniquement à faire tourner le jeu (intérêt légitime). Tu peux supprimer ton compte quand tu veux, depuis « Mon compte » dans l'app : ton pseudo est libéré, le compte devient anonyme et sort des classements, et les mises déjà faites restent dans les cagnottes sans plus aucun lien avec toi. Tout est supprimé après la fin du jeu, au plus tard le 30 juin 2027.</p>
+    </section>
+
+    <section class="panel">
       <h2>Anti-robot et hébergeur</h2>
-      <p>Au moment du vote ou de ton premier avis sur une app, <strong>Cloudflare Turnstile</strong> vérifie que tu n'es pas un robot, en analysant des signaux techniques de ton navigateur, sans publicité ni suivi. <a href="https://www.cloudflare.com/turnstile-privacy-policy/" rel="noopener">Confidentialité de Turnstile</a>.</p>
+      <p>Au moment du vote, de ton premier avis sur une app ou de ton inscription à Préavis, <strong>Cloudflare Turnstile</strong> vérifie que tu n'es pas un robot, en analysant des signaux techniques de ton navigateur, sans publicité ni suivi. <a href="https://www.cloudflare.com/turnstile-privacy-policy/" rel="noopener">Confidentialité de Turnstile</a>.</p>
       <p>Comme tout hébergeur, Cloudflare traite ton adresse IP pour acheminer les pages et protéger le site contre les attaques. Cloudflare est une société américaine qui adhère au cadre de protection des données UE-États-Unis (Data Privacy Framework). <a href="https://www.cloudflare.com/privacypolicy/" rel="noopener">Politique de confidentialité de Cloudflare</a>.</p>
     </section>
 
@@ -106,14 +121,14 @@
 
     <section class="panel">
       <h2>Tes droits</h2>
-      <p>Tu peux demander l'accès à tes données ou leur effacement en écrivant à <a href="mailto:contact@apphero.cloud">contact@apphero.cloud</a> ou sur X à <a href="https://x.com/ZeroE24661" rel="noopener">@ZeroE24661</a>. Comme les votes sont rattachés à un identifiant aléatoire, il faudra nous donner la valeur du cookie du vote pour qu'on retrouve tes avis. Tu peux aussi supprimer ce cookie toi-même depuis ton navigateur.</p>
+      <p>Tu peux demander l'accès à tes données ou leur effacement en écrivant à <a href="mailto:contact@apphero.cloud">contact@apphero.cloud</a> ou sur X à <a href="https://x.com/ZeroE24661" rel="noopener">@ZeroE24661</a>. Comme les votes sont rattachés à un identifiant aléatoire, il faudra nous donner la valeur du cookie du vote pour qu'on retrouve tes avis. Tu peux aussi supprimer ce cookie toi-même depuis ton navigateur. Pour Préavis, la suppression du compte se fait directement dans l'app, depuis « Mon compte ».</p>
       <p>En cas de désaccord, tu peux saisir la <a href="https://www.cnil.fr/fr/plaintes" rel="noopener">CNIL</a>.</p>
     </section>
 
     <section class="panel">
       <h2>Propriété</h2>
       <p>Le code des apps est libre : tu peux le prendre, le modifier et le partager. Les noms et marques cités (Cloudflare, OVH, GitHub, X) appartiennent à leurs propriétaires.</p>
-      <p style="font-size: 15px">Dernière mise à jour : 20 novembre 2026.</p>
+      <p style="font-size: 15px">Dernière mise à jour : 28 novembre 2026.</p>
     </section>
   </main>
 
