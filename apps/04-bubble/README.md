@@ -16,6 +16,9 @@ Un jeu qui se joue entièrement à la voix : une fois la page ouverte, on ne tou
 
 ## Comment c'est fait
 
+Tout a été fait depuis un téléphone : idées, démos, code, page et vidéo, pilotés depuis l'app Claude sur mobile.
+
+
 - `index.html` : la page de présentation (gabarit « plateau » du site).
 - `jeu/index.html` : le jeu, en un seul fichier, avec Three.js 0.160 copié dans `jeu/lib/` (licence MIT).
 - La bulle est une sphère déformée sur la carte graphique (bruit simplex injecté dans le shader de `MeshPhysicalMaterial`), avec des ressorts pour l'inertie. Le reflet vient d'une `CubeCamera` qui filme une sphère texturée avec l'image de la caméra.
