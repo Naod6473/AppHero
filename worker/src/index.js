@@ -4,6 +4,7 @@ import manifest from "../generated/apps.json";
 import CRITERES from "../../shared/criteres.json";
 import { BALLOTS, DAYS, ballotStatus, wheelDays, CHALLENGE_END, REVEAL_AT, LAUNCH_AT, DRAW_LOCK_AT, parisDate, isReleased } from "../../shared/calendar.js";
 import { CRITERIA, criterionLabel, drawCalendar } from "../../shared/criteria.js";
+import { bubble } from "./bubble.js";
 
 // Limite par réseau : une adresse IPv4, ou un bloc /56 en IPv6 (ce qu'une box reçoit le plus souvent :
 // compter par /64 laissait un seul foyer multiplier le plafond par 256).
@@ -157,6 +158,9 @@ async function api(request, env, ctx, url, now) {
     const denied = await adminGuard(request, env, now);
     if (denied) return denied;
   }
+  // Bubble (app 04) : le classement du cri le plus long.
+  if (url.pathname.startsWith("/api/bubble/"))
+    return bubble(request, env, now, route.replace(/\/$/, ""), { json, readJson, ipHashFor, hit, parisDate, released: releasedApp, preview: isPreview });
   switch (route) {
     case "GET /api/state":
       return state(request, env, now);

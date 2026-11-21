@@ -1,0 +1,22 @@
+{
+  "num": 4,
+  "title": "Bubble",
+  "tagline": "Fais éclater des bulles de liquide en criant. Rien qu'à la voix.",
+  "publishAt": "2026-11-21T18:00:00+01:00",
+  "color": "#FF4FA3",
+  "tags": [
+    "three.js",
+    "web-audio",
+    "voix",
+    "jeu"
+  ],
+  "status": "prêt",
+  "making": {
+    "buildMinutes": 60,
+    "thinkingMinutes": 25,
+    "tokens": 900000,
+    "prompts": 9,
+    "tool": "Claude Code",
+    "note": "Simon hésitait entre un chef d'orchestre et un jeu de virelangues, puis a eu l'idée « plus simple » : une bulle à faire éclater en criant. Une première démo, puis la v2 avec le reflet de la pièce par la caméra, 20 bulles et zéro clic. Tout a été fait depuis un téléphone."
+  }
+}
