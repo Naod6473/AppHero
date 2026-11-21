@@ -1,0 +1,12 @@
+/* Same navigation on the main application and every mini-game page. */
+body .topbar{background:#f8f9fc;max-width:1280px;margin:0 auto;min-height:88px;padding:18px 28px;border-bottom:1px solid #d7dfea;display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap}
+body .topbar .brand{font-size:28px;letter-spacing:-1px;display:flex;align-items:center;gap:10px}
+body .topbar .brand>a{color:#293750;text-decoration:none}
+body .topbar .brand .app-logo{width:52px;height:52px;object-fit:contain}
+body .topbar nav{display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+body .topbar nav>a,body .topbar nav>button{display:inline-flex;align-items:center;justify-content:center;margin:0;min-height:44px;padding:10px 12px;border:1px solid transparent;border-radius:9px;background:transparent;color:#254469;text-decoration:none;font-family:inherit;font-size:14px;font-weight:650;line-height:1.3;box-shadow:none}
+body .topbar nav>a:hover,body .topbar nav>button:hover{background:#edf3ff}
+body .topbar nav>[aria-current="page"],body .topbar nav>.active{background:#e4ecfb;color:#204faa}
+body .topbar nav>[href$="#profiles"],body .topbar nav>#profile-nav{border-color:#d7dfea;background:white}
+body .topbar nav>:focus-visible{outline:3px solid #6d28d9;outline-offset:3px}
+@media(max-width:600px){body .topbar{padding:16px;gap:12px}body .topbar nav{width:100%}body .topbar nav>a,body .topbar nav>button{font-size:13px;padding:9px 10px}}

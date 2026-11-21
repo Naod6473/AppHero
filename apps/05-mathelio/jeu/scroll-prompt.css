@@ -1,0 +1,20 @@
+.scroll-prompt {
+ position:fixed;z-index:1000;top:0;left:50%;transform:translateX(-50%);
+ width:min(740px,calc(100% - 24px));padding:12px 18px;
+ background:#fffdf5;border:2px solid #c9b98b;border-top:0;border-radius:0 0 18px 18px;
+ box-shadow:0 5px 18px #302d2526;text-align:center;
+ font-size:clamp(20px,4vw,28px);font-weight:750;line-height:1.35;
+ pointer-events:none;overflow-wrap:anywhere;
+}
+.scroll-prompt[hidden]{display:none}
+.scroll-prompt-content,.scroll-prompt-line{display:block}
+.scroll-prompt span{max-width:100%}
+.scroll-prompt .target-number,.scroll-prompt .mini-value,.scroll-prompt .tower-total{font-size:inherit!important;margin:0}
+.scroll-prompt .target-number{display:inline}
+.scroll-prompt .target-calc{display:block;margin:2px 0 0;min-height:0;font-size:18px}
+.scroll-prompt-content>.scroll-prompt-line:first-child{display:inline;margin-right:8px;font-size:16px}
+.scroll-prompt-content>.target-number{font-size:24px!important}
+.scroll-prompt-story{font-size:18px}
+.learning-large .scroll-prompt{font-size:clamp(24px,5vw,32px)}
+html{scroll-padding-top:90px}
+.game input,.mini-controls input,.fields-controls input{scroll-margin-top:90px}

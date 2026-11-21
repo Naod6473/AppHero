@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="fr">
+<head>
+ <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+ <meta name="theme-color" content="#28235b"><title>La guerre des champs · Mathélio</title>
+ <link rel="icon" href="assets/images/logo.png?v=logo" type="image/png">
+ <link rel="stylesheet" href="style.css?v=2.8.0"><link rel="stylesheet" href="fields.css?v=2.8.0">
+ <script src="diagnostics.js?v=2.8.0" defer></script><script src="audio.js?v=2.8.0" defer></script><script src="fields-engine.js?v=2.8.0" defer></script><script src="mini-guide.js?v=2.8.0" defer></script><script src="mini-progress.js?v=2.8.0" defer></script><script src="number-display.js?v=2.8.0" defer></script><script src="learning.js?v=2.8.0" defer></script><script src="fields.js?v=2.8.0" defer></script>
+<link rel="stylesheet" href="navigation.css?v=2.8.0"><link rel="stylesheet" href="minigames.css?v=2.8.0"><link rel="stylesheet" href="scroll-prompt.css?v=1"><script src="scroll-prompt.js?v=2" defer></script><link rel="stylesheet" href="design-pop.css?v=2"><link rel="stylesheet" href="design-verre.css?v=1"><script src="verre.js?v=1" defer></script><script src="analytics.js?v=1" defer></script></head>
+<body class="design-pop">
+ <header class="topbar"><div class="brand"><img class="app-logo" src="assets/images/logo.png" width="52" height="52" alt=""><a href="index.html">Mathélio<span class="brand-dot">.</span></a></div><nav class="app-navigation" aria-label="Navigation principale"><a href="index.html#home">Jouer</a><a href="index.html#minigames" aria-current="page">Mini-jeux</a><a href="index.html#collection">Collection</a><a href="index.html#records">Records</a><details class="parent-navigation"><summary>Espace parent</summary><div><a href="index.html#parent">Bilan parent</a><a href="index.html#settings">Réglages</a></div></details><button id="fields-mute" type="button" aria-label="Couper le son">🔊</button><a id="fields-profile-nav" href="index.html#profiles">Mon profil</a></nav></header>
+ <main>
+  <p class="eyebrow">Dés, stratégie et géométrie</p><h1>La guerre des champs</h1><p class="subtitle">Agrandis ta ferme, un rectangle à la fois.</p>
+  <section id="setup" class="panel fields-setup">
+   <h2>Qui cultive avec toi ?</h2>
+   <form id="setup-form"><div class="formrow">
+    <label>Mode de jeu<select id="opponent"><option value="local">Deux joueurs sur cet écran</option><option value="computer">Contre l’ordinateur</option><option value="tutorial">Apprendre en trois tours</option></select></label>
+    <label id="ai-label" hidden>Niveau de l’ordinateur<select id="ai-level"><option value="easy">Découverte</option><option value="normal" selected>Stratège</option><option value="hard">Expert</option></select></label>
+    <label id="ai-discovery-label" hidden class="check"><input id="ai-explain" type="checkbox" checked> Expliquer les choix de l’ordinateur</label>
+    <label>Joueur rouge<input id="name-red" maxlength="24" value="Joueur 1" required></label>
+    <label id="blue-label">Joueur bleu<input id="name-blue" maxlength="24" value="Joueur 2" required></label>
+   </div><button class="primary" type="submit">Commencer la partie</button></form>
+  </section>
+  <section class="panel spaced" id="architect-intro"><h2>🏗️ Atelier Architecte</h2><p>Construis deux rectangles de même aire, puis compare leurs périmètres.</p><button id="architect-start">Ouvrir l’atelier</button></section>
+  <section id="architect" class="panel spaced" hidden></section>
+  <details class="panel fields-rules"><summary>Comment jouer ?</summary>
+   <p>Chaque joueur part de sa ferme. Lance les deux dés : ils donnent la largeur et la hauteur de ton champ. Tu peux tourner le rectangle. Choisis ta case en haut à gauche, calcule son aire, puis confirme.</p>
+   <p>Le premier champ touche ta ferme. Les suivants touchent au moins un de tes champs par un côté. Les champs ne se chevauchent pas et ne recouvrent ni les fermes ni l’arbre. Un coin seul ne suffit pas.</p>
+   <p>Si aucun placement n’est possible avec les dés, passe ton tour. Deux tours bloqués consécutifs terminent la partie. Un placement réussi remet ce compteur à zéro.</p>
+   <p>À la fin, calcule ton score : <strong>A</strong>, aire totale ; <strong>P</strong>, somme des périmètres de tes rectangles (les côtés partagés sont comptés pour chaque rectangle) ; <strong>R</strong>, aire du plus grand rectangle. Chaque critère rapporte un point au meilleur résultat. En cas d’égalité, chacun marque un point.</p>
+  </details>
+  <details class="fields-rules"><summary>Couleurs des nombres</summary><div id="fields-number-settings"></div></details>
+  <details class="fields-rules"><summary>Musique et sons</summary><label class="check"><input id="fields-music" type="checkbox"> Musique de fond</label><label>Volume de la musique<input id="fields-music-volume" type="range" min="0" max="100"></label><p class="muted">Réglages partagés avec Mathélio. Le haut-parleur coupe tous les sons. La musique commence après un clic ou une touche et s’arrête lorsque l’onglet est masqué.</p></details>
+  <section id="match" hidden>
+   <div id="players" class="fields-players"></div>
+   <div class="fields-layout"><section class="panel fields-board-panel"><div id="board" class="fields-board" role="group" aria-label="Plateau de 23 colonnes et 15 lignes"></div><p class="muted fields-caption">Sur tablette, fais glisser le plateau horizontalement si nécessaire. ⌂ Fermes · 🌳 Arbre · Clique la case en haut à gauche de ton rectangle. Flèches pour naviguer au clavier, Entrée pour choisir.</p></section>
+    <aside class="panel fields-controls"><h2 id="turn-title"></h2><p id="status" role="status" aria-live="polite"></p>
+     <div id="dice" class="fields-dice" aria-label="Dés non lancés"><span>?</span><span>?</span></div>
+     <div class="fields-buttons"><button id="roll" class="primary">Lancer les dés</button><button id="rotate" disabled>Tourner ↻</button><button id="hint" disabled>Montrer un emplacement</button><button id="pass" disabled>Passer mon tour</button></div>
+     <form id="area-form" hidden><label>Quelle est l’aire de ce champ ?<input id="area" type="number" min="1" max="36" inputmode="numeric" required></label><p id="area-help" class="muted"></p><button id="confirm" class="primary" type="submit">Valider le champ</button></form>
+     <div id="fields-learning-tools"></div><p id="feedback" role="status" aria-live="polite"></p><button id="restart" class="spaced">Nouvelle partie</button>
+    </aside></div>
+   <section id="results" class="panel spaced" hidden></section>
+  </section>
+ </main><footer><span>Mathélio · Aire, périmètre et stratégie</span><span>Partie locale, sans classement commun</span></footer>
+<script src="mini-embed.js?v=2.8.0" defer></script></body></html>

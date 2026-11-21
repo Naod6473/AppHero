@@ -1,0 +1,22 @@
+{
+  "num": 5,
+  "title": "Mathélio",
+  "tagline": "Le calcul mental du CP à la 6e, avec un compagnon qui grandit.",
+  "publishAt": "2026-11-22T18:00:00+01:00",
+  "color": "#2F6BFF",
+  "tags": [
+    "html",
+    "css",
+    "enfants",
+    "calcul mental"
+  ],
+  "status": "prêt",
+  "making": {
+    "buildMinutes": 120,
+    "thinkingMinutes": 40,
+    "tokens": 2500000,
+    "prompts": 7,
+    "tool": "Claude Code",
+    "note": "Mathélio existait déjà : Simon l'avait faite pour l'école. Pour le défi « Pour les enfants », Claude a proposé une vingtaine d'améliorations, Simon les a toutes validées, puis a demandé un effet « liquid glass » coloré, des mascottes en verre, un niveau 6e et un mode de lecture pour les enfants dys."
+  }
+}
