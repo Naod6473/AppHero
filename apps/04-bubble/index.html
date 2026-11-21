@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bubble · Apphéro 04/30</title>
+<meta name="description" content="Bubble : fais éclater des bulles de liquide en criant. Un jeu qui se joue entièrement à la voix, avec ta pièce qui se reflète dans la bulle.">
+<meta name="theme-color" content="#ffd83d">
+<meta property="og:title" content="Bubble · Apphéro 04/30">
+<meta property="og:url" content="https://apphero.cloud/apps/04-bubble/">
+<meta property="og:description" content="Fais éclater des bulles de liquide en criant. Rien qu'à la voix.">
+<meta property="og:image" content="https://apphero.cloud/apps/04-bubble/media/poster.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="media/favicon.png">
+<link rel="apple-touch-icon" href="media/apple-touch-icon.png">
+<link rel="preload" href="/plateau/fonts/bagel-fat-one-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/plateau/plateau.css">
+<script src="/plateau/plateau.js" defer></script>
+<style>
+  .pl-video a { display: block; }
+  .pl-video img { display: block; width: 100%; height: auto; }
+</style>
+</head>
+<!-- Gabarit « plateau » : fond jaune ou nuit dans data-plateau, couleur de l'app dans --accent. -->
+<body data-plateau="jaune" style="--accent: #ff4fa3">
+<div class="pl">
+
+<nav class="pl-nav" aria-label="Apphéro">
+  <a class="pl-brand" href="/">Apphéro</a>
+  <div class="pl-links">
+    <a href="/#apps">Le calendrier</a>
+    <a class="pl-hide-sm" href="/roue/">La roue</a>
+    <a class="pl-x" href="https://x.com/ZeroE24661">Suivre sur X</a>
+  </div>
+</nav>
+
+<header class="pl-head">
+  <span class="pl-tag" data-plateau-tag>App 04/30 · Commande à la voix</span>
+  <div class="pl-title">
+    <img class="pl-icon" src="logo.svg" alt="" width="100" height="100">
+    <h1>Bubble</h1>
+  </div>
+  <p class="pl-tagline">Fais éclater des bulles de liquide en criant. Pas un clic : tout se joue à la voix.</p>
+</header>
+
+<figure class="pl-screen">
+  <div class="pl-video">
+    <video src="media/presentation.mp4" poster="media/poster.jpg" width="1920" height="1080" preload="none" playsinline aria-label="Vidéo de présentation de Bubble"></video>
+    <button class="pl-play" type="button" aria-label="Lire la vidéo de présentation">
+      <svg width="40" height="40" viewBox="0 0 24 24" fill="#15112b" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
+    </button>
+  </div>
+</figure>
+
+<p class="pl-pitch">Le défi du jour : « Commande à la voix ». Une fois le jeu ouvert, plus rien ne se touche. Au centre de l'écran, une bulle de liquide en 3D, où se reflète ta pièce grâce à la caméra. Crie, tiens le son au-dessus de la ligne, et elle gonfle, tremble, puis éclate en gouttes sur l'écran. Vingt bulles, du savon à la lave, chacune plus coriace que la précédente, puis un mode sans fin. À la fin, tu dis ton nom pour entrer au classement du cri le plus long.</p>
+
+<div class="pl-actions">
+  <a class="pl-cta" href="jeu/">Ouvrir Bubble
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"/></svg></a>
+  <a class="pl-ghost" href="https://github.com/Naod6473/AppHero/tree/main/apps/04-bubble">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 19c-4 1.5-4-2-6-2.5M15 21v-3.5c0-1 .1-1.4-.5-2 2.8-.3 5.5-1.4 5.5-6a4.6 4.6 0 0 0-1.3-3.2 4.2 4.2 0 0 0-.1-3.2s-1-.3-3.4 1.3a11.7 11.7 0 0 0-6.2 0C6.6 2.8 5.6 3.1 5.6 3.1a4.2 4.2 0 0 0-.1 3.2A4.6 4.6 0 0 0 4.2 9.5c0 4.6 2.7 5.7 5.5 6-.6.6-.6 1.2-.5 2V21"/></svg>Le code</a>
+</div>
+<p class="pl-note">Micro obligatoire, caméra conseillée. Sur ordinateur et sur téléphone. Le nom se dit à voix haute sur Chrome, Edge et Safari.</p>
+
+<section class="pl-cards" aria-label="L'app en bref">
+  <div class="pl-card">
+    <h2>Au programme</h2>
+    <ul>
+      <li>20 bulles : savon, miel, mercure, lave…</li>
+      <li>Des règles à part : crier aigu, par saccades, ni trop ni trop peu.</li>
+      <li>Ta pièce qui se reflète dans la bulle.</li>
+      <li>Le classement du cri le plus long.</li>
+    </ul>
+  </div>
+  <div class="pl-card">
+    <h2>Les coulisses</h2>
+    <div data-plateau-making><p style="margin:0;font-size:18px">Les chiffres arrivent bientôt.</p></div>
+  </div>
+  <div class="pl-card">
+    <h2>Ton avis</h2>
+    <div class="pl-votes" role="group" aria-label="Ton avis sur Bubble">
+      <button type="button" data-v="1" aria-pressed="false">J'aime<span data-plateau-likes></span></button>
+      <button type="button" data-v="-1" aria-pressed="false">Bof</button>
+    </div>
+    <small>Vote de la semaine le dimanche à 18 h.</small>
+    <button class="pl-share" type="button">Partager</button>
+  </div>
+</section>
+
+<section class="pl-tech" aria-labelledby="tech-title">
+  <h2 id="tech-title">Sous le capot</h2>
+  <dl>
+    <div><dt>Three.js</dt><dd>La bulle est une sphère déformée par la carte graphique, avec une matière qui réfracte, reflète et s'irise comme un vrai film de savon.</dd></div>
+    <div><dt>Web Audio</dt><dd>Le volume et la hauteur de ta voix sont mesurés sur ton appareil. Rien n'est enregistré ni envoyé.</dd></div>
+    <div><dt>La caméra en miroir</dt><dd>L'image de la caméra frontale sert seulement de reflet. Elle ne quitte pas ton appareil.</dd></div>
+    <div><dt>Reconnaissance vocale</dt><dd>Celle du navigateur, pour ton nom, « oui », « non » et « rejouer ». Sur Chrome, ces quelques mots passent par Google.</dd></div>
+  </dl>
+  <p>Le classement garde ton nom, ton cri le plus long et ton niveau. Le code est sur <a href="https://github.com/Naod6473/AppHero/tree/main/apps/04-bubble">GitHub</a>.</p>
+</section>
+
+<section class="pl-strip" aria-label="La suite">
+  <div>
+    <b data-plateau-next>Demain, 18 h : l'app 05</b>
+    <p data-plateau-next-text>Une nouvelle app tous les jours à 18 h.</p>
+  </div>
+  <a class="pl-follow" href="https://x.com/ZeroE24661">Suivre @ZeroE24661</a>
+</section>
+
+<footer class="pl-foot">
+  <a href="/apps/03-zephir/" data-plateau-prev>← App 03</a>
+  <a href="/">Toutes les apps</a>
+</footer>
+
+</div>
+</body>
+</html>

@@ -106,3 +106,16 @@ CREATE TABLE IF NOT EXISTS quota (
   n INTEGER NOT NULL DEFAULT 0,
   PRIMARY KEY (day, key)
 );
+
+-- Bubble (app 04) : une ligne par partie envoyée au classement. ms = cri le plus long (millisecondes),
+-- lvl = niveau atteint, dur = durée de la partie (secondes). ip_hash = empreinte salée du réseau, propre à Bubble.
+CREATE TABLE IF NOT EXISTS bubble_scores (
+  id INTEGER PRIMARY KEY,
+  name TEXT NOT NULL,
+  ms INTEGER NOT NULL,
+  lvl INTEGER NOT NULL,
+  dur INTEGER NOT NULL,
+  ip_hash TEXT NOT NULL,
+  created_at INTEGER NOT NULL
+);
+CREATE INDEX IF NOT EXISTS bubble_scores_rank ON bubble_scores (ms DESC);

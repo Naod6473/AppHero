@@ -1,0 +1,528 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Bubble · Apphéro 04/30</title>
+<meta name="description" content="Fais éclater des bulles de liquide en criant. Rien qu'à la voix.">
+<link rel="icon" href="../media/favicon.png">
+<meta name="theme-color" content="#06060a">
+<style>
+:root{--bg:#06060a;--fg:#f3f1ec;--dim:#8a8794;--acc:#ff4fa3}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:var(--bg);color:var(--fg);font-family:system-ui,-apple-system,"Segoe UI",sans-serif;overflow:hidden;user-select:none}
+canvas{position:fixed;inset:0;display:block;width:100%;height:100%}
+#splat{pointer-events:none}
+.hud{position:fixed;left:0;right:0;top:max(18px,env(safe-area-inset-top));text-align:center;pointer-events:none;transition:opacity .4s}
+.hud .lvl{font-size:12px;letter-spacing:.22em;text-transform:uppercase;color:var(--dim)}
+.hud .name{font-size:22px;font-weight:600;margin-top:6px}
+.hud .rule{font-size:13px;color:var(--acc);margin-top:6px;min-height:1em}
+.bar{position:fixed;left:50%;bottom:max(34px,env(safe-area-inset-bottom));transform:translateX(-50%);width:min(320px,70vw);height:4px;background:#ffffff14;border-radius:4px;pointer-events:none;transition:opacity .4s}
+.bar i{position:absolute;left:0;top:0;bottom:0;border-radius:4px;background:var(--fg);width:0}
+.bar b{position:absolute;top:-6px;bottom:-6px;width:2px;background:var(--acc)}
+.bar b.max{background:#ffd166}
+.sub{position:fixed;left:0;right:0;bottom:max(52px,calc(env(safe-area-inset-bottom) + 18px));text-align:center;font-size:13px;color:var(--dim);pointer-events:none;font-variant-numeric:tabular-nums;transition:opacity .4s}
+.screen{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;text-align:center;padding:24px;background:#06060ab0;transition:opacity .5s}
+.screen.hide{opacity:0;pointer-events:none}
+h1{font-size:clamp(48px,12vw,96px);letter-spacing:-.03em;font-weight:800}
+p{color:var(--dim);max-width:36ch;line-height:1.5}
+.big{font-size:clamp(28px,7vw,44px);font-weight:700}
+.cue{font-size:20px;color:var(--acc);font-weight:600}
+ol{list-style:none;width:min(340px,86vw);text-align:left}
+ol li{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid #ffffff12;font-variant-numeric:tabular-nums}
+ol li.me{color:var(--acc)}
+ol li span:first-child{opacity:.5;width:2.2ch}
+ol li span:nth-child(2){flex:1;margin-left:10px}
+.rec{font-size:13px;min-height:1.2em}
+.live{min-height:1.4em;font-size:24px;color:var(--fg)}
+.meter{width:min(240px,60vw);height:4px;background:#ffffff14;border-radius:4px;overflow:hidden}
+.meter i{display:block;height:100%;width:0;background:var(--acc)}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<canvas id="splat"></canvas>
+<div class="hud" id="hud"><div class="lvl" id="lvl"></div><div class="name" id="bname"></div><div class="rule" id="rule"></div></div>
+<div class="sub" id="sub"></div>
+<div class="bar" id="bar"><i id="fill"></i><b id="thr"></b><b id="thrmax" class="max"></b></div>
+
+<div class="screen" id="s-start">
+  <h1>Bubble</h1>
+  <p id="startp">Autorise le micro (et la caméra pour les reflets).</p>
+  <div class="meter"><i id="smeter"></i></div>
+  <div class="cue" id="startcue"></div>
+  <p class="rec" id="rec"></p>
+</div>
+<div class="screen hide" id="s-msg"><div class="big" id="msg"></div><p id="msg2"></p></div>
+<div class="screen hide" id="s-end">
+  <div class="big" id="endt"></div>
+  <p id="ends"></p>
+  <div class="cue" id="ask"></div>
+  <div class="live" id="live"></div>
+  <ol id="board"></ol>
+  <p id="again"></p>
+</div>
+
+<script type="importmap">{"imports":{"three":"./lib/three.module.min.js","three/addons/":"./lib/addons/"}}</script>
+<script type="module">
+import * as THREE from 'three';
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
+
+const $ = id => document.getElementById(id);
+
+// ---------- Les 20 bulles ----------
+// type : hold (tenir), band (rester entre deux lignes), pitch (crier aigu), rhythm (saccades), cluster (3 bulles)
+const B = (n,c,o)=>Object.assign({n,c,tr:1,th:1,ir:0,ro:0,me:0,ior:1.4,type:'hold',visc:.8,pop:600},o);
+const BUBBLES = [
+  B('Bulle de savon','#ffffff',{tr:1,th:.02,ir:1,op:.5,thr:.20,hold:1.0,visc:1,pop:1200}),
+  B("Bulle d'eau",'#cfeaff',{th:1.2,ior:1.33,thr:.24,hold:1.4,visc:.9,pop:900}),
+  B('Bulle de lait','#f3efe6',{tr:.12,ro:.28,thr:.28,hold:1.8,visc:.7,pop:500}),
+  B("Bulle d'huile",'#f2cd55',{tr:.95,ir:.6,thr:.31,hold:2.1,visc:.6,pop:420}),
+  B('Bulle de grenadine','#e3133b',{tr:.9,th:2,thr:.34,hold:2.4,visc:.7,pop:700}),
+  B('Bulle de café','#4a2512',{tr:.55,th:3,ro:.04,thr:.37,hold:2.6,visc:.6,pop:380}),
+  B("Bulle d'encre",'#0b1a5c',{tr:.35,th:3,ro:.02,thr:.40,hold:2.8,visc:.6,pop:350}),
+  B('Bulle de slime','#55e04a',{tr:.7,th:2.5,ro:.12,thr:.42,hold:3.0,visc:.35,pop:250}),
+  B('Bulle de miel','#e3901b',{tr:.85,th:3,ro:.05,thr:.45,hold:3.2,visc:.3,pop:280}),
+  B('Bulle de chocolat','#3b1d0c',{tr:0,ro:.18,thr:.47,hold:3.4,visc:.35,pop:220}),
+  B('Bulle de caramel','#c66a12',{tr:.6,th:3,ro:.06,thr:.49,hold:3.6,visc:.3,pop:260}),
+  B('Bulle de champagne','#f4e3a1',{tr:.95,th:1,ir:.3,type:'band',thr:.34,max:.62,hold:3.4,visc:.9,pop:1500,rule:'Entre les deux lignes : trop fort, elle durcit'}),
+  B('Bulle de gelée','#ff3d6e',{tr:.75,th:2.2,ir:.15,ro:.1,type:'rhythm',thr:.42,beats:7,visc:1.2,pop:450,rule:'Crie par saccades : HA ! HA ! HA !'}),
+  B('Grappe de lessive','#7ad3ff',{tr:1,th:.3,ir:.9,op:.7,type:'cluster',thr:.44,hold:1.6,visc:1,pop:1000,rule:'Trois bulles, une à la fois'}),
+  B('Bulle de verre fondu','#ffe7cf',{tr:1,th:2.5,ior:1.5,em:'#ff5a00',emi:.15,type:'pitch',thr:.30,hold:2.6,visc:.4,pop:2000,rule:'Crie AIGU pour la faire éclater'}),
+  B("Bulle d'azote liquide",'#dff3ff',{tr:1,th:.6,ir:.4,ro:.02,thr:.55,hold:4.0,visc:1,pop:1400}),
+  B("Bulle d'or",'#ffcf5a',{tr:0,me:1,ro:.06,thr:.58,hold:4.3,visc:.5,pop:900}),
+  B('Bulle de mercure','#d4d8de',{tr:0,me:1,ro:.03,thr:.62,hold:4.6,visc:.8,pop:800}),
+  B('Bulle de lave','#2a0d05',{tr:0,ro:.55,em:'#ff4a00',emi:1.2,thr:.66,hold:5.0,visc:.3,pop:200}),
+  B('Bulle galaxie','#1a0b3a',{tr:.4,th:2,ir:1,em:'#7b3cff',emi:.5,thr:.70,hold:5.5,visc:.7,pop:600}),
+];
+const LIMIT = 15;
+
+// ---------- Rendu ----------
+const renderer = new THREE.WebGLRenderer({canvas:$('c'), antialias:true, powerPreference:'high-performance'});
+const DPR = Math.min(devicePixelRatio, 2);
+renderer.setPixelRatio(DPR);
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.0;
+const scene = new THREE.Scene();
+scene.background = new THREE.Color('#06060a');
+const camera = new THREE.PerspectiveCamera(35, 1, .1, 100);
+camera.position.set(0,0,7);
+
+// fond : léger halo
+const back = new THREE.Mesh(new THREE.PlaneGeometry(40,40), new THREE.ShaderMaterial({
+  depthWrite:false, uniforms:{uTint:{value:new THREE.Color('#ffffff')}},
+  vertexShader:'varying vec2 v;void main(){v=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}',
+  fragmentShader:'uniform vec3 uTint;varying vec2 v;void main(){float d=distance(v,vec2(.5,.52));vec3 c=mix(vec3(.10,.095,.14)+uTint*.03,vec3(.023,.023,.038),smoothstep(0.,.3,d));gl_FragColor=vec4(pow(c,vec3(2.2)),1.);}'
+}));
+back.position.z = -6; scene.add(back);
+// ombre douce sous la bulle
+const shadow = new THREE.Mesh(new THREE.PlaneGeometry(3,1), new THREE.ShaderMaterial({transparent:true, depthWrite:false,
+  uniforms:{uO:{value:.5}},
+  vertexShader:'varying vec2 v;void main(){v=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}',
+  fragmentShader:'uniform float uO;varying vec2 v;void main(){float d=length((v-.5)*vec2(1.,1.));gl_FragColor=vec4(0.,0.,0.,uO*smoothstep(.5,0.,d));}'}));
+shadow.position.set(0,-1.75,-.5); shadow.rotation.x = -1.2; scene.add(shadow);
+const key = new THREE.DirectionalLight('#ffffff', 1.6); key.position.set(3,4,5); scene.add(key);
+const rim = new THREE.DirectionalLight('#ff6fb5', 1.0); rim.position.set(-4,-2,-3); scene.add(rim);
+
+// ---------- Environnement : caméra frontale ou studio ----------
+const pmrem = new THREE.PMREMGenerator(renderer);
+const studioEnv = pmrem.fromScene(new RoomEnvironment(renderer), .04).texture;
+scene.environment = studioEnv;
+const envScene = new THREE.Scene();
+const cubeRT = new THREE.WebGLCubeRenderTarget(128, {type:THREE.HalfFloatType, generateMipmaps:true, minFilter:THREE.LinearMipmapLinearFilter});
+const cubeCam = new THREE.CubeCamera(.1, 50, cubeRT);
+let videoTex = null, camEnv = false;
+function buildCamEnv(video){
+  videoTex = new THREE.VideoTexture(video); videoTex.colorSpace = THREE.SRGBColorSpace;
+  // grande sphère vue de l'intérieur : la vidéo couvre la moitié tournée vers le joueur (+z), miroir
+  const m = new THREE.ShaderMaterial({side:THREE.BackSide, uniforms:{uV:{value:videoTex}},
+    vertexShader:'varying vec3 d;void main(){d=normalize(position);gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}',
+    fragmentShader:`uniform sampler2D uV;varying vec3 d;
+      void main(){
+        // projection : direction -> image (champ ~ 120°), bords étirés
+        float z=max(d.z,0.02);
+        vec2 p=d.xy/(z+.55);
+        vec2 uv=vec2(.5+p.x*.55,.5+p.y*.55);
+        uv=clamp(uv,0.,1.);
+        uv.x=1.-uv.x;               // miroir, comme un selfie
+        vec3 c=texture2D(uV,uv).rgb;
+        c=pow(c,vec3(2.2));         // vers linéaire
+        float front=smoothstep(-.35,.25,d.z);
+        vec3 backc=c*.3;           // derrière : la même pièce, assombrie
+        vec3 col=mix(backc,c*1.8,front);
+        col+=vec3(1.)*smoothstep(.93,.99,d.y)*2.;   // plafonnier
+        gl_FragColor=vec4(col,1.);
+      }`});
+  envScene.add(new THREE.Mesh(new THREE.SphereGeometry(20,64,32), m));
+  // deux panneaux lumineux pour garder de beaux reflets
+  const pm = new THREE.MeshBasicMaterial({color:new THREE.Color(3,3,3), side:THREE.DoubleSide});
+  const p1 = new THREE.Mesh(new THREE.PlaneGeometry(6,3), pm); p1.position.set(7,6,6); p1.lookAt(0,0,0); envScene.add(p1);
+  const p2 = new THREE.Mesh(new THREE.PlaneGeometry(4,4), new THREE.MeshBasicMaterial({color:new THREE.Color(.6,.25,.45),side:THREE.DoubleSide})); p2.position.set(-8,-2,-4); p2.lookAt(0,0,0); envScene.add(p2);
+  camEnv = true; scene.environment = cubeRT.texture;
+}
+let envFrame = 0;
+function updateEnv(){ if(!camEnv) return; if((envFrame++)%3) return; cubeCam.update(renderer, envScene); cubeRT.texture.needsPMREMUpdate = true; }
+
+// ---------- Bulle : déformation sur la carte graphique ----------
+const NOISE = `
+vec3 mod289(vec3 x){return x-floor(x*(1./289.))*289.;}
+vec4 mod289(vec4 x){return x-floor(x*(1./289.))*289.;}
+vec4 permute(vec4 x){return mod289(((x*34.)+1.)*x);}
+vec4 taylorInvSqrt(vec4 r){return 1.79284291400159-.85373472095314*r;}
+float snoise(vec3 v){const vec2 C=vec2(1./6.,1./3.);const vec4 D=vec4(0.,.5,1.,2.);
+vec3 i=floor(v+dot(v,C.yyy));vec3 x0=v-i+dot(i,C.xxx);vec3 g=step(x0.yzx,x0.xyz);vec3 l=1.-g;
+vec3 i1=min(g.xyz,l.zxy);vec3 i2=max(g.xyz,l.zxy);vec3 x1=x0-i1+C.xxx;vec3 x2=x0-i2+C.yyy;vec3 x3=x0-D.yyy;
+i=mod289(i);vec4 p=permute(permute(permute(i.z+vec4(0.,i1.z,i2.z,1.))+i.y+vec4(0.,i1.y,i2.y,1.))+i.x+vec4(0.,i1.x,i2.x,1.));
+float n_=.142857142857;vec3 ns=n_*D.wyz-D.xzx;vec4 j=p-49.*floor(p*ns.z*ns.z);vec4 x_=floor(j*ns.z);vec4 y_=floor(j-7.*x_);
+vec4 x=x_*ns.x+ns.yyyy;vec4 y=y_*ns.x+ns.yyyy;vec4 h=1.-abs(x)-abs(y);vec4 b0=vec4(x.xy,y.xy);vec4 b1=vec4(x.zw,y.zw);
+vec4 s0=floor(b0)*2.+1.;vec4 s1=floor(b1)*2.+1.;vec4 sh=-step(h,vec4(0.));vec4 a0=b0.xzyw+s0.xzyw*sh.xxyy;vec4 a1=b1.xzyw+s1.xzyw*sh.zzww;
+vec3 p0=vec3(a0.xy,h.x);vec3 p1=vec3(a0.zw,h.y);vec3 p2=vec3(a1.xy,h.z);vec3 p3=vec3(a1.zw,h.w);
+vec4 norm=taylorInvSqrt(vec4(dot(p0,p0),dot(p1,p1),dot(p2,p2),dot(p3,p3)));p0*=norm.x;p1*=norm.y;p2*=norm.z;p3*=norm.w;
+vec4 m=max(.6-vec4(dot(x0,x0),dot(x1,x1),dot(x2,x2),dot(x3,x3)),0.);m=m*m;
+return 42.*dot(m*m,vec4(dot(p0,x0),dot(p1,x1),dot(p2,x2),dot(p3,x3)));}
+uniform float uTime, uAmp, uFreq, uSpeed, uRip, uSquash;
+uniform vec3 uDir;
+vec3 disp(vec3 p){
+  vec3 n=normalize(p);
+  float d=snoise(n*uFreq+vec3(0.,0.,uTime*uSpeed))*uAmp
+         +snoise(n*uFreq*2.3-vec3(uTime*uSpeed*1.4))*uAmp*.15
+         +sin(dot(n,uDir)*14.-uTime*22.)*uRip;          // ondes quand on crie
+  vec3 q=n*(1.+d);
+  q.y*=1.-uSquash; q.xz*=1.+uSquash*.5;                 // écrasement / étirement (ressort)
+  return q;
+}`;
+const uni = {uTime:{value:0},uAmp:{value:.02},uFreq:{value:1.6},uSpeed:{value:.4},uRip:{value:0},uSquash:{value:0},uDir:{value:new THREE.Vector3(0,0,1)}};
+function makeMat(){
+  const m = new THREE.MeshPhysicalMaterial({transparent:true});
+  m.onBeforeCompile = sh=>{
+    Object.assign(sh.uniforms, uni);
+    sh.vertexShader = sh.vertexShader
+      .replace('#include <common>', '#include <common>\n'+NOISE)
+      .replace('#include <beginnormal_vertex>', `
+        vec3 P=disp(position);
+        vec3 nn=normalize(position);
+        vec3 t1=normalize(cross(nn, abs(nn.y)<.99?vec3(0.,1.,0.):vec3(1.,0.,0.)));
+        vec3 t2=cross(nn,t1);
+        float e=.01;
+        vec3 A=disp(normalize(position+t1*e)), Bq=disp(normalize(position+t2*e));
+        vec3 objectNormal=normalize(cross(A-P,Bq-P));
+        if(dot(objectNormal,nn)<0.) objectNormal=-objectNormal;`)
+      .replace('#include <begin_vertex>', 'vec3 transformed=P;');
+  };
+  return m;
+}
+const mat = makeMat();
+const geo = new THREE.SphereGeometry(1, 160, 120);
+const balls = [0,1,2].map(()=>{ const b=new THREE.Mesh(geo, mat); b.visible=false; scene.add(b); return b; });
+
+// gouttes 3D
+const DROPS = 160;
+const dropMat = new THREE.MeshPhysicalMaterial({transparent:true});
+const drops = new THREE.InstancedMesh(new THREE.SphereGeometry(1,16,12), dropMat, DROPS);
+drops.visible = false; drops.frustumCulled=false; scene.add(drops);
+const dp = [...Array(DROPS)].map(()=>({p:new THREE.Vector3(),v:new THREE.Vector3(),s:0,a:true}));
+const tmp = new THREE.Object3D(), vtmp = new THREE.Vector3(), qtmp = new THREE.Quaternion(), up = new THREE.Vector3(0,1,0);
+
+function applyBubble(b){
+  for (const m of [mat, dropMat]){
+    m.color.set(b.c); m.transmission=b.tr; m.thickness=b.th; m.iridescence=b.ir;
+    m.iridescenceIOR=1.3; m.iridescenceThicknessRange=[120,900];
+    m.roughness=b.ro; m.metalness=b.me; m.ior=b.ior; m.clearcoat=1; m.clearcoatRoughness=.04;
+    m.emissive.set(b.em||'#000'); m.emissiveIntensity=b.emi||0; m.envMapIntensity=1.2;
+    m.opacity = b.op||1; m.specularIntensity=1;
+  }
+  dropMat.opacity = 1;
+  back.material.uniforms.uTint.value.set(b.em||b.c);
+}
+
+// post-traitement : halo doux sur les reflets
+const composer = new EffectComposer(renderer);
+composer.addPass(new RenderPass(scene, camera));
+const bloom = new UnrealBloomPass(new THREE.Vector2(256,256), .35, .5, .85);
+composer.addPass(bloom); composer.addPass(new OutputPass());
+
+// ---------- Éclaboussures sur l'écran (2D) ----------
+const sc = $('splat'), sx = sc.getContext('2d');
+let splats = [];
+function splatScreen(color, n){
+  const r0 = Math.min(innerWidth, innerHeight);
+  for(let i=0;i<n;i++){
+    const a=Math.random()*Math.PI*2, d=(.15+Math.random()*.45)*r0;
+    splats.push({x:innerWidth/2+Math.cos(a)*d, y:innerHeight/2+Math.sin(a)*d*.8, r:(4+Math.random()**2*22)*(r0/800),
+      vy:0, life:1, drip:Math.random()<.6, c:color, delay:Math.random()*.12});
+  }
+}
+function drawSplats(dt){
+  sx.clearRect(0,0,sc.width,sc.height);
+  splats = splats.filter(s=>s.life>0);
+  for(const s of splats){
+    if(s.delay>0){ s.delay-=dt; continue; }
+    if(s.drip){ s.vy += 12*dt; s.y += s.vy*dt*s.r*.25; }
+    s.life -= dt*(s.drip?.28:.45);
+    const a = Math.max(0,Math.min(1,s.life*1.6));
+    const g = sx.createRadialGradient(s.x*DPR - s.r*.35*DPR, s.y*DPR - s.r*.35*DPR, s.r*.05*DPR, s.x*DPR, s.y*DPR, s.r*DPR);
+    g.addColorStop(0,`rgba(255,255,255,${.85*a})`); g.addColorStop(.25,hexA(s.c,.55*a)); g.addColorStop(1,hexA(s.c,.25*a));
+    sx.fillStyle=g; sx.beginPath(); sx.ellipse(s.x*DPR, s.y*DPR, s.r*DPR, s.r*DPR*(1+Math.min(s.vy*.004,1.2)), 0, 0, Math.PI*2); sx.fill();
+    if(s.drip && s.vy>5){ sx.fillStyle=hexA(s.c,.18*a); sx.fillRect((s.x-s.r*.25)*DPR,(s.y-s.vy*.6)*DPR,s.r*.5*DPR,s.vy*.6*DPR); }
+  }
+}
+function hexA(h,a){ const c=new THREE.Color(h); return `rgba(${c.r*255|0},${c.g*255|0},${c.b*255|0},${a})`; }
+
+function resize(){
+  renderer.setSize(innerWidth, innerHeight); composer.setSize(innerWidth, innerHeight);
+  camera.aspect=innerWidth/innerHeight;
+  camera.position.z = camera.aspect<1 ? 7/Math.max(camera.aspect,.5)*.72 : 7; camera.updateProjectionMatrix();
+  sc.width=innerWidth*DPR; sc.height=innerHeight*DPR;
+}
+addEventListener('resize', resize); resize();
+
+// ---------- Son : micro, volume, hauteur, pop ----------
+let audioCtx, analyser, buf, floorDb=-60, lvlS=0;
+function rawDb(){ analyser.getFloatTimeDomainData(buf); let s=0; for(const x of buf) s+=x*x; return 20*Math.log10(Math.sqrt(s/buf.length)+1e-8); }
+function level(){ const n=Math.min(1,Math.max(0,(rawDb()-floorDb-6)/42)); lvlS+=(n-lvlS)*(n>lvlS?.45:.12); return lvlS; }
+function pitch(){ // autocorrélation simple, Hz ou 0
+  const sr=audioCtx.sampleRate, N=1024; let best=0, bestL=0;
+  for(let L=Math.floor(sr/1400); L<Math.floor(sr/90); L++){ let c=0; for(let i=0;i<N;i++) c+=buf[i]*buf[i+L]; if(c>best){best=c;bestL=L;} }
+  let e=0; for(let i=0;i<N;i++) e+=buf[i]*buf[i];
+  return (bestL && best/e>.55) ? sr/bestL : 0;
+}
+function pop(b){
+  try{ const ac=audioCtx, t=ac.currentTime;
+    const nb=ac.createBuffer(1, ac.sampleRate*.25, ac.sampleRate), d=nb.getChannelData(0);
+    for(let i=0;i<d.length;i++) d[i]=(Math.random()*2-1)*Math.pow(1-i/d.length,4);
+    const src=ac.createBufferSource(); src.buffer=nb;
+    const f=ac.createBiquadFilter(); f.type='bandpass'; f.frequency.value=b.pop*2; f.Q.value=1.2;
+    const g=ac.createGain(); g.gain.setValueAtTime(.9,t); g.gain.exponentialRampToValueAtTime(.001,t+.25);
+    const o=ac.createOscillator(), og=ac.createGain(); o.frequency.setValueAtTime(b.pop,t); o.frequency.exponentialRampToValueAtTime(b.pop*.25,t+.12);
+    og.gain.setValueAtTime(.35,t); og.gain.exponentialRampToValueAtTime(.001,t+.15);
+    src.connect(f).connect(g).connect(ac.destination); o.connect(og).connect(ac.destination); src.start(); o.start(); o.stop(t+.2);
+  }catch(e){}
+}
+
+// ---------- Ressorts ----------
+const spring = (k,d)=>({x:0,v:0,k,d,step(target,dt){ const a=(target-this.x)*this.k - this.v*this.d; this.v+=a*dt; this.x+=this.v*dt; return this.x; }});
+const sScale = spring(120, 9), sAmp = spring(60, 7), sSquash = spring(180, 6);
+
+// ---------- Partie ----------
+let state='boot', li=0, prog=0, tLevel=0, burstT=0, shout=0, best=0, endless=0, sub=0, beats=0, wasAbove=false, hard=0, startT=0, restartT=0;
+const show=(id,on)=>$(id).classList.toggle('hide',!on);
+function hud(on){ for(const id of ['hud','bar','sub']) $(id).style.opacity=on?1:0; }
+hud(false);
+const FILM = new URLSearchParams(location.search).has('film');
+const FILM_ORDER = [0,1,8,17,18,19];
+function cur(){ if(FILM) return Object.assign({}, BUBBLES[FILM_ORDER[li%FILM_ORDER.length]], {hold:.9, type:'hold'});
+  if(li<BUBBLES.length) return BUBBLES[li];
+  const base = BUBBLES[(li*7)%BUBBLES.length]; const k=li-BUBBLES.length+1;
+  return Object.assign({}, base, {thr:Math.min(.85, base.thr+.02*k), hold:(base.hold||2)+.25*k, max: base.max?Math.min(.92,base.max+.02*k):undefined, beats: base.beats?base.beats+k:undefined}); }
+
+function startLevel(){
+  const b=cur(); applyBubble(b); prog=0; tLevel=0; sub=0; beats=0; hard=0; wasAbove=false;
+  balls.forEach((m,i)=>{ m.visible = b.type==='cluster' ? true : i===0; });
+  layoutCluster(b);
+  sScale.x=0; sScale.v=0; drops.visible=false;
+  $('lvl').textContent = li<BUBBLES.length ? `Niveau ${li+1} / ${BUBBLES.length}` : `Sans fin · niveau ${li+1}`;
+  $('bname').textContent=b.n; $('rule').textContent=b.rule||'';
+  $('thr').style.left=(b.thr*100)+'%';
+  $('thrmax').style.display = b.type==='band'?'block':'none'; if(b.max) $('thrmax').style.left=(b.max*100)+'%';
+  uni.uFreq.value = 1.1 + (1-b.visc)*.6;
+  state='play'; hud(true);
+}
+function layoutCluster(b){
+  if(b.type!=='cluster'){ balls[0].position.set(0,0,0); balls[0].userData.r=1; return; }
+  const pos=[[-1.15,-.25],[1.1,.35],[0,.95]];
+  balls.forEach((m,i)=>{ m.visible = i>=sub; m.position.set(pos[i][0],pos[i][1],0); m.userData.r=.55; });
+}
+function burst(at, r){
+  const b=cur(); if(FILM) window.FILM_POPS.push((last-t0)/1000); else pop(b);
+  drops.visible=true; burstT=0;
+  for(const d of dp){ const dir=new THREE.Vector3().randomDirection();
+    d.p.copy(dir).multiplyScalar(r*(.9+Math.random()*.15)).add(at);
+    d.v.copy(dir).multiplyScalar((1.5+Math.random()*3.5)*(.6+b.visc*.6)); d.v.z=Math.abs(d.v.z)*1.4+1; d.v.y+=1.2;
+    d.s=(.015+Math.random()**3*.08)*r*(1.4-b.visc*.4); }
+  splatScreen(b.c, 10+Math.round((1-b.visc)*14));
+}
+function burstMain(){
+  const b=cur();
+  if(b.type==='cluster'){
+    const m=balls[sub]; burst(m.position.clone(), .55*sScale.x); m.visible=false; sub++;
+    if(sub<3){ prog=0; hard=0; return; }
+  } else { burst(new THREE.Vector3(), sScale.x); balls[0].visible=false; }
+  state='burst';
+}
+
+async function message(a,b,ms){ $('msg').textContent=a; $('msg2').textContent=b||''; show('s-msg',true); await wait(ms); show('s-msg',false); }
+const wait = ms=>new Promise(r=>setTimeout(r,ms));
+
+// ---------- Démarrage sans bouton ----------
+async function boot(){
+  applyBubble(BUBBLES[0]); balls[0].visible=true; sScale.x=1;
+  let stream;
+  try{ stream = await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:false,noiseSuppression:false,autoGainControl:false}, video:{facingMode:'user', width:{ideal:640}, height:{ideal:480}}}); }
+  catch(e){ try{ stream = await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:false,noiseSuppression:false,autoGainControl:false}}); }catch(e2){ $('startp').textContent='Sans micro, pas de cri ! Autorise le micro puis recharge la page.'; return; } }
+  const vt = stream.getVideoTracks()[0];
+  if(vt){ const v=document.createElement('video'); v.muted=true; v.playsInline=true; v.srcObject=new MediaStream([vt]); await v.play().catch(()=>{}); buildCamEnv(v); }
+  audioCtx = new AudioContext();
+  analyser = audioCtx.createAnalyser(); analyser.fftSize=2048; buf=new Float32Array(analyser.fftSize);
+  audioCtx.createMediaStreamSource(new MediaStream(stream.getAudioTracks())).connect(analyser);
+  await audioCtx.resume().catch(()=>{});
+  if(audioCtx.state!=='running'){
+    $('startp').textContent='Ton navigateur bloque le son : touche l’écran une fois.';
+    await new Promise(r=>{ const f=()=>{ audioCtx.resume().then(r); }; addEventListener('pointerdown',f,{once:true}); addEventListener('keydown',f,{once:true}); });
+  }
+  $('startp').textContent='Silence… je mesure le bruit de la pièce.';
+  const vals=[]; const end=performance.now()+2000;
+  await new Promise(r=>{ (function k(){ vals.push(rawDb()); performance.now()<end?requestAnimationFrame(k):r(); })(); });
+  vals.sort((a,b)=>a-b); floorDb = vals[Math.floor(vals.length*.6)];
+  $('startp').textContent = camEnv ? 'Regarde-toi dans la bulle.' : 'Fais éclater les bulles en criant.';
+  $('startcue').textContent='Crie pour commencer !';
+  state='title'; startT=0;
+}
+let gameStart=0;
+function newGame(){ gameStart=performance.now(); li=0; best=0; shout=0; show('s-start',false); show('s-end',false); startLevel(); }
+
+// ---------- Fin : nom à la voix, oui/non, « rejouer » ----------
+const SR = window.SpeechRecognition||window.webkitSpeechRecognition;
+function listen(ms, onLive){
+  return new Promise(res=>{
+    if(!SR) return res('');
+    const r=new SR(); r.lang='fr-FR'; r.interimResults=true; let done=false, last='';
+    const fin=v=>{ if(done) return; done=true; try{r.stop()}catch(e){} res((v||'').trim()); };
+    r.onresult=e=>{ let t=''; for(const x of e.results) t+=x[0].transcript; last=t; onLive&&onLive(t); if(e.results[e.results.length-1].isFinal) fin(t); };
+    r.onerror=()=>fin(last); r.onend=()=>fin(last); setTimeout(()=>fin(last),ms);
+    try{ r.start(); }catch(e){ fin(''); }
+  });
+}
+async function askName(){
+  if(!SR){ return 'Anonyme'; }
+  for(let tries=0; tries<3; tries++){
+    $('ask').textContent='Dis ton nom'; $('live').textContent='';
+    let n = await listen(7000, t=>$('live').textContent=t);
+    n = n.replace(/^(je m'appelle|je suis|moi c'est|c'est)\s+/i,'').replace(/[^\p{L}\p{N} .'’_-]/gu,'').replace(/^[^\p{L}\p{N}]+/u,'').slice(0,20).trim();
+    if(!n) continue;
+    n = n.charAt(0).toUpperCase()+n.slice(1); $('live').textContent=n;
+    $('ask').textContent='C’est bien ça ? Oui ou non';
+    const a = (await listen(5000)).toLowerCase();
+    if(/non|pas ça|recommence/.test(a)) continue;
+    return n;   // « oui » ou silence = on garde
+  }
+  return 'Anonyme';
+}
+async function gameOver(){
+  state='end'; hud(false); balls.forEach(m=>m.visible=false);
+  const b=cur();
+  $('endt').textContent = `${b.n} a tenu bon`;
+  $('ends').textContent = `Niveau ${li+1} · cri le plus long : ${best.toFixed(1)} s`;
+  $('board').innerHTML=''; $('again').textContent=''; $('live').textContent='';
+  show('s-end',true);
+  const name = await askName(); $('ask').textContent='';
+  const dur = Math.max(1, Math.round((performance.now()-gameStart)/1000));
+  const me = {name, ms:Math.round(best*1000), lvl:li+1};
+  let top = null, rank = 0;
+  try{
+    const r = await fetch('/api/bubble/scores', {method:'POST', headers:{'content-type':'application/json'}, body:JSON.stringify({...me, dur})});
+    const d = await r.json(); if(r.ok){ top=d.scores; rank=d.rank; }
+  }catch(e){}
+  if(!top){ // hors ligne : classement sur cet appareil
+    const sc=load(); sc.push(me); sc.sort((a,b)=>b.ms-a.ms||b.lvl-a.lvl); top=sc.slice(0,10); save(top);
+  }
+  renderBoard($('board'), top, top.findIndex(r=>r.name.toLowerCase()===name.toLowerCase() && r.ms===me.ms));
+  if(rank) $('ends').textContent += rank===1 ? ' · Record battu !' : ` · ${rank}e au classement`;
+  $('again').textContent = SR ? 'Dis « rejouer », ou crie.' : 'Crie pour rejouer.';
+  state='wait'; restartT=0; waitVoice();
+}
+async function waitVoice(){
+  while(state==='wait' && SR){
+    const t=(await listen(8000)).toLowerCase();
+    if(state!=='wait') return;
+    if(/rejou|encore|recommenc|go\b|on y va/.test(t)){ newGame(); return; }
+  }
+}
+function renderBoard(el, top, mine){
+  el.innerHTML = top.map((r,i)=>`<li class="${i===mine?'me':''}"><span>${i+1}</span><span></span><span>${(r.ms/1000).toFixed(1)} s · niv. ${r.lvl}</span></li>`).join('');
+  [...el.children].forEach((x,i)=>x.children[1].textContent=top[i].name);
+}
+async function showRecord(){ try{ const d=await (await fetch('/api/bubble/scores')).json(); const b=d.scores&&d.scores[0]; if(b) $('rec').textContent=`Record : ${b.name}, ${(b.ms/1000).toFixed(1)} s`; }catch(e){} }
+function load(){ try{ return JSON.parse(localStorage.getItem('bubble-scores-v2')||'[]'); }catch(e){ return []; } }
+function save(v){ try{ localStorage.setItem('bubble-scores-v2', JSON.stringify(v)); }catch(e){} }
+
+// ---------- Boucle ----------
+let last=performance.now(), t0=last;
+function frame(now){
+  const dt=Math.min(.05,(now-last)/1000); last=now; const t=(now-t0)/1000;
+  const L = FILM ? filmLevel(t) : analyser && audioCtx.state==='running' ? level() : 0;
+  const b = cur();
+  if(state==='title'){ $('smeter').style.width=(L*100)+'%'; if(L>.4){ startT+=dt; if(startT>.35) newGame(); } else startT=0; }
+  let above=false;
+  if(state==='play'){
+    tLevel+=dt;
+    if(b.type==='pitch'){ const hz = L>b.thr ? pitch() : 0; above = hz>420; $('sub').textContent = hz? `${Math.round(hz)} Hz` : ''; }
+    else if(b.type==='band'){ above = L>=b.thr && L<=b.max; if(L>b.max) hard=Math.min(1,hard+dt*1.5); else hard=Math.max(0,hard-dt*.5); }
+    else above = L>=b.thr;
+    if(b.type==='rhythm'){
+      if(L>=b.thr && !wasAbove){ beats++; prog=beats/b.beats; sSquash.v-=3; wasAbove=true; }
+      else if(L<b.thr*.7) wasAbove=false;
+    } else {
+      if(above && hard<.5){ prog+=dt/b.hold; } else prog=Math.max(0,prog-dt*.4);
+    }
+    if(L>=b.thr){ shout+=dt; best=Math.max(best,shout); } else if(L<b.thr*.7) shout=0;
+    $('fill').style.width=(L*100)+'%';
+    if(b.type!=='pitch') $('sub').textContent = b.type==='rhythm' ? `${beats} / ${b.beats}` : (above ? `${Math.round(prog*100)} %` : `${Math.max(0,LIMIT-tLevel).toFixed(0)} s`);
+    if(prog>=1) burstMain(); else if(tLevel>LIMIT) gameOver();
+  }
+  if(state==='burst'){ burstT+=dt; if(burstT>1.5){ li++; startLevel(); } }
+  if(state==='wait'){ if(L>.5){ restartT+=dt; if(restartT>.5) newGame(); } else restartT=0; }
+
+  // ressorts et uniforms
+  const visc = b.visc;
+  const growth = state==='play' ? 1 + prog*.4 : (state==='title'||state==='boot' ? 1 + L*.15 : 0);
+  const sc_ = sScale.step(growth*(1-hard*.12), dt);
+  const amp = sAmp.step(.012 + L*.055*visc + prog*.02 - hard*.015, dt);
+  uni.uTime.value = t; uni.uAmp.value = Math.max(0,amp); uni.uSpeed.value = .35 + L*2.2*visc;
+  uni.uRip.value = L*.005*visc*(1-hard); uni.uSquash.value = sSquash.step(L*.05*Math.sin(t*9), dt)*.8;
+  if(b.type==='rhythm' && state==='play'){ uni.uSquash.value = sSquash.x; }
+  const jitter = L*.03*(prog+.3);
+  balls.forEach((m,i)=>{ if(!m.visible) return; const r=m.userData.r||1;
+    m.scale.setScalar(Math.max(.001, sc_*r)); m.rotation.y += dt*.12;
+    if(b.type!=='cluster') m.position.set((Math.random()-.5)*jitter, Math.sin(t*.8)*.06+(Math.random()-.5)*jitter, 0);
+    else if(i===sub) m.scale.setScalar(Math.max(.001, sc_*r)); else m.scale.setScalar(r);
+  });
+  shadow.material.uniforms.uO.value = balls.some(m=>m.visible) ? .45 : 0;
+  if(drops.visible){
+    for(let i=0;i<DROPS;i++){ const d=dp[i]; d.v.y-=9*dt; d.v.multiplyScalar(1-dt*.8); d.p.addScaledVector(d.v,dt);
+      const sp=d.v.length(); vtmp.copy(d.v).normalize(); qtmp.setFromUnitVectors(up, vtmp);
+      tmp.position.copy(d.p); tmp.quaternion.copy(qtmp);
+      const k=Math.max(0,1-burstT/1.4); tmp.scale.set(d.s*k, d.s*k*(1+sp*.12), d.s*k); tmp.updateMatrix(); drops.setMatrixAt(i,tmp.matrix); }
+    drops.instanceMatrix.needsUpdate=true; if(burstT>1.5 && state!=='burst') drops.visible=false;
+  }
+  if(state==='play' && b.type==='cluster' && drops.visible){ burstT+=dt; if(burstT>1.5) drops.visible=false; }
+  drawSplats(dt);
+  updateEnv();
+  composer.render();
+  if(!FILM) requestAnimationFrame(frame);
+}
+// Voix simulée du film : des cris de plus en plus longs, avec des respirations.
+const SHOUTS = [[1.0,2.6],[3.6,5.2],[6.0,7.7],[8.3,10.0],[10.6,12.4]];
+function filmLevel(t){ for(const [a,b] of SHOUTS){ if(t>=a&&t<=b){ const e=Math.min(1,(t-a)*6,(b-t)*8); return .82*e+.08*Math.sin(t*31); } } return .02; }
+if(FILM){
+  let ft=performance.now();
+  window.FILM_POPS=[];
+  window.filmStep=(n=1)=>{ for(let i=0;i<n;i++){ ft+=1000/30; frame(ft); } };
+  last=ft; t0=ft;
+  (async()=>{ const img=new Image(); img.src='../media/piece.jpg'; await img.decode().catch(()=>{});
+    const c=document.createElement('canvas'); c.width=img.naturalWidth||640; c.height=img.naturalHeight||480; c.getContext('2d').drawImage(img,0,0);
+    buildCamEnv(c); videoTex.needsUpdate=true; window.FILM_READY=true; })();
+  applyBubble(BUBBLES[0]); balls[0].visible=true; sScale.x=1;
+  $('startp').textContent='Regarde-toi dans la bulle.'; $('startcue').textContent='Crie pour commencer !';
+  state='title'; startT=0;
+} else {
+  requestAnimationFrame(frame);
+  showRecord();
+  boot();
+}
+</script>
+</body>
+</html>
