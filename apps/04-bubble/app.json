@@ -12,7 +12,7 @@
   ],
   "status": "prêt",
   "making": {
-    "buildMinutes": 150,
+    "buildMinutes": 60,
     "thinkingMinutes": 25,
     "tokens": 900000,
     "prompts": 9,
