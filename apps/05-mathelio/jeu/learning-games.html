@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#f3eadb">
+  <meta name="description" content="Six ateliers Mathélio pour compter, comparer, placer les nombres et comprendre les problèmes, du CP au CM2.">
+  <title>Les ateliers des nombres · Mathélio</title>
+  <link rel="icon" href="assets/images/logo.png?v=logo" type="image/png">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="towers.css">
+  <link rel="stylesheet" href="minigames.css?v=2.8.0">
+  <link rel="stylesheet" href="learning-games.css?v=2.8.0">
+  <link rel="stylesheet" href="navigation.css?v=2.8.0">
+  <link rel="stylesheet" href="scroll-prompt.css?v=1">
+  <link rel="stylesheet" href="design-pop.css?v=2"><link rel="stylesheet" href="design-verre.css?v=1"><script src="verre.js?v=1" defer></script>
+  <script src="diagnostics.js?v=2.8.0" defer></script>
+  <script src="mini-progress.js?v=2.8.0" defer></script>
+  <script src="mini-guide.js?v=2.8.0" defer></script>
+  <script src="number-display.js" defer></script>
+  <script src="learning.js?v=2.8.0" defer></script>
+  <script src="learning-games-engine.js?v=2.8.0" defer></script>
+  <script src="learning-games.js?v=2.8.0" defer></script>
+  <script src="audio.js?v=2.8.0" defer></script>
+  <script src="navigation.js" defer></script>
+  <script src="scroll-prompt.js?v=2" defer></script>
+<script src="analytics.js?v=1" defer></script></head>
+<body class="towers-page mini-page learning-games-page design-pop">
+  <header class="topbar">
+    <div class="brand">
+      <img class="app-logo" src="assets/images/logo.png" width="52" height="52" alt="">
+      <a href="index.html">Mathélio<span class="brand-dot">.</span></a>
+    </div>
+    <nav class="app-navigation" aria-label="Navigation principale">
+      <a href="index.html#home">Jouer</a>
+      <a href="index.html#minigames" aria-current="page">Mini-jeux</a>
+      <a href="index.html#collection">Collection</a>
+      <a href="index.html#records">Records</a>
+      <details class="parent-navigation"><summary>Espace parent</summary><div><a href="index.html#parent">Bilan parent</a><a href="index.html#settings">Réglages</a></div></details>
+      <button id="mini-nav-mute" type="button" aria-label="Couper le son">🔊</button>
+      <a href="index.html#profiles">Mon profil</a>
+    </nav>
+  </header>
+  <main>
+    <section id="learning-app" aria-label="Ateliers des nombres"></section>
+    <noscript><p class="panel">Active JavaScript dans ton navigateur pour jouer aux ateliers des nombres.</p></noscript>
+    <details class="panel towers-rules">
+      <summary>Mes couleurs et mon confort</summary>
+      <label class="check"><input id="learning-motion" type="checkbox"> Réduire les animations</label>
+      <div id="learning-colors"></div>
+    </details>
+  </main>
+  <footer>Mathélio · Jouer, essayer, comprendre · Sans chronomètre</footer>
+  <script src="mini-embed.js?v=2.8.0" defer></script>
+</body>
+</html>
