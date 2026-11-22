@@ -6,7 +6,7 @@ Jour 5/30 du défi [Apphéro](https://apphero.cloud), sortie le dimanche 22 nove
 
 ## C'est quoi
 
-Une appli de calcul mental pour les enfants, du CP à la 6e. Elle existait déjà (Simon l'avait faite pour l'école) ; pour Apphéro elle a eu une refonte complète :
+Une appli de calcul mental pour les enfants, du CP à la 6e :
 
 - un design « verre coloré » (flou, transparence, reflets) et des compagnons en verre ;
 - une barre d'onglets en bas, un espace parent derrière un cadenas, un mode concentration pendant les questions ;
@@ -18,9 +18,9 @@ Une appli de calcul mental pour les enfants, du CP à la 6e. Elle existait déj�
 ## Comment c'est fait
 
 - `index.html` : la page de présentation (gabarit « plateau » du site).
-- `jeu/` : une copie statique de l'appli (HTML, CSS et JS sans framework), exportée depuis le dépôt d'origine avec `tools/export-static.mjs`. Images et sons ont été allégés pour le site.
-- L'effet verre : `jeu/design-verre.css` et `jeu/verre.js`, une couche posée par-dessus le thème existant. Les compagnons en verre sont générés par un script Python (Pillow + NumPy), image par image.
-- Tout reste dans le navigateur (profils, étoiles, réglages). Sur ce site, le classement partagé (serveur Node + SQLite dans l'appli d'origine) est désactivé.
+- `jeu/` : l'appli (HTML, CSS et JS sans framework). Images et sons ont été allégés pour le site.
+- L'effet verre : `jeu/design-verre.css` et `jeu/verre.js`, une couche posée par-dessus le thème de base. Les compagnons en verre sont générés par un script Python (Pillow + NumPy), image par image.
+- Tout reste dans le navigateur (profils, étoiles, réglages). Sur ce site, le classement partagé est désactivé.
 
 ## Récupérer juste cette app
 
