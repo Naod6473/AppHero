@@ -1,0 +1,23 @@
+{
+  "num": 6,
+  "title": "QRocquis",
+  "tagline": "Ton image devient un QR code animé. Et des QR codes transportent un fichier, sans connexion.",
+  "publishAt": "2026-11-23T18:00:00+01:00",
+  "color": "#0A84FF",
+  "tags": [
+    "html",
+    "canvas",
+    "qr code",
+    "hors ligne",
+    "pwa"
+  ],
+  "status": "prêt",
+  "making": {
+    "buildMinutes": 180,
+    "thinkingMinutes": 60,
+    "tokens": 3500000,
+    "prompts": 14,
+    "tool": "Claude Code",
+    "note": "Une idée de Simon : un QR code qui se dessine à partir d'une image. Il a ajouté l'envoi de fichiers par QR codes qui s'enchaînent, puis la vue isométrique. Le design a été refait trois fois, jusqu'à la version iOS : Fable a étudié les guides d'Apple, et le verre « Liquid Glass » est imité au plus près."
+  }
+}
