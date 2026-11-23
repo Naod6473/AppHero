@@ -1,6 +1,6 @@
 // QRocquis hors ligne : l'app tient dans un seul fichier, gardé en cache au premier passage.
 // Hors ligne, on sert le cache. En ligne, on sert le cache tout de suite et on le met à jour en arrière-plan.
-const CACHE = 'qrocquis-v1';
+const CACHE = 'qrocquis-v2';
 const FILES = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png', '../media/favicon.png', '../media/apple-touch-icon.png'];
 
 self.addEventListener('install', e => {
