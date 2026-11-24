@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs>
+    <radialGradient id="bg" cx=".5" cy=".4" r=".75"><stop offset="0" stop-color="#3a1d14"/><stop offset="1" stop-color="#0b0504"/></radialGradient>
+    <filter id="g" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="3.2"/></filter>
+  </defs>
+  <rect width="100" height="100" rx="22" fill="url(#bg)"/>
+  <rect x="25" y="28" width="50" height="46" rx="11" fill="none" stroke="#3fb6ff" stroke-width="6" filter="url(#g)" opacity=".9"/>
+  <rect x="25" y="28" width="50" height="46" rx="11" fill="#141826" stroke="#3fb6ff" stroke-width="4.5"/>
+  <rect x="40" y="41" width="6" height="13" rx="3" fill="#bfe8ff"/>
+  <rect x="54" y="41" width="6" height="13" rx="3" fill="#bfe8ff"/>
+  <path d="M30 80h40" stroke="#ffd7aa" stroke-width="3" stroke-linecap="round" opacity=".8"/>
+</svg>
