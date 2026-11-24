@@ -1,0 +1,23 @@
+{
+  "num": 7,
+  "title": "JellyCube",
+  "tagline": "Un cube en gelée, des sauts au millimètre. On tombe, on recommence.",
+  "publishAt": "2026-11-24T18:00:00+01:00",
+  "color": "#3FB6FF",
+  "tags": [
+    "html",
+    "canvas",
+    "jeu",
+    "plateforme"
+  ],
+  "status": "prêt",
+  "making": {
+    "buildMinutes": 29,
+    "thinkingMinutes": null,
+    "tokens": null,
+    "prompts": null,
+    "lines": null,
+    "tool": "Claude Code",
+    "note": "Défi des 30 minutes : un petit jeu de plateforme, tout simple."
+  }
+}
