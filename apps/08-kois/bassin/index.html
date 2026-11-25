@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self'; media-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<title>Koïs · Apphéro 08/30</title>
+<meta name="description" content="Un bassin de carpes koï en ASCII. Touche l'eau pour les nourrir.">
+<meta name="theme-color" content="#060a1e">
+<link rel="icon" href="../media/favicon.png">
+<link rel="apple-touch-icon" href="../media/apple-touch-icon.png">
+<link rel="preload" href="fonts/share-tech-mono.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<canvas id="bassin" aria-label="Bassin de koïs en ASCII : touche l'eau pour les nourrir"></canvas>
+<a class="puce titre" data-evite href="../">← <b>koïs</b></a>
+<div class="puce stats" data-evite id="stats" aria-live="off">…</div>
+<div class="aide" id="aide">Touche l'eau pour nourrir les koïs</div>
+<button class="son" id="son" data-evite aria-pressed="false" aria-label="Musique">♪</button>
+<script src="js/bassin.js"></script>
+<script src="js/page.js"></script>
+</body>
+</html>

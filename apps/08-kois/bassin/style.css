@@ -1,0 +1,21 @@
+@font-face { font-family: "Share Tech Mono"; src: url(fonts/share-tech-mono.woff2) format("woff2"); font-display: swap; }
+:root { color-scheme: dark; --abysse: #060a1e; --eau: #0b1233; --cyan: #2ef2ff; --violet: #b26bff; --texte: #e6ecff; --doux: #9aa6d6;
+  --barre: rgba(6,10,30,.82); --trait: rgba(46,242,255,.28); --mono: "Share Tech Mono", ui-monospace, Menlo, Consolas, monospace; }
+* { box-sizing: border-box; }
+html, body { height: 100%; margin: 0; overflow: hidden; }
+body { background: radial-gradient(120% 90% at 70% 10%, #121a4a 0%, var(--eau) 40%, var(--abysse) 100%) fixed, var(--abysse); color: var(--texte); font: 13px/1.3 var(--mono); -webkit-tap-highlight-color: transparent; }
+canvas { position: fixed; inset: 0; width: 100%; height: 100%; display: block; touch-action: manipulation; }
+.puce { position: fixed; z-index: 2; background: var(--barre); border: 1px solid var(--trait); border-radius: 999px; padding: 7px 14px; color: var(--doux); backdrop-filter: blur(6px); text-decoration: none; }
+.titre { top: calc(16px + env(safe-area-inset-top, 0px)); left: 16px; }
+.titre b { color: var(--texte); font-weight: 400; }
+.titre:hover { border-color: var(--cyan); }
+.stats { top: calc(16px + env(safe-area-inset-top, 0px)); right: 16px; }
+.aide { position: fixed; z-index: 2; left: 50%; transform: translateX(-50%); bottom: calc(30px + env(safe-area-inset-bottom, 0px)); color: var(--doux); pointer-events: none; transition: opacity 1s; white-space: nowrap; }
+.son { position: fixed; z-index: 2; right: 16px; bottom: calc(16px + env(safe-area-inset-bottom, 0px)); width: 48px; height: 48px; border-radius: 50%;
+  font: 20px/1 var(--mono); color: var(--doux); background: var(--barre); border: 1px solid var(--trait); cursor: pointer; backdrop-filter: blur(6px); transition: opacity .9s, background .3s, color .3s; }
+.son[aria-pressed="true"] { background: var(--cyan); color: var(--abysse); border-color: var(--cyan); }
+.son:focus-visible, .titre:focus-visible { outline: 2px solid var(--violet); outline-offset: 2px; }
+.puce, .aide { transition: opacity .9s ease; }
+:root.calme .puce, :root.calme .son { opacity: 0; }
+:root.calme .aide { opacity: 0 !important; }
+@media (max-width: 520px) { .aide { bottom: calc(84px + env(safe-area-inset-bottom, 0px)); } .stats { font-size: 12px; } }

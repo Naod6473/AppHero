@@ -1,0 +1,18 @@
+{
+  "num": 8,
+  "title": "Koïs",
+  "tagline": "Un bassin de carpes koï en ASCII. Touche l'eau, elles viennent manger.",
+  "publishAt": "2026-11-25T18:00:00+01:00",
+  "color": "#9B5CFF",
+  "tags": [
+    "html",
+    "canvas",
+    "ascii",
+    "zen"
+  ],
+  "status": "prêt",
+  "making": {
+    "tool": "Claude Code",
+    "note": "Défi Surprise : un bassin de koïs à regarder, à nourrir et à écouter. Rien d'autre."
+  }
+}
