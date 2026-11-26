@@ -131,3 +131,12 @@ CREATE TABLE IF NOT EXISTS coffres (
   created_at INTEGER NOT NULL,
   updated_at INTEGER NOT NULL
 );
+
+-- Le coffre de Mamie : les documents (photos de CNI, permis…), chiffrés sur l'appareil comme le coffre.
+CREATE TABLE IF NOT EXISTS coffre_fichiers (
+  coffre_id TEXT NOT NULL,
+  fid TEXT NOT NULL,
+  data TEXT NOT NULL,
+  created_at INTEGER NOT NULL,
+  PRIMARY KEY (coffre_id, fid)
+);

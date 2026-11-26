@@ -92,3 +92,18 @@ label.lab{margin-top:14px}
 .avec-fiche .body{padding-bottom:calc(170px + env(safe-area-inset-bottom,0px))}
 .avec-fiche .body.sans-onglets{padding-bottom:calc(80px + env(safe-area-inset-bottom,0px))}
 .avec-fiche .toast{bottom:calc(160px + env(safe-area-inset-bottom,0px))}
+
+/* Ajouts : photos dans la grille, quoi de neuf, papiers, membres */
+.imgs .photo{overflow:hidden}
+.imgs .photo img{width:100%;height:100%;object-fit:cover;display:block;pointer-events:none}
+.neuf ul{margin:8px 0 0;padding-left:20px;line-height:1.45}
+.dot svg{width:24px;height:24px}
+.pages{display:grid;gap:12px;margin-bottom:12px}
+.page{margin:0;border-radius:22px;padding:8px;min-height:120px;display:grid;place-items:center}
+.page img{width:100%;border-radius:16px;display:block}
+.vignettes{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}
+.vg{display:inline-flex;align-items:center;gap:6px;padding:6px 6px 6px 12px;border-radius:14px;background:rgba(88,86,214,.1);font-weight:600;font-size:.9rem}
+.vg.neuve{background:rgba(52,199,89,.15)}
+.vg button{border:0;background:#fff;border-radius:10px;width:30px;height:30px;font-size:1.1rem;cursor:pointer}
+select.champ{appearance:auto}
+.membre .hb{flex:none}
