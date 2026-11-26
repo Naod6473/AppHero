@@ -119,3 +119,15 @@ CREATE TABLE IF NOT EXISTS bubble_scores (
   created_at INTEGER NOT NULL
 );
 CREATE INDEX IF NOT EXISTS bubble_scores_rank ON bubble_scores (ms DESC);
+
+-- Le coffre de Mamie (app 09) : un coffre à mots de passe partagé en famille.
+-- doc = le coffre CHIFFRÉ sur l'appareil (AES-GCM) : le serveur ne peut pas le lire.
+-- write_hash = empreinte de la clé d'écriture, dérivée de la clé du coffre : seul un membre peut modifier.
+CREATE TABLE IF NOT EXISTS coffres (
+  id TEXT PRIMARY KEY,
+  rev INTEGER NOT NULL,
+  doc TEXT NOT NULL,
+  write_hash TEXT NOT NULL,
+  created_at INTEGER NOT NULL,
+  updated_at INTEGER NOT NULL
+);
