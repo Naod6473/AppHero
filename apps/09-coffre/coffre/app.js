@@ -5,7 +5,8 @@
 // - La clé du coffre (32 octets au hasard) chiffre les fiches.
 // - La clé de secours (6 mots) protège la clé du coffre dans la version partagée : c'est elle qui
 //   permet à un proche de rejoindre le coffre, ou de le rouvrir si on oublie ses images.
-// - Les 5 images protègent la clé du coffre sur CE téléphone seulement (jamais envoyées).
+// - Les images (de 3 à 6, au choix) sont le mot de passe maître de CE téléphone : elles protègent
+//   la clé du coffre ici seulement, et ne sont jamais envoyées.
 {
 "use strict";
 
@@ -174,7 +175,8 @@ const btnRetour = (cible) => `<button class="hb g" data-retour="${cible}" aria-l
 const onglets = (a) => `<nav class="tabs g" aria-label="Menu">${[["liste", "Mes sites", ic.list], ["famille", "La famille", ic.fam], ["reglages", "Réglages", ic.gear]].map(([k, l, i]) => `<button data-aller="${k}" ${a === k ? 'aria-current="page"' : ""}>${i}${l}</button>`).join("")}</nav>`;
 const pastille = (s) => `<span class="dot" style="background:${COULEURS[s.c % COULEURS.length]}">${esc((s.n || "?").slice(0, 2))}</span>`;
 const grille = (bloque) => `<div class="imgs g ${bloque ? "bloque" : ""}">${IMGS.map((e, k) => `<button type="button" data-img="${k}" aria-label="Image ${k + 1}">${e}</button>`).join("")}</div>`;
-const points = (n) => `<div class="pick" aria-label="${n} image(s) sur 5">${[0, 1, 2, 3, 4].map((k) => `<i class="${k < n ? "f" : ""}"></i>`).join("")}</div>`;
+const NB = () => local?.n || 5;
+const points = (n, total) => `<div class="pick" aria-label="${n} image(s) sur ${total}">${Array.from({ length: total }, (_, k) => k).map((k) => `<i class="${k < n ? "f" : ""}"></i>`).join("")}</div>`;
 const motsHtml = (mots) => `<div class="words">${mots.map((w, k) => `<span><b>${k + 1}</b>${esc(w)}</span>`).join("")}</div>`;
 const estBanque = (s) => s.banque || BANQUE_RE.test(s.n || "");
 
@@ -186,13 +188,13 @@ const vues = {
       <p class="big centre" style="font-size:1.9rem">Le coffre de la famille</p>
       <p class="p centre">Les mots de passe des impôts, d'Ameli, de la banque… rangés au même endroit, protégés, et partagés avec vos proches.</p>
       <div class="card g"><p style="margin:0 0 6px;font-weight:600">Comment ça marche</p>
-      <p class="p" style="margin:0">On l'ouvre en touchant <b>5 images</b>, pas besoin de retenir un mot de passe. Tout est chiffré sur le téléphone : même le site ne peut pas lire vos fiches.</p></div>
+      <p class="p" style="margin:0">Pas de mot de passe compliqué à retenir : votre mot de passe, ce sont <b>quelques images</b> (de 3 à 6) à toucher dans l'ordre. Tout est chiffré sur le téléphone : même le site ne peut pas lire vos fiches.</p></div>
       <button class="btn" data-aller="creer">Créer un coffre</button>
       <button class="btn alt" data-aller="rejoindre">Rejoindre le coffre d'un proche</button>
       <p class="note">Apphéro, app 09/30. Gratuit, sans compte, sans publicité.</p></div>`;
   },
 
-  // Création : 1) pour qui  2) 5 images, deux fois  3) les 6 mots
+  // Création : 1) pour qui  2) les images, deux fois  3) les 6 mots
   creer() {
     const e = S.etape || 1;
     if (e === 1) {
@@ -246,16 +248,16 @@ const vues = {
     const bloque = (local.bloqueJusqua || 0) > Date.now();
     const n = (S.seq || []).length;
     app.innerHTML = head(esc(titreCoffre()), "Fermé") + `<div class="body sans-onglets">${LOGO}
-      <p class="big centre">Touchez vos 5 images</p><p class="p centre">Dans le bon ordre.</p>
+      <p class="big centre">Touchez vos ${NB()} images</p><p class="p centre">Dans le bon ordre.</p>
       ${S.err ? `<p class="err">${esc(S.err)}</p>` : ""}
       ${bloque ? `<p class="err">Trop d'essais. Réessayez dans une minute.</p>` : ""}
-      ${S.busy ? `<p class="info centre">Ouverture…</p>` : points(n)}
+      ${S.busy ? `<p class="info centre">Ouverture…</p>` : points(n, NB())}
       ${grille(bloque || S.busy)}
       <button class="link" data-aller="oubli">J'ai oublié mes images</button></div>`;
     if (bloque) setTimeout(() => S.v === "verrou" && rendu(), local.bloqueJusqua - Date.now() + 50);
     $$("[data-img]").forEach((b) => (b.onclick = async () => {
       S.seq = [...(S.seq || []), +b.dataset.img]; S.err = "";
-      if (S.seq.length < 5) return rendu();
+      if (S.seq.length < NB()) return rendu();
       const seq = S.seq; S.seq = []; S.busy = true; rendu();
       try {
         const k = await derive(secretImages(seq), unb64(local.porte.salt));
@@ -356,7 +358,7 @@ const vues = {
       <div class="seg">${[["normal", "Normal"], ["grand", "Grand"], ["tres-grand", "Très grand"]].map(([k, l]) => `<button type="button" data-taille="${k}" aria-pressed="${t === k}">${l}</button>`).join("")}</div></div>
       <div class="card g"><span class="lab">Sécurité</span>
       <p style="margin:6px 0 0">Le coffre se referme tout seul après 5 minutes sans toucher l'écran.</p>
-      <button class="btn alt" data-act="nouvellesImages">Changer mes 5 images</button></div>
+      <button class="btn alt" data-act="nouvellesImages">Changer mes images</button></div>
       <div class="card g"><span class="lab">Ce téléphone</span>
       <p style="margin:6px 0 0">Vous êtes « ${esc(moi())} ». Retirer le coffre de ce téléphone ne l'efface pas pour la famille.</p>
       <button class="btn rouge" data-act="quitter">Retirer le coffre de ce téléphone</button></div>
@@ -373,19 +375,25 @@ function quand(t) {
   return `il y a ${j} jours`;
 }
 
-// Choisir 5 images, deux fois pour être sûr.
+// Choisir ses images (de 3 à 6), deux fois pour être sûr. Ce sont elles, le mot de passe maître.
+const FORCE = { 3: "Très simple, mais facile à deviner", 4: "Simple", 5: "Bon équilibre (conseillé)", 6: "Le plus sûr" };
 function choixImages(retour, suite) {
   const first = S.premier;
   const n = (S.seq || []).length;
-  app.innerHTML = head(first ? "Encore une fois" : "Vos 5 images", "", btnRetour(retour)) + `<div class="body sans-onglets">
-    <p class="p">${first ? "Touchez les mêmes 5 images, dans le même ordre." : "Choisissez 5 images faciles à retenir pour vous, dans l'ordre que vous voulez. Par exemple : votre chat, votre maison, la mer…"}</p>
+  const len = S.len || local?.n || 5;
+  app.innerHTML = head(first ? "Encore une fois" : `Vos ${len} images`, "Votre mot de passe maître", btnRetour(retour)) + `<div class="body sans-onglets">
+    ${first ? "" : `<div class="card g"><span class="lab">Combien d'images pour ouvrir le coffre ?</span>
+    <div class="seg">${[3, 4, 5, 6].map((k) => `<button type="button" data-len="${k}" aria-pressed="${k === len}" ${n ? "disabled" : ""}>${k}</button>`).join("")}</div>
+    <p class="note" style="text-align:left;margin-top:6px">${FORCE[len]}.</p></div>`}
+    <p class="p">${first ? `Touchez les mêmes ${len} images, dans le même ordre.` : `Pas de mot de passe compliqué : choisissez ${len} images faciles à retenir pour vous, dans l'ordre que vous voulez. Par exemple : votre chat, votre maison, la mer…`}</p>
     ${S.err ? `<p class="err">${esc(S.err)}</p>` : ""}
-    ${S.busy ? `<p class="info centre">Un instant…</p>` : points(n)}
+    ${S.busy ? `<p class="info centre">Un instant…</p>` : points(n, len)}
     ${grille(S.busy)}
     ${n ? `<button class="link" data-act="effacer">Recommencer</button>` : ""}</div>`;
+  $$("[data-len]").forEach((b) => (b.onclick = () => { S.len = +b.dataset.len; rendu(); }));
   $$("[data-img]").forEach((b) => (b.onclick = async () => {
     S.seq = [...(S.seq || []), +b.dataset.img]; S.err = "";
-    if (S.seq.length < 5) return rendu();
+    if (S.seq.length < len) return rendu();
     if (!S.premier) { S.premier = S.seq; S.seq = []; return rendu(); }
     if (S.premier.join() !== S.seq.join()) { S.premier = null; S.seq = []; S.err = "Les deux suites sont différentes. On recommence."; return rendu(); }
     S.images = S.seq; S.seq = []; S.premier = null;
@@ -526,7 +534,7 @@ const actions = {
       const write = await cleEcriture(raw);
       const r = await api("POST", "", { doc, write });
       if (!r.ok) throw new Error(r.j.error || "Pas de connexion. Réessayez dans un moment.");
-      local = { id: r.j.id, rev: r.j.rev, doc, moi: S.moi, owner: S.owner, porte: await porteImages(raw, S.images), taille: local?.taille };
+      local = { id: r.j.id, rev: r.j.rev, doc, moi: S.moi, owner: S.owner, porte: await porteImages(raw, S.images), n: S.images.length, taille: local?.taille };
       if (!ecrire(local)) throw new Error("Ce navigateur refuse d'enregistrer. Essayez hors navigation privée.");
       K = { raw, data, shared, write };
       relance();
@@ -548,7 +556,7 @@ const actions = {
       const d = JSON.parse(o.doc);
       K = { raw: o.raw, data, shared: { salt: d.salt, wiv: d.wiv, wct: d.wct }, write: await cleEcriture(o.raw) };
       aller("images", { retour: "rejoindre", suite: async () => {
-        local.porte = await porteImages(K.raw, S.images); ecrire(local);
+        local.porte = await porteImages(K.raw, S.images); local.n = S.images.length; ecrire(local);
         if (!K.data.membres.some((x) => x.nom.toLowerCase() === m.toLowerCase())) K.data.membres.push({ nom: m, at: Date.now() });
         relance();
         await enregistrer("Bienvenue dans le coffre.");
@@ -563,10 +571,10 @@ const actions = {
       const o = await ouvrirAvecMots(local.id, $("#mots")?.value || "");
       local.doc = o.doc; local.rev = o.rev; local.attente = false; ecrire(local);
       await ouvrir(o.raw);
-      aller("images", { retour: "liste", suite: async () => { local.porte = await porteImages(K.raw, S.images); local.essais = 0; ecrire(local); toast("Vos nouvelles images sont enregistrées."); aller("liste"); } });
+      aller("images", { retour: "liste", suite: async () => { local.porte = await porteImages(K.raw, S.images); local.n = S.images.length; local.essais = 0; ecrire(local); toast("Vos nouvelles images sont enregistrées."); aller("liste"); } });
     } catch (e) { S.busy = false; S.err = e.message; rendu(); }
   },
-  nouvellesImages() { aller("images", { retour: "reglages", suite: async () => { local.porte = await porteImages(K.raw, S.images); ecrire(local); toast("Vos nouvelles images sont enregistrées."); aller("reglages"); } }); },
+  nouvellesImages() { aller("images", { retour: "reglages", suite: async () => { local.porte = await porteImages(K.raw, S.images); local.n = S.images.length; ecrire(local); toast("Vos nouvelles images sont enregistrées."); aller("reglages"); } }); },
   effacer() { S.seq = []; S.premier = null; rendu(); },
   imprimer() { imprimer(K?.data?.mots || S.mots || []); },
   ajouter() { aller("modifier", { id: null }); },
