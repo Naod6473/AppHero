@@ -1,0 +1,23 @@
+{
+  "num": 10,
+  "title": "Pile 10",
+  "tagline": "Un gros bouton. Rappuie au bout de 10 secondes pile, sans chrono.",
+  "publishAt": "2026-11-27T18:00:00+01:00",
+  "color": "#1E93EA",
+  "tags": [
+    "html",
+    "web-audio",
+    "jeu",
+    "classement"
+  ],
+  "status": "prêt",
+  "making": {
+    "buildMinutes": 50,
+    "thinkingMinutes": 5,
+    "tokens": 250000,
+    "prompts": 2,
+    "lines": 520,
+    "tool": "Claude Code",
+    "note": "La roue a décidé, l'idée est venue en une phrase : un seul bouton, 10 secondes, à l'instinct. Simon a juste ajouté le classement et le « pouic »."
+  }
+}

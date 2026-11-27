@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<title>Pile 10</title>
+<meta name="description" content="Appuie, puis rappuie au bout de 10 secondes pile. Sans chrono. À l'instinct.">
+<meta name="theme-color" content="#dff3ff">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="robots" content="noindex">
+<link rel="icon" href="../media/favicon.png">
+<link rel="apple-touch-icon" href="../media/apple-touch-icon.png">
+<link rel="preload" href="/plateau/fonts/bagel-fat-one-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="fond" aria-hidden="true"><i></i><i></i><i></i></div>
+<canvas id="givre" aria-hidden="true"></canvas>
+
+<main class="scene">
+  <header class="tete">
+    <h1>Pile <span>10</span></h1>
+    <p id="consigne">Appuie, puis rappuie à <b>10 secondes pile</b>.<br>Le chrono se cache au bout de 3 s.</p>
+  </header>
+
+  <section class="jeu">
+    <div class="affichage" aria-live="polite">
+      <div id="chrono" class="chrono">0,000</div>
+      <div id="verdict" class="verdict">&nbsp;</div>
+    </div>
+
+    <div class="socle">
+      <svg class="anneau" viewBox="0 0 200 200" aria-hidden="true"><circle cx="100" cy="100" r="94" pathLength="100"/></svg>
+      <button id="bouton" class="bouton" type="button" aria-label="Le bouton">
+        <span class="dome"></span>
+        <span class="reflet"></span>
+        <span class="etiquette" id="etiquette">GO</span>
+      </button>
+    </div>
+
+    <div class="perso" id="perso">
+      <span>Ton record <b id="record">–</b></span>
+      <span>Essais <b id="essais">0</b></span>
+    </div>
+
+    <div class="actions" id="actions" hidden>
+      <button class="mini" id="partager" type="button">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M17.8 3h3.1l-6.8 7.7L22 21h-6.2l-4.9-6.4L5.3 21H2.2l7.2-8.3L1.9 3h6.4l4.4 5.8L17.8 3Zm-1.1 16.2h1.7L7.4 4.7H5.6l11.1 14.5Z"/></svg>
+        Partager
+      </button>
+    </div>
+  </section>
+
+  <aside class="classement verre" aria-labelledby="titre-cl">
+    <div class="cl-tete">
+      <h2 id="titre-cl">Classement du jour</h2>
+      <small id="cl-info">Les plus près de 10 s</small>
+    </div>
+    <ol id="liste" class="liste"><li class="vide">Chargement…</li></ol>
+    <form id="nom-form" class="nom" autocomplete="off">
+      <input id="nom" maxlength="16" placeholder="Ton nom" aria-label="Ton nom pour le classement" enterkeyhint="done">
+      <button type="submit">OK</button>
+    </form>
+    <p class="cl-note" id="cl-note">Ton meilleur essai du jour compte. Remise à zéro à minuit.</p>
+  </aside>
+</main>
+
+<div class="toast" id="toast" role="status"></div>
+<script src="app.js"></script>
+</body>
+</html>

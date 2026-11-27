@@ -140,3 +140,16 @@ CREATE TABLE IF NOT EXISTS coffre_fichiers (
   created_at INTEGER NOT NULL,
   PRIMARY KEY (coffre_id, fid)
 );
+
+-- Pile 10 (app 10) : une ligne par essai envoyé au classement du jour. ms = temps appuyé (millisecondes),
+-- gap = écart à 10 000 ms, day = date de Paris. ip_hash = empreinte salée du réseau, propre à Pile 10.
+CREATE TABLE IF NOT EXISTS pile10_scores (
+  id INTEGER PRIMARY KEY,
+  day TEXT NOT NULL,
+  name TEXT NOT NULL,
+  ms INTEGER NOT NULL,
+  gap INTEGER NOT NULL,
+  ip_hash TEXT NOT NULL,
+  created_at INTEGER NOT NULL
+);
+CREATE INDEX IF NOT EXISTS pile10_scores_day ON pile10_scores (day, gap);
