@@ -6,6 +6,7 @@ import { BALLOTS, DAYS, ballotStatus, wheelDays, CHALLENGE_END, REVEAL_AT, LAUNC
 import { CRITERIA, criterionLabel, drawCalendar } from "../../shared/criteria.js";
 import { bubble } from "./bubble.js";
 import { coffre } from "./coffre.js";
+import { pile10 } from "./pile10.js";
 
 // Limite par réseau : une adresse IPv4, ou un bloc /56 en IPv6 (ce qu'une box reçoit le plus souvent :
 // compter par /64 laissait un seul foyer multiplier le plafond par 256).
@@ -165,6 +166,9 @@ async function api(request, env, ctx, url, now) {
   // Le coffre de Mamie (app 09) : stockage du coffre chiffré.
   if (url.pathname === "/api/coffre" || url.pathname.startsWith("/api/coffre/"))
     return coffre(request, env, now, route.replace(/\/$/, ""), { json, readJson, ipHashFor, hit, parisDate, sha256, released: releasedApp, preview: isPreview });
+  // Pile 10 (app 10) : le classement du jour.
+  if (url.pathname.startsWith("/api/pile10/"))
+    return pile10(request, env, now, route.replace(/\/$/, ""), { json, readJson, ipHashFor, hit, parisDate, released: releasedApp, preview: isPreview });
   switch (route) {
     case "GET /api/state":
       return state(request, env, now);
